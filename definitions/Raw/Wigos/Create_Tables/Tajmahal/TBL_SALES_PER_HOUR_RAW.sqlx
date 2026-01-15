@@ -1,0 +1,30 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_TAJMAHAL",
+  name: "TBL_SALES_PER_HOUR_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_TAJMAHAL.TBL_SALES_PER_HOUR_RAW (
+  sph_base_hour                    DATETIME,
+  sph_terminal_id                  INT64,
+  sph_terminal_name                STRING,
+  sph_game_id                      INT64,
+  sph_game_name                    STRING,
+  sph_played_count                 INT64,
+  sph_played_amount                NUMERIC,
+  sph_won_count                    INT64,
+  sph_won_amount                   NUMERIC,
+  sph_num_active_terminals         INT64,
+  sph_last_play_id                 INT64,
+  sph_theoretical_won_amount       NUMERIC,
+  sph_unique_id                    INT64,
+  sph_jackpot_amount               NUMERIC,
+  sph_progressive_jackpot_amount   NUMERIC,
+  sph_progressive_jackpot_amount_0 NUMERIC,
+  sph_progressive_provision_amount NUMERIC,
+  sph_timestamp                    STRING
+)
+PARTITION BY DATE(_PARTITIONTIME)
+CLUSTER BY sph_base_hour, sph_terminal_id, sph_game_id;

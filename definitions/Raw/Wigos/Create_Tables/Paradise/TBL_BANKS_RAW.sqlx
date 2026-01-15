@@ -1,0 +1,17 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_PARADISE",
+  name: "TBL_BANKS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISE.TBL_BANKS_RAW (
+  bk_bank_id        INT64 NOT NULL,
+  bk_area_id        INT64 NOT NULL,
+  bk_name           STRING NOT NULL,
+  bk_timestamp      BYTES NOT NULL,       -- SQL Server timestamp → RAW como BYTES
+  bk_multiposition  BOOL,
+  bk_external_id    STRING
+)
+CLUSTER BY bk_bank_id;

@@ -1,0 +1,34 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_TAJMAHAL",
+  name: "TBL_MB_MOVEMENTS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_TAJMAHAL.TBL_MB_MOVEMENTS_RAW (
+  mbm_movement_id          INT64,
+  mbm_type                 INT64,
+  mbm_datetime             DATETIME,
+  mbm_cashier_session_id   INT64,
+  mbm_mb_id                INT64,
+  mbm_terminal_id          INT64,
+  mbm_terminal_name        STRING,
+  mbm_player_acct_id       INT64,
+  mbm_player_trackdata     STRING,
+  mbm_wcp_sequence_id      INT64,
+  mbm_wcp_transaction_id   INT64,
+  mbm_acct_movement_id     INT64,
+  mbm_cashier_id           INT64,
+  mbm_cashier_name         STRING,
+  mbm_initial_balance      NUMERIC,
+  mbm_add_amount           NUMERIC,
+  mbm_sub_amount           NUMERIC,
+  mbm_final_balance        NUMERIC,
+  mbm_operation_id         INT64,
+  mbm_amount_01            NUMERIC,
+  mbm_amount_02            NUMERIC,
+  mbm_undo_status          INT64
+)
+PARTITION BY DATE(_PARTITIONTIME)
+CLUSTER BY mbm_cashier_session_id, mbm_datetime, mbm_mb_id;

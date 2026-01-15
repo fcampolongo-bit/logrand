@@ -1,0 +1,17 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_VIVENTO4RIOS",
+  name: "TBL_AREAS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVENTO4RIOS.TBL_AREAS_RAW (
+  ar_area_id       INT64     NOT NULL,
+  ar_name          STRING    NOT NULL,
+  ar_smoking       BOOL      NOT NULL,
+  ar_timestamp     BYTES     NOT NULL,  -- rowversion/timestamp SQL Server
+  ar_venue_id      INT64,
+  ar_external_id   STRING
+)
+CLUSTER BY ar_area_id, ar_venue_id;

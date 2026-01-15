@@ -1,0 +1,36 @@
+config {
+  type: "table",
+  schema: "STG_WIGOS_JUBILEE",
+  name: "TBL_MB_MOVEMENTS_STG",
+  bigquery: {
+    partitionBy: "DATE(mbm_datetime)",
+    clusterBy: ["mbm_cashier_session_id", "mbm_datetime", "mbm_type"]
+  }
+}
+
+SELECT
+  mbm_movement_id,
+  mbm_type,
+  mbm_datetime,
+  mbm_cashier_session_id,
+  mbm_mb_id,
+  mbm_terminal_id,
+  mbm_terminal_name,
+  mbm_player_acct_id,
+  mbm_player_trackdata,
+  mbm_wcp_sequence_id,
+  mbm_wcp_transaction_id,
+  mbm_acct_movement_id,
+  mbm_cashier_id,
+  mbm_cashier_name,
+  mbm_initial_balance,
+  mbm_add_amount,
+  mbm_sub_amount,
+  mbm_final_balance,
+  mbm_operation_id,
+  mbm_amount_01,
+  mbm_amount_02,
+  mbm_undo_status,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_MB_MOVEMENTS_RAW`

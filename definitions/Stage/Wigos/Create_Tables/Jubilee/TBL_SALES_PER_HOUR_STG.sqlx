@@ -1,0 +1,32 @@
+config {
+  type: "table",
+  schema: "STG_WIGOS_JUBILEE",
+  name: "TBL_SALES_PER_HOUR_STG",
+  bigquery: {
+    partitionBy: "DATE(sph_base_hour)",
+    clusterBy: ["sph_terminal_id", "sph_game_id", "sph_unique_id"]
+  }
+}
+
+SELECT
+  sph_base_hour,
+  sph_terminal_id,
+  sph_terminal_name,
+  sph_game_id,
+  sph_game_name,
+  sph_played_count,
+  sph_played_amount,
+  sph_won_count,
+  sph_won_amount,
+  sph_num_active_terminals,
+  sph_last_play_id,
+  sph_theoretical_won_amount,
+  sph_unique_id,
+  sph_jackpot_amount,
+  sph_progressive_jackpot_amount,
+  sph_progressive_jackpot_amount_0,
+  sph_progressive_provision_amount,
+  sph_timestamp,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_SALES_PER_HOUR_RAW`

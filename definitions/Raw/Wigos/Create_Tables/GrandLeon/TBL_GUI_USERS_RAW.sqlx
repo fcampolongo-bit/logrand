@@ -1,0 +1,44 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_GRANDLEON",
+  name: "TBL_GUI_USERS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_GUI_USERS_RAW
+(
+  gu_user_id              INT64      NOT NULL,
+  gu_profile_id           INT64      NOT NULL,
+  gu_username             STRING     NOT NULL,
+  gu_enabled              BOOL       NOT NULL,
+  gu_password             BYTES      NOT NULL,
+  gu_not_valid_before     DATETIME   NOT NULL,
+  gu_not_valid_after      DATETIME,
+  gu_last_changed         DATETIME,
+  gu_password_exp         DATETIME,
+  gu_pwd_chg_req          BOOL       NOT NULL,
+  gu_login_failures       INT64,
+  gu_password_h1          BYTES,
+  gu_password_h2          BYTES,
+  gu_password_h3          BYTES,
+  gu_password_h4          BYTES,
+  gu_password_h5          BYTES,
+  gu_full_name            STRING,
+  gu_timestamp            BYTES,
+  gu_user_type            INT64      NOT NULL,
+  gu_logged_in            DATETIME,
+  gu_logon_computer       STRING,
+  gu_last_activity        DATETIME,
+  gu_last_action          STRING,
+  gu_exit_code            INT64,
+  gu_sales_limit          NUMERIC,
+  gu_mb_sales_limit       NUMERIC,
+  gu_block_reason         INT64      NOT NULL,
+  gu_master_id            INT64,
+  gu_master_sequence_id   INT64,
+  gu_employee_code        STRING,
+  gu_gui_last_login       STRING,
+  gu_cashier_last_login   STRING
+)
+CLUSTER BY gu_user_id;

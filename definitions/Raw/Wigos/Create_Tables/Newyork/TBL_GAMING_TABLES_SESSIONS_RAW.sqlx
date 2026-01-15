@@ -1,0 +1,35 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_NEWYORK",
+  name: "TBL_GAMING_TABLES_SESSIONS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_GAMING_TABLES_SESSIONS_RAW (
+  gts_gaming_table_session_id           INT64   NOT NULL,
+  gts_gaming_table_id                   INT64   NOT NULL,
+  gts_cashier_session_id                INT64   NOT NULL,
+  gts_fills_chips_amount                NUMERIC NOT NULL,
+  gts_credits_chips_amount              NUMERIC NOT NULL,
+  gts_own_sales_amount                  NUMERIC NOT NULL,
+  gts_external_sales_amount             NUMERIC NOT NULL,
+  gts_own_purchase_amount               NUMERIC NOT NULL,
+  gts_external_purchase_amount          NUMERIC NOT NULL,
+  gts_collected_amount                  NUMERIC NOT NULL,
+  gts_tips                              NUMERIC NOT NULL,
+  gts_client_visits                     NUMERIC NOT NULL,
+  gts_total_sales_amount                NUMERIC NOT NULL,
+  gts_total_purchase_amount             NUMERIC NOT NULL,
+  gts_last_external_sale_session_id     INT64,
+  gts_last_external_purchase_session_id INT64,
+  gts_pre_closing                       BOOL    NOT NULL,
+  gts_dropbox_enabled                   BOOL    NOT NULL,
+  gts_collected_dropbox_amount          NUMERIC NOT NULL,
+  gts_collected_dropbox_chips_amount    NUMERIC NOT NULL,
+  gts_collected_dropbox_tickets_amount  NUMERIC NOT NULL,
+  gts_initial_chips_amount              NUMERIC NOT NULL,
+  gts_final_chips_amount                NUMERIC NOT NULL,
+  gts_copy_dealer_validated_amount      NUMERIC NOT NULL
+)
+CLUSTER BY gts_gaming_table_session_id, gts_cashier_session_id;

@@ -1,0 +1,17 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_VIVENTO4RIOS",
+  name: "TBL_BANKS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVENTO4RIOS.TBL_BANKS_RAW (
+  bk_bank_id       INT64   NOT NULL,
+  bk_area_id       INT64   NOT NULL,
+  bk_name          STRING  NOT NULL,
+  bk_timestamp     BYTES   NOT NULL,   -- rowversion/timestamp SQL Server
+  bk_multiposition BOOL,
+  bk_external_id   STRING
+)
+CLUSTER BY bk_bank_id, bk_area_id;

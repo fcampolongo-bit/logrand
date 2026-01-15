@@ -1,0 +1,41 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_SANMARCOS",
+  name: "TBL_CASHIER_MOVEMENTS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_SANMARCOS.TBL_CASHIER_MOVEMENTS_RAW
+(
+  cm_movement_id             INT64      NOT NULL,
+  cm_session_id              INT64      NOT NULL,
+  cm_cashier_id              INT64      NOT NULL,
+  cm_user_id                 INT64      NOT NULL,
+  cm_date                    DATETIME   NOT NULL,
+  cm_type                    INT64      NOT NULL,
+  cm_money_type              INT64      NOT NULL,
+  cm_account_movement_id     INT64,
+  cm_initial_balance         NUMERIC    NOT NULL,
+  cm_sub_amount              NUMERIC    NOT NULL,
+  cm_add_amount              NUMERIC    NOT NULL,
+  cm_final_balance           NUMERIC    NOT NULL,
+  cm_user_name               STRING,
+  cm_cashier_name            STRING,
+  cm_card_track_data         STRING,
+  cm_account_id              INT64,
+  cm_operation_id            INT64,
+  cm_details                 STRING,
+  cm_currency_iso_code       STRING,
+  cm_aux_amount              NUMERIC,
+  cm_undo_status             INT64,
+  cm_currency_denomination   NUMERIC,
+  cm_gaming_table_session_id INT64,
+  cm_chip_id                 INT64,
+  cm_cage_currency_type      INT64      NOT NULL,
+  cm_chips_sale_denomination INT64,
+  cm_related_id              INT64,
+  cm_venue_id                INT64
+)
+PARTITION BY DATE(cm_date)
+CLUSTER BY cm_session_id, cm_type, cm_account_id;

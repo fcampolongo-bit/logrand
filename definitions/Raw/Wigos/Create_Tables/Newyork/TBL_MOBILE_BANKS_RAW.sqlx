@@ -1,0 +1,43 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_NEWYORK",
+  name: "TBL_MOBILE_BANKS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBILE_BANKS_RAW (
+  mb_account_id                 INT64     NOT NULL,
+  mb_account_type               INT64     NOT NULL,
+  mb_holder_name                STRING,
+  mb_blocked                    BOOL      NOT NULL,
+  mb_track_data                 STRING,
+  mb_balance                    NUMERIC   NOT NULL,
+  mb_initial_limit              NUMERIC   NOT NULL,
+  mb_cash_in                    NUMERIC   NOT NULL,
+  mb_deposit                    NUMERIC   NOT NULL,
+  mb_extension                  NUMERIC   NOT NULL,
+  mb_pending_cash               NUMERIC   NOT NULL,
+  mb_pin                        STRING    NOT NULL,
+  mb_cashier_session_id         INT64,
+  mb_failed_login_attempts      INT64     NOT NULL,
+  mb_last_activity              DATETIME,
+  mb_last_terminal_id           INT64,
+  mb_last_terminal_name         STRING,
+  mb_timestamp                  BYTES     NOT NULL,
+  mb_track_number               INT64,
+  mb_terminal_id                INT64,
+  mb_over_cash                  NUMERIC   NOT NULL,
+  mb_total_limit                NUMERIC,
+  mb_recharge_limit             NUMERIC,
+  mb_number_of_recharges_limit  INT64,
+  mb_actual_number_of_recharges INT64,
+  mb_employee_code              STRING,
+  mb_shortfall_cash             NUMERIC   NOT NULL,
+  mb_over_cash_session          NUMERIC   NOT NULL,
+  mb_shortfall_cash_session     NUMERIC   NOT NULL,
+  mb_session_status             INT64     NOT NULL,
+  mb_user_id                    INT64,
+  mb_lock                       BOOL      NOT NULL
+)
+CLUSTER BY mb_account_id;
