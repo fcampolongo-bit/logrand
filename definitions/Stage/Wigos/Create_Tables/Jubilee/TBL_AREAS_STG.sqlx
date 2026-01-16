@@ -10,11 +10,11 @@ tags: ["STG_WIGOS_JUBILEE", "carga_full"]
 }
 
 SELECT
-  CAST(ar_area_id AS INT64) AS ar_area_id,
+  ar_area_id,
   ar_name,
-  CAST(ar_smoking AS BOOL) AS ar_smoking, 
-  cast(ar_timestamp as string)ar_timestamp, 
-  CAST(ar_venue_id AS INT64) AS ar_venue_id,
+  ar_smoking, 
+  ar_timestamp, 
+  ar_venue_id,
   ar_external_id,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
