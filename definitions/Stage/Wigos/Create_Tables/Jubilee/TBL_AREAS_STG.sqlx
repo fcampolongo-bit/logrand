@@ -6,7 +6,7 @@ config {
   bigquery: {
     clusterBy: ["ar_area_id"]
   },
-  tags: ["carga_full"]
+tags: ["STG_WIGOS_JUBILEE", "carga_full"]
 }
 
 SELECT
