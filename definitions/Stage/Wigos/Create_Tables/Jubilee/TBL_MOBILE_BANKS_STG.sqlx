@@ -1,11 +1,15 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_MOBILE_BANKS_STG",
+  uniqueKey: ["mb_account_id"], 
   bigquery: {
     partitionBy: "DATE(mb_timestamp)",
-    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id", "mb_track_data"]
-  }
+    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"],
+    updatePartitionFilter: "mb_timestamp >= current_datetime() - interval 3 day"
+  },
+  tags: ["carga_diaria"]
 }
 
 SELECT
@@ -43,4 +47,8 @@ SELECT
   mb_lock,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_MOBILE_BANKS_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_MOBILE_BANKS_RAW")}
+
+${when(incremental(), 
+  `WHERE mb_timestamp > (SELECT COALESCE(MAX(mb_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
+)}

@@ -1,11 +1,15 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_DRAWS_STG",
+  uniqueKey: ["dr_id"], 
   bigquery: {
     partitionBy: "DATE(dr_starting_date)",
-    clusterBy: ["dr_status", "dr_starting_date", "dr_ending_date"]
-  }
+    clusterBy: ["dr_id", "dr_status"],
+    updatePartitionFilter: "dr_starting_date >= current_datetime() - interval 3 day"
+  },
+  tags: ["carga_diaria"]
 }
 
 SELECT
@@ -57,4 +61,8 @@ SELECT
   dr_first_document,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_DRAWS_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_DRAWS_RAW")}
+
+${when(incremental(), 
+  `WHERE dr_starting_date > (SELECT COALESCE(MAX(dr_starting_date), DATETIME("1900-01-01")) FROM ${self()})` 
+)}

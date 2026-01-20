@@ -1,10 +1,13 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GAMING_TABLES_TYPES_STG",
+  uniqueKey: ["gtt_gaming_table_type_id"], 
   bigquery: {
-    clusterBy: ["gtt_gaming_table_type_id"]
-  }
+    clusterBy: ["gtt_gaming_table_type_id", "gtt_report_type_id"],
+  },
+  tags: ["carga_diaria"]
 }
 
 SELECT
@@ -14,4 +17,8 @@ SELECT
   gtt_report_type_id,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_GAMING_TABLES_TYPES_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_GAMING_TABLES_TYPES_RAW")}
+
+${when(incremental(), 
+  `WHERE gtt_gaming_table_type_id NOT IN (SELECT gtt_gaming_table_type_id FROM ${self()})` 
+)}

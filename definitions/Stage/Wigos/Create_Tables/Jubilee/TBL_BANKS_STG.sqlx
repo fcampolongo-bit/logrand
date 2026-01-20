@@ -1,11 +1,15 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_BANKS_STG",
+  uniqueKey: ["bk_bank_id"], 
   bigquery: {
     partitionBy: "DATE(bk_timestamp)",
-    clusterBy: ["bk_bank_id"]
-  }
+    clusterBy: ["bk_bank_id", "bk_area_id"],
+    updatePartitionFilter: "bk_timestamp >= current_datetime() - interval 3 day"
+  },
+  tags: ["carga_diaria"]
 }
 
 SELECT
@@ -17,4 +21,8 @@ SELECT
   bk_external_id,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-computo-dev.RAW_WIGOS_JUBILEE.TBL_BANKS_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_BANKS_RAW")}
+
+${when(incremental(), 
+  `WHERE bk_timestamp > (SELECT COALESCE(MAX(bk_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
+)}
