@@ -1,12 +1,15 @@
 config {
-  type: "table",
-  database: databases.stage,
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_AREAS_STG",
+  uniqueKey: ["ar_area_id"], 
   bigquery: {
-    clusterBy: ["ar_area_id"]
+    partitionBy: "DATE(ar_timestamp)",
+    clusterBy: ["ar_area_id", "ar_venue_id"],
+    updatePartitionFilter: "ar_timestamp >= current_datetime() - interval 3 day"
   },
-tags: ["STG_WIGOS_JUBILEE", "carga_full"]
+  tags: ["carga_diaria"]
 }
 
 SELECT
@@ -18,5 +21,8 @@ SELECT
   ar_external_id,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
- 
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_AREAS_RAW")}
+
+${when(incremental(), 
+  `WHERE ar_timestamp > (SELECT COALESCE(MAX(ar_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
+)}
