@@ -8,7 +8,6 @@ config {
 
 CREATE TABLE IF NOT EXISTS
     ${databases.raw}.RAW_WIGOS_JUBILEE.TBL_GAMING_TABLES_SESSIONS_RAW ( 
-    gts_datetime DATETIME NOT NULL,
     gts_gaming_table_session_id INT64 NOT NULL,
     gts_gaming_table_id INT64 NOT NULL,
     gts_cashier_session_id INT64 NOT NULL,
@@ -34,7 +33,4 @@ CREATE TABLE IF NOT EXISTS
     gts_final_chips_amount NUMERIC NOT NULL,
     gts_copy_dealer_validated_amount NUMERIC NOT NULL 
 )
-PARTITION BY DATE(gts_datetime)
-CLUSTER BY
-    gts_gaming_table_session_id,
-    gts_cashier_session_id;
+CLUSTER BY gts_gaming_table_session_id, gts_cashier_session_id;
