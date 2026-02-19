@@ -1,13 +1,11 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GUI_USERS_STG",
-  uniqueKey: ["gu_user_id"], 
   bigquery: {
-    partitionBy: "DATE(gu_timestamp)",
-    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"],
-    updatePartitionFilter: "gu_timestamp >= current_datetime() - interval 3 day"
+    partitionBy: "DATE(gu_last_changed)",
+    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"]
   },
   tags: ["carga_diaria"]
 }
@@ -45,10 +43,7 @@ SELECT
   gu_employee_code,
   gu_gui_last_login,
   gu_cashier_last_login,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_GUI_USERS_RAW")}
-
-${when(incremental(), 
-  `WHERE gu_timestamp > (SELECT COALESCE(MAX(gu_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
-)}

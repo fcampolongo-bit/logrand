@@ -1,13 +1,10 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_BANKS_STG",
-  uniqueKey: ["bk_bank_id"], 
   bigquery: {
-    partitionBy: "DATE(bk_timestamp)",
-    clusterBy: ["bk_bank_id", "bk_area_id"],
-    updatePartitionFilter: "bk_timestamp >= current_datetime() - interval 3 day"
+    clusterBy: ["bk_bank_id", "bk_area_id"]
   },
   tags: ["carga_diaria"]
 }
@@ -19,10 +16,8 @@ SELECT
   bk_timestamp,
   bk_multiposition,
   bk_external_id,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_BANKS_RAW")}
 
-${when(incremental(), 
-  `WHERE bk_timestamp > (SELECT COALESCE(MAX(bk_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
-)}

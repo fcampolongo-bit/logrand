@@ -1,11 +1,10 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GAMING_TABLES_SESSIONS_STG",
-  uniqueKey: ["gts_gaming_table_session_id", "gts_cashier_session_id"], 
   bigquery: {
-    updatePartitionFilter: "am_datetime >= current_datetime() - interval 3 day"
+    clusterBy: ["gts_gaming_table_session_id", "gts_cashier_session_id"]
   },
   tags: ["carga_diaria"]
 }
@@ -34,11 +33,9 @@ SELECT
   gts_initial_chips_amount,
   gts_final_chips_amount,
   gts_copy_dealer_validated_amount,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
   
   FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_GAMING_TABLES_SESSIONS_RAW")}
 
-${when(incremental(), 
-  `WHERE am_datetime > (SELECT MAX(am_datetime) FROM ${self()})` 
-)}

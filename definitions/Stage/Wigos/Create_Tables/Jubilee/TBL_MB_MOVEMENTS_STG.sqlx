@@ -1,5 +1,6 @@
 config {
   type: "table",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_MB_MOVEMENTS_STG",
   bigquery: {
@@ -31,6 +32,7 @@ SELECT
   mbm_amount_01,
   mbm_amount_02,
   mbm_undo_status,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_MB_MOVEMENTS_RAW`
+   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_MB_MOVEMENTS_RAW")}

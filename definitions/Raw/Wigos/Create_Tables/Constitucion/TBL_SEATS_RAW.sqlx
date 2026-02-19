@@ -1,0 +1,21 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_CONSTITUCION",
+  name: "TBL_GT_SEATS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_GT_SEATS_RAW
+(
+  gts_seat_id                  INT64     NOT NULL,
+  gts_gaming_table_id          INT64     NOT NULL,
+  gts_enabled                  BOOL      NOT NULL,
+  gts_terminal_id              INT64     NOT NULL,
+  gts_account_id               INT64     NOT NULL,
+  gts_enabled_date             TIMESTAMP,
+  gts_disabled_date            TIMESTAMP,
+  gts_position                 INT64,
+  gts_current_play_session_id  INT64
+)
+CLUSTER BY gts_seat_id;

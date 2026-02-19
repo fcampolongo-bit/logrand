@@ -1,13 +1,11 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_DRAWS_STG",
-  uniqueKey: ["dr_id"], 
   bigquery: {
     partitionBy: "DATE(dr_starting_date)",
     clusterBy: ["dr_id", "dr_status"],
-    updatePartitionFilter: "dr_starting_date >= current_datetime() - interval 3 day"
   },
   tags: ["carga_diaria"]
 }
@@ -63,6 +61,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_DRAWS_RAW")}
 
-${when(incremental(), 
-  `WHERE dr_starting_date > (SELECT COALESCE(MAX(dr_starting_date), DATETIME("1900-01-01")) FROM ${self()})` 
-)}

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_AREAS_R
   ar_area_id       INT64      NOT NULL,
   ar_name          STRING     NOT NULL,
   ar_smoking       BOOL       NOT NULL,
-  ar_timestamp     BYTES      NOT NULL,
+  ar_timestamp     STRING      NOT NULL,
   ar_venue_id      INT64,
   ar_external_id   STRING
 )

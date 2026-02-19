@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISE.TBL_AREAS_RAW (
   ar_area_id        INT64 NOT NULL,
   ar_name           STRING NOT NULL,
   ar_smoking        BOOL NOT NULL,
-  ar_timestamp      BYTES NOT NULL,        -- timestamp SQL Server → BYTES en RAW
+  ar_timestamp      STRING NOT NULL,        -- timestamp SQL Server → STRING en RAW
   ar_venue_id       INT64,
   ar_external_id    STRING
 )

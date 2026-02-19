@@ -1,11 +1,15 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_PLAY_SESSIONS_STG",
+  uniqueKey: ["ps_play_session_id"], 
   bigquery: {
     partitionBy: "DATE(ps_started)",
-    clusterBy: ["ps_account_id", "ps_terminal_id", "ps_status", "ps_started"]
-  }
+    clusterBy: ["ps_account_id", "ps_terminal_id","ps_status","ps_started"],
+    updatePartitionFilter: "ps_started >= current_datetime() - interval 7 day"
+  },
+  tags: ["STG_WIGOS_JUBILEE", "carga_incremental"]
 }
 
 SELECT
@@ -77,6 +81,11 @@ SELECT
   ps_sequence,
   ps_handpays_cc_amount,
   ps_handpays_jkp_amount,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_PLAY_SESSIONS_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_PLAY_SESSIONS_RAW")}
+
+${when(incremental(), 
+  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)}

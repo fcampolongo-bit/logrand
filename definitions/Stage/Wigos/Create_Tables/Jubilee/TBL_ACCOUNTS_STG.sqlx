@@ -1,12 +1,17 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_ACCOUNTS_STG",
+  uniqueKey: ["ac_account_id"], 
   bigquery: {
     partitionBy: "DATE(ac_created)",
-    clusterBy: ["ac_account_id", "ac_holder_id", "ac_track_data"]
-  }
+    clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
+    updatePartitionFilter: "ac_created >= current_datetime() - interval 7 day"
+  },
+  tags: ["STG_WIGOS_JUBILEE", "carga_incremental"]
 }
+
 
 SELECT
   ac_account_id,
@@ -186,6 +191,13 @@ SELECT
   ac_fiscal_address,
   ac_mailing_address,
   ac_tax_form_expiration_date,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_ACCOUNTS_RAW`
+ ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_ACCOUNTS_RAW")}
+
+${when(incremental(), 
+ `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)}
+
+  

@@ -50,7 +50,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_JUBILEE.TBL_HANDPAYS_RAW
   hp_operation_id_authorization         INT64,
   hp_original_amount                    NUMERIC,
   hp_previous_status                    INT64,
-  hp_in_candidate_ps                    BOOL
+  hp_in_candidate_ps                    BOOL,
+  updated_at                            INT64
 )
 PARTITION BY DATE(hp_datetime)
 CLUSTER BY hp_terminal_id, hp_play_session_id, hp_account_id, hp_status;

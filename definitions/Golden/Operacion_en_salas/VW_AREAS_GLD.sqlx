@@ -1,0 +1,28 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_OPERACION_EN_SALAS",
+  name: "VW_AREAS_GLD",
+  description: "Vista final de áreas de las salas de todos los casinos."
+
+}
+
+SELECT
+  ar_area_id ,
+  ar_name ,
+  ar_smoking ,
+  ar_timestamp ,
+  ar_venue_id,
+  ar_external_id ,
+  updated_at ,
+  ingestion_ts ,
+  'Jubilee Mty' as sala,
+  95 as id_sala
+FROM
+  ${ref("STG_WIGOS_JUBILEE", "TBL_AREAS_STG")}
+
+
+
+
+
+

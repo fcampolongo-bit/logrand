@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_AREAS_RAW
   ar_area_id       INT64 NOT NULL,
   ar_name          STRING NOT NULL,
   ar_smoking       BOOL NOT NULL,
-  ar_timestamp     BYTES,
+  ar_timestamp     STRING,
   ar_venue_id      INT64,
   ar_external_id   STRING
 )

@@ -1,11 +1,15 @@
 config {
-  type: "table",
+  type: "incremental",
+  database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_SALES_PER_HOUR_STG",
+  uniqueKey: ["sph_terminal_id"], 
   bigquery: {
     partitionBy: "DATE(sph_base_hour)",
-    clusterBy: ["sph_terminal_id", "sph_game_id", "sph_unique_id"]
-  }
+    clusterBy: ["sph_terminal_id", "sph_game_id","sph_unique_id"],
+    updatePartitionFilter: "sph_base_hour >= current_datetime() - interval 7 day"
+  },
+  tags: ["STG_WIGOS_JUBILEE", "carga_incremental"]
 }
 
 SELECT
@@ -27,6 +31,16 @@ SELECT
   sph_progressive_jackpot_amount_0,
   sph_progressive_provision_amount,
   sph_timestamp,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  `logrand-storage-raw-dev.RAW_WIGOS_JUBILEE.TBL_SALES_PER_HOUR_RAW`
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_SALES_PER_HOUR_RAW")}
+
+${when(incremental(), 
+ `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)} ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_SALES_PER_HOUR_RAW")}
+
+${when(incremental(), 
+ `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)}
+
