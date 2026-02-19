@@ -4,7 +4,8 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_MOBILE_BANKS_STG",
   bigquery: {
-    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"]
+    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"],
+    partitionBy: "DATE(mb_last_activity)"
 
   },
    tags: ["carga_full_diaria_stg_jubilee"]

@@ -4,7 +4,8 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_MB_MOVEMENTS_STG",
   bigquery: {
-    clusterBy: ["mbm_cashier_session_id", "mbm_datetime", "mbm_type"]
+    clusterBy: ["mbm_cashier_session_id", "mbm_datetime", "mbm_type"],
+       partitionBy: "DATE(mbm_datetime)"
   },
  tags: ["carga_full_diaria_stg_jubilee"]
 

@@ -4,7 +4,8 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_CASHIER_SESSIONS_STG",
   bigquery: {
-    clusterBy: ["cs_user_id", "cs_status", "cs_cashier_id", "cs_gaming_day"]
+    clusterBy: ["cs_user_id", "cs_status", "cs_cashier_id", "cs_gaming_day"],
+    partitionBy: "DATE(cs_opening_date)"
   },
  tags: ["carga_full_diaria_stg_jubilee"]
 

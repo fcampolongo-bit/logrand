@@ -4,7 +4,8 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_TERMINALS_STG",
   bigquery: {
-    clusterBy: ["te_terminal_id", "te_floor_id", "te_provider_id"]
+    clusterBy: ["te_terminal_id", "te_floor_id", "te_provider_id"],
+    partitionBy: "DATE(te_creation_date)"
   },
    tags: ["carga_full_diaria_stg_jubilee"]
 

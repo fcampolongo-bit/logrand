@@ -4,7 +4,8 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GUI_USERS_STG",
   bigquery: {
-    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"]
+    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"],
+     partitionBy: "DATE(gu_last_changed)"
   },
     tags: ["carga_full_diaria_stg_jubilee"]
 
