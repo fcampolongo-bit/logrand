@@ -1,15 +1,13 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
-  name: "TBL_GAMING_TABLES_STG",
-  uniqueKey: ["gt_gaming_table_id"], 
+  name: "TBL_GAMING_TABLES_STG", 
   bigquery: {
-    partitionBy: "DATE(gt_timestamp)",
-    clusterBy: ["gt_gaming_table_id", "gt_area_id", "gt_bank_id"],
-    updatePartitionFilter: "gt_timestamp >= current_datetime() - interval 3 day"
+    clusterBy: ["gt_gaming_table_id", "gt_area_id", "gt_bank_id"]
   },
-  tags: ["carga_diaria"]
+ tags: ["carga_full_diaria_stg_jubilee"]
+
 }
 
 SELECT
@@ -54,6 +52,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_GAMING_TABLES_RAW")}
 
-${when(incremental(), 
-  `WHERE gt_timestamp > (SELECT COALESCE(MAX(gt_timestamp), DATETIME("1900-01-01")) FROM ${self()})` 
-)}

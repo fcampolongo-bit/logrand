@@ -1,11 +1,13 @@
 config {
-  type: "table",
+  type: "incremental",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
-  name: "TBL_CASHIER_MOVEMENTS_STG", 
+  name: "TBL_CASHIER_MOVEMENTS_STG",
+  uniqueKey: ["cm_movement_id"], 
   bigquery: {
+    partitionBy: "DATE(cm_date)",
     clusterBy: ["cm_date", "cm_type","cm_session_id","cm_operation_id"],
-
+    updatePartitionFilter: "cm_date >= current_datetime() - interval 7 day"
   },
   tags: ["STG_WIGOS_JUBILEE", "carga_incremental"]
 }
@@ -43,4 +45,9 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
    ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_CASHIER_MOVEMENTS_RAW")}
+
+--${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}
+
 

@@ -1,15 +1,13 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_TERMINALS_STG",
-  uniqueKey: ["te_terminal_id"], 
   bigquery: {
-    partitionBy: "DATE(te_creation_date)",
-    clusterBy: ["te_terminal_id", "te_floor_id", "te_provider_id"],
-    updatePartitionFilter: "te_creation_date >= current_datetime() - interval 3 day"
+    clusterBy: ["te_terminal_id", "te_floor_id", "te_provider_id"]
   },
-  tags: ["carga_diaria"]
+   tags: ["carga_full_diaria_stg_jubilee"]
+
 }
 
 SELECT
@@ -120,7 +118,3 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_TERMINALS_RAW")}
-
-${when(incremental(), 
-  `WHERE te_creation_date > (SELECT COALESCE(MAX(te_creation_date), DATETIME("1900-01-01")) FROM ${self()})` 
-)}

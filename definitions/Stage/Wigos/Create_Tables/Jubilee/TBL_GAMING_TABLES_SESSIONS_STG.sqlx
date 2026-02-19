@@ -6,7 +6,8 @@ config {
   bigquery: {
     clusterBy: ["gts_gaming_table_session_id", "gts_cashier_session_id"]
   },
-  tags: ["carga_diaria"]
+  tags: ["carga_full_diaria_stg_jubilee"]
+
 }
 SELECT
   gts_gaming_table_session_id,

@@ -3,9 +3,10 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GT_PLAY_SESSIONS_STG",
   bigquery: {
-    partitionBy: "DATE(gtps_timestamp)",
     clusterBy: ["gtps_gaming_table_session_id", "gtps_account_id", "gtps_status"]
-  }
+  },
+ tags: ["carga_full_diaria_stg_jubilee"]
+
 }
 
 SELECT

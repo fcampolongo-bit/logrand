@@ -4,10 +4,10 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_DRAWS_STG",
   bigquery: {
-    partitionBy: "DATE(dr_starting_date)",
     clusterBy: ["dr_id", "dr_status"],
   },
-  tags: ["carga_diaria"]
+   tags: ["carga_full_diaria_stg_jubilee"]
+
 }
 
 SELECT
