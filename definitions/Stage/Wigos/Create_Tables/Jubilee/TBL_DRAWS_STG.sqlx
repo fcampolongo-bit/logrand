@@ -5,7 +5,7 @@ config {
   name: "TBL_DRAWS_STG",
   bigquery: {
     clusterBy: ["dr_id", "dr_status"],
-    partitionBy: "DATE(mb_last_activity)"
+    partitionBy: "DATE(dr_starting_date)"
   },
    tags: ["carga_full_diaria_stg_jubilee"]
 
