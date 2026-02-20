@@ -7,9 +7,9 @@ config {
   bigquery: {
     partitionBy: "DATE(am_datetime)",
     clusterBy: ["am_account_id", "am_type"],
-    updatePartitionFilter: "am_datetime >= current_datetime() - interval 7 day"
+    updatePartitionFilter: "am_datetime >= current_datetime() - interval 14 day"
   },
-  tags: ["STG_WIGOS_JUBILEE", "carga_incremental"]
+ tags: ["carga_incremental_diaria_stg_jubilee"]
 }
 
 SELECT
