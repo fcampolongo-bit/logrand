@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_GUI_USERS
   gu_master_sequence_id    INT64,
   gu_employee_code         STRING,
   gu_gui_last_login        STRING,
-  gu_cashier_last_login    STRING
+  gu_cashier_last_login    STRING,
+  updated_at               INT64
 )
 PARTITION BY DATE(gu_timestamp)
 CLUSTER BY gu_user_id, gu_username;

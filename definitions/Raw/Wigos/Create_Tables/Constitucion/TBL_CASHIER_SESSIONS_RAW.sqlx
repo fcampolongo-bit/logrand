@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_CASHIER_S
   cs_gaming_day            DATETIME,
   cs_short_over_history    BOOL      NOT NULL,
   cs_has_pinpad_operations INT64,
-  cs_venue_id              INT64
+  cs_venue_id              INT64,
+  updated_at               INT64
 )
 PARTITION BY DATE(cs_opening_date)
 CLUSTER BY cs_user_id, cs_status, cs_cashier_id, cs_gaming_day;

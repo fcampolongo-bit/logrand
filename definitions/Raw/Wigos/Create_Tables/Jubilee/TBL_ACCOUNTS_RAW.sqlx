@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_JUBILEE.TBL_ACCOUNTS_RAW
   ac_cash_in                          NUMERIC,
   ac_cash_won                         NUMERIC,
   ac_not_redeemable                   NUMERIC,
-  ac_timestamp                        TIMESTAMP,
+  ac_timestamp                        STRING,
   ac_track_data                       STRING,
   ac_total_cash_in                    NUMERIC,
   ac_total_cash_out                   NUMERIC,

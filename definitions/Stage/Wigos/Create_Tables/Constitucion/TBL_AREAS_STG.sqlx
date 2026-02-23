@@ -1,12 +1,12 @@
 config {
   type: "table",
   database: databases.stage, 
-  schema: "STG_WIGOS_JUBILEE",
+  schema: "STG_WIGOS_CONSTITUCION",
   name: "TBL_AREAS_STG",
   bigquery: {
     clusterBy: ["ar_area_id", "ar_venue_id"]
   },
- tags: ["carga_full_diaria_stg_jubilee"],
+  tags: ["carga_full_diaria_stg_constitucion"],
   assertions: {
     uniqueKey: ["ar_area_id"] 
   }
@@ -22,6 +22,4 @@ SELECT
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_AREAS_RAW")}
-
-
+  ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_AREAS_RAW")}

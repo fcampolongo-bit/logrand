@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_MOBILE_BA
   mb_shortfall_cash_session    NUMERIC    NOT NULL,
   mb_session_status            INT64      NOT NULL,
   mb_user_id                   INT64,
-  mb_lock                      BOOL       NOT NULL
+  mb_lock                      BOOL       NOT NULL,
+  updated_at                   int64
 )
 PARTITION BY DATE(mb_last_activity)
 CLUSTER BY mb_terminal_id, mb_cashier_session_id;

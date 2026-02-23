@@ -1,0 +1,72 @@
+config {
+  type: "incremental",
+ database: databases.golden, 
+  schema: "GLD_BOCA",
+  name: "TBL_COMPRA_VENTA_FICHAS_GLD",
+  uniqueKey: ["Operacion_ID", "Sala", "GameDay"],
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Operacion_ID"]
+  },
+   tags: ["carga_incremental_diaria_golden"]
+}
+
+WITH x AS (
+  SELECT
+    cm_operation_id,
+    cm_type,
+    SAFE_CAST(cm_add_amount AS NUMERIC) AS cm_add_amount,
+    SAFE_CAST(cm_sub_amount AS NUMERIC) AS cm_sub_amount,
+    sala,
+    DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), 
+      INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    ) AS gameday
+  FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")}
+  WHERE cm_operation_id IN (
+    SELECT MAX(cm_operation_id)
+    FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")}
+    WHERE cm_type IN (38,40,36,41,8,6,14,626,34,55,35,86,142,146,5,79,147,148,515,517,519,92,524,74,70,71,619,143,37,39,54,85,65,4,303,304,309,310,312,311,69)
+      ${when(incremental(), `AND DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)) >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
+    -- CORRECCIÓN: Agrupamos por la lógica de fecha, no por el alias
+    GROUP BY 
+      cm_type, 
+      sala, 
+      DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR))
+  )
+  ${when(incremental(), `AND DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)) >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
+),
+
+y AS (
+  SELECT
+    cm_operation_id,
+    SUM(SAFE_CAST(cm_add_amount AS NUMERIC)) AS compra,
+    SUM(SAFE_CAST(cm_sub_amount AS NUMERIC)) AS venta,
+    sala,
+    DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), 
+      INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    ) as gameday
+  FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")}
+  WHERE cm_type IN (301,302,303,304,305,306,307,308,309,310)
+    ${when(incremental(), `AND DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE WHEN Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)) >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
+  GROUP BY cm_operation_id, sala, gameday
+)
+
+SELECT
+  x.cm_operation_id AS Operacion_ID,
+  x.sala AS sala,
+  x.gameday,
+  EXTRACT(YEAR FROM x.gameday) AS GameYear,
+  SUM(CASE WHEN x.cm_type = 304 THEN COALESCE(x.cm_add_amount, 0) ELSE 0 END) AS Compra,
+  SUM(CASE WHEN x.cm_type = 303 THEN COALESCE(x.cm_sub_amount, 0) ELSE 0 END) AS Venta,
+  SUM(CASE WHEN x.cm_type = 312 THEN COALESCE(x.cm_sub_amount, 0) ELSE 0 END) AS Saldo_Sobrante,
+  SUM(CASE WHEN x.cm_type = 8   THEN COALESCE(x.cm_sub_amount, 0) ELSE 0 END) AS Premio,
+  SUM(CASE WHEN x.cm_type = 6   THEN COALESCE(x.cm_add_amount, 0) ELSE 0 END) AS Impuesto_Federal,
+  SUM(CASE WHEN x.cm_type = 14  THEN COALESCE(x.cm_add_amount, 0) ELSE 0 END) AS Impuesto_Estatal,
+  SUM(CASE WHEN x.cm_type = 70  THEN COALESCE(x.cm_sub_amount, 0) ELSE 0 END) AS Redondeo_por_Decimales,
+  SUM(CASE WHEN x.cm_type = 5   THEN COALESCE(x.cm_sub_amount, 0) ELSE 0 END) AS Premio_Neto
+FROM x
+JOIN y
+  ON x.cm_operation_id = y.cm_operation_id
+  AND x.sala           = y.sala
+  AND x.gameday        = y.gameday
+GROUP BY 1, 2, 3, 4

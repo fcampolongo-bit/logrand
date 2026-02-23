@@ -1,0 +1,16 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "VW_GAMING_TABLES_TYPES_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee."
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_GAMING_TABLES_TYPES_STG") + `
+`).join("\n UNION ALL \n")}
