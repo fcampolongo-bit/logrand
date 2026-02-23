@@ -49,5 +49,4 @@ SELECT
   gt_max_players_allowed,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  -- Referencia a la tabla RAW de CONSTITUCION
   ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_GAMING_TABLES_RAW")}
