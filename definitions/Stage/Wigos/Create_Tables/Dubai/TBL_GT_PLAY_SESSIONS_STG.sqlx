@@ -1,0 +1,60 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_DUBAI",
+  name: "TBL_GT_PLAY_SESSIONS_STG",
+  uniqueKey: ["gtps_play_session_id"], 
+  bigquery: {
+    partitionBy: "DATE(gtps_started)",
+    clusterBy: ["gtps_gaming_table_id", "gtps_account_id", "gtps_status"],
+    updatePartitionFilter: "gtps_started >= current_datetime() - interval 14 day"
+  },
+  tags: ["carga_incremental_diaria_stg_dubai"]
+}
+
+SELECT
+  gtps_play_session_id,
+  gtps_gaming_table_id,
+  gtps_gaming_table_session_id,
+  gtps_started,
+  gtps_finished,
+  gtps_account_id,
+  gtps_seat_id,
+  gtps_status,
+  gtps_plays,
+  gtps_current_bet,
+  gtps_bet_min,
+  gtps_bet_max,
+  gtps_played_amount,
+  gtps_played_average,
+  gtps_points,
+  gtps_computed_points,
+  gtps_game_time,
+  gtps_start_walk,
+  gtps_walk,
+  gtps_player_skill,
+  gtps_player_speed,
+  gtps_finished_user_id,
+  gtps_updated_user_id,
+  gtps_total_sell_chips,
+  gtps_chips_out,
+  gtps_chips_in,
+  gtps_netwin,
+  gtps_in_session_plays_table,
+  gtps_in_session_last_played_amount,
+  gtps_in_session_last_play,
+  gtps_updated_played_current,
+  gtps_updated,
+  gtps_timestamp,
+  gtps_import_operation_id,
+  gtps_iso_code,
+  gtps_auto_action,
+  gtps_counter_update_bet,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_GT_PLAY_SESSIONS_RAW")}
+
+${when(incremental(), 
+  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)}

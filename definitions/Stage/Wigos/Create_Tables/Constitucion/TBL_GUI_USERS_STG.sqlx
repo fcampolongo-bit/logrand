@@ -1,0 +1,49 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_CONSTITUCION",
+  name: "TBL_GUI_USERS_STG",
+  bigquery: {
+    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"],
+    partitionBy: "DATE(gu_last_changed)"
+  },
+  tags: ["carga_full_diaria_stg_constitucion"]
+}
+
+SELECT
+  gu_user_id,
+  gu_profile_id,
+  gu_username,
+  gu_enabled,
+  gu_password,
+  gu_not_valid_before,
+  gu_not_valid_after,
+  gu_last_changed,
+  gu_password_exp,
+  gu_pwd_chg_req,
+  gu_login_failures,
+  gu_password_h1,
+  gu_password_h2,
+  gu_password_h3,
+  gu_password_h4,
+  gu_password_h5,
+  gu_full_name,
+  gu_timestamp,
+  gu_user_type,
+  gu_logged_in,
+  gu_logon_computer,
+  gu_last_activity,
+  gu_last_action,
+  gu_exit_code,
+  gu_sales_limit,
+  gu_mb_sales_limit,
+  gu_block_reason,
+  gu_master_id,
+  gu_master_sequence_id,
+  gu_employee_code,
+  gu_gui_last_login,
+  gu_cashier_last_login,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_GUI_USERS_RAW")}

@@ -9,7 +9,7 @@ config {
     clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
     updatePartitionFilter: "ac_created >= current_datetime() - interval 14 day"
   },
- tags: ["carga_incremental_diaria_stg_jubilee"]
+ tags: ["carga_full_diaria_stg_jubilee"]
 }
 
 
@@ -196,8 +196,7 @@ SELECT
 FROM
  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_ACCOUNTS_RAW")}
 
-${when(incremental(), 
- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+
+
 
   

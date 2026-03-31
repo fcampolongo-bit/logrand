@@ -1,0 +1,27 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_DUBAI",
+  name: "TBL_AREAS_STG",
+  uniqueKey: ["ar_area_id"], 
+  bigquery: {
+    clusterBy: ["ar_area_id", "ar_name"],
+  },
+  tags: ["carga_incremental_diaria_stg_dubai"]
+}
+
+SELECT
+  ar_area_id,
+  ar_name,
+  ar_smoking,
+  ar_timestamp,
+  ar_venue_id,
+  ar_external_id,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_AREAS_RAW")}
+
+${when(incremental(), 
+  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+)}

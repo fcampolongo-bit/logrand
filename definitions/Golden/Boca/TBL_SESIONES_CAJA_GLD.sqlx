@@ -1,0 +1,117 @@
+config {
+    type: "incremental",
+    database: databases.golden,
+    schema: "GLD_BOCA",
+    name: "TBL_SESIONES_CAJA_GLD",
+    uniqueKey: ["GameDay", "Sala"],
+    bigquery: {
+        partitionBy: "GameDay",
+        clusterBy: ["Sala"]
+    },
+    tags: ["carga_incremental_diaria_golden"]
+}
+
+SELECT
+  Sala,
+  ID_Sala AS Id_Sala,
+  DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE
+          WHEN Sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8
+          ELSE 7
+      END) HOUR) ) AS GameDay,
+  EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE
+            WHEN Sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8
+            ELSE 7
+        END) HOUR) )) AS Year,
+
+  --Depósitos
+  SUM(CASE
+    WHEN cm_type IN (2, 190) AND cm_cage_currency_type = 0 THEN cm_add_amount
+    ELSE 0
+  END) AS Depositos,
+
+  --Retiros 
+  (
+    (SUM(CASE WHEN cm_type = 3 AND cm_cage_currency_type = 1001 THEN COALESCE(cm_sub_amount, 0) ELSE 0 END) * -1)
+    +
+    SUM(CASE WHEN cm_type = 3 THEN (CASE WHEN cm_currency_denomination = -1 THEN 0 ELSE COALESCE(cm_sub_amount, 0) END) ELSE 0 END)
+  ) AS Retiros,
+
+  -- Depositos - Retiros
+  SUM(CASE WHEN cm_type IN (2, 190) AND cm_cage_currency_type = 0 THEN cm_add_amount ELSE 0 END) 
+  - 
+  (
+    (SUM(CASE WHEN cm_type = 3 AND cm_cage_currency_type = 1001 THEN COALESCE(cm_sub_amount, 0) ELSE 0 END) * -1)
+    +
+    SUM(CASE WHEN cm_type = 3 THEN (CASE WHEN cm_currency_denomination = -1 THEN 0 ELSE COALESCE(cm_sub_amount, 0) END) ELSE 0 END)
+  ) AS Depositos_Retiros,
+
+  --Entradas y Salidas 
+  SUM(CASE WHEN cm_type IN (37, 39, 34, 35, 28, 538, 539, 142) THEN cm_add_amount ELSE 0 END) AS Entradas,
+  SUM(CASE WHEN cm_type IN (5) THEN cm_sub_amount ELSE 0 END) AS Salidas,
+  
+  SUM(CASE WHEN cm_type IN (37, 39, 34, 35, 28, 538, 539, 142) THEN cm_add_amount ELSE 0 END) - 
+  SUM(CASE WHEN cm_type IN (5) THEN cm_sub_amount ELSE 0 END) AS Entradas_Salidas,
+
+  SUM(CASE WHEN cm_type IN (6, 14, 626) THEN cm_add_amount ELSE 0 END) AS Impuestos,
+
+  --Resultado Caja
+  SUM(CASE WHEN cm_type IN (37, 39, 34, 35, 28, 538, 539, 142) THEN cm_add_amount ELSE 0 END) 
+  - SUM(CASE WHEN cm_type IN (5) THEN cm_sub_amount ELSE 0 END) 
+  - SUM(CASE WHEN cm_type IN (6, 14, 626) THEN cm_add_amount ELSE 0 END) 
+  - SUM(CASE WHEN cm_type IN (142) THEN cm_add_amount ELSE 0 END)
+  - SUM(CASE WHEN cm_type IN (41) THEN cm_sub_amount ELSE 0 END)
+  AS Resultado_Caja,
+
+  -- CAMPOS COMENTADOS
+  -- SUM(CASE WHEN cm_type IN (3) THEN cm_sub_amount ELSE 0 END) AS Retiros,
+  -- SUM(CASE WHEN cm_type IN (2) THEN cm_add_amount ELSE 0 END) - SUM(CASE WHEN cm_type IN (3) THEN cm_add_amount ELSE 0 END) AS Depositos_Retiros,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Operaciones_Cheque,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Esperado,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Entradas_Cargo_por_Servicio,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Entradas_Comisiones_Tarjeta,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Entradas_Comisiones_Cheque,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Salidas_Tarjeta_Jugador,
+  -- SUM(CASE WHEN cm_type IN (0) THEN cm_add_amount ELSE 0 END) AS Redondeo_por_Retencion,
+
+  SUM(CASE WHEN cm_type IN (149, 148, 538, 539) THEN cm_add_amount ELSE 0 END) AS Operaciones_Tarjeta_Bancaria,
+  SUM(CASE WHEN cm_type IN (74) THEN cm_add_amount ELSE 0 END) AS Ordenes_De_Pago,
+  SUM(CASE WHEN cm_type IN (37, 39) THEN cm_add_amount ELSE 0 END) AS Entradas_Depostio_en_Garantia,
+  SUM(CASE WHEN cm_type IN (142) THEN cm_add_amount ELSE 0 END) AS Entradas_Reserva_Legal,
+  SUM(CASE WHEN cm_type IN (34, 35) THEN cm_add_amount ELSE 0 END) AS Entradas_Uso_Instalaciones_y_Terminales,
+  SUM(CASE WHEN cm_type IN (28, 538, 539) THEN cm_add_amount ELSE 0 END) AS Entradas_Tarjeta_Jugador,
+  SUM(CASE WHEN cm_type IN (38, 40) THEN cm_sub_amount ELSE 0 END) AS Salidas_Depostio_en_Garantia,
+  SUM(CASE WHEN cm_type IN (41) THEN cm_sub_amount ELSE 0 END) AS Salidas_Uso_Instalaciones_y_Terminales,
+  SUM(CASE WHEN cm_type IN (8) THEN cm_sub_amount ELSE 0 END) - 
+  SUM(CASE WHEN cm_type IN (6, 14, 626) THEN cm_add_amount ELSE 0 END) AS Salidas_Pago_Premios,
+  SUM(CASE WHEN cm_type IN (70) THEN cm_sub_amount ELSE 0 END) AS Salidas_Redondeo_Decimales,
+
+  -- Premios y Manuales
+  SUM(CASE WHEN cm_type IN (8) THEN cm_sub_amount ELSE 0 END) AS Premios,
+  SUM(CASE WHEN cm_type IN (14, 6, 626) THEN cm_add_amount ELSE 0 END) AS Retencion_sobre_Premios,
+
+  SUM(CASE WHEN cm_type IN (30, 32) THEN cm_sub_amount ELSE 0 END) AS Pagos_Manuales_Pago,
+  SUM(CASE WHEN cm_type IN (33, 31) THEN cm_add_amount ELSE 0 END) AS Pagos_Manuales_Anulacion,
+  SUM(CASE WHEN cm_type IN (30, 32) THEN cm_sub_amount ELSE 0 END) - 
+  SUM(CASE WHEN cm_type IN (31, 33) THEN cm_add_amount ELSE 0 END) AS Pagos_Manuales_Total,
+
+  -- Promociones
+  SUM(CASE WHEN cm_type IN (65) THEN cm_add_amount ELSE 0 END) AS Promo_Redimible,
+  SUM(CASE WHEN cm_type IN (7) THEN cm_add_amount ELSE 0 END) AS Promo_No_Redimible,
+  SUM(CASE WHEN cm_type IN (66) THEN cm_sub_amount ELSE 0 END) AS Cancelacion_Promocion_Redimible,
+  SUM(CASE WHEN cm_type IN (11, 23) THEN cm_sub_amount ELSE 0 END) AS Cancelacion_Promocion_No_Redimible,
+
+  -- Caducados y Tarjetas
+  SUM(CASE WHEN cm_type IN (62) THEN cm_sub_amount ELSE 0 END) AS Redimible_Cadudado_Devolucion,
+  SUM(CASE WHEN cm_type IN (63) THEN cm_sub_amount ELSE 0 END) AS Redimible_Caducado_Premio,
+  SUM(CASE WHEN cm_type IN (64) THEN cm_sub_amount ELSE 0 END) AS No_Redimible_Caducado,
+
+  SUM(CASE WHEN cm_type IN (149, 538) THEN cm_add_amount ELSE 0 END) AS Tarjeta_Bancaria_Balance_Credito,
+  SUM(CASE WHEN cm_type IN (148, 539) THEN cm_add_amount ELSE 0 END) AS Tarjeta_Bancaria_Balance_Debito,
+  SUM(CASE WHEN cm_type IN (149, 148, 538, 539) THEN cm_add_amount ELSE 0 END) AS Tarjeta_Bancaria_Balance_Total
+
+FROM
+  ${ref("VW_CASHIER_MOVEMENTS_GLD")}
+WHERE
+  1=1 ${when(incremental(), `AND CAST(cm_date AS DATETIME) >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+GROUP BY
+  Sala, Id_Sala, GameDay, Year

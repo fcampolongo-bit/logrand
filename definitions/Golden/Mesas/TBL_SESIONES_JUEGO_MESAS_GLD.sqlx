@@ -1,0 +1,95 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_MESAS",
+  name: "TBL_SESIONES_JUEGO_MESAS_GLD",
+  uniqueKey: ["Sesion_Llegada", "Mesa_Asiento", "Mesa_Nombre", "Sala","Sesion_Salida"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Mesa_Nombre", "Cuenta_Numero"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+SELECT 
+
+   GtPlaySessions.Sala AS Sala, 
+    GtPlaySessions.id_Sala AS Id_Sala, 
+    --GtPlaySessions.GameDay AS GameDay
+      DATE(DATETIME_SUB(CAST(gtps_started AS DATETIME), 
+    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+  ) AS GameDay,
+EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(gtps_started AS DATETIME), 
+    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+  )) AS Year,
+    gtt_name AS Mesa_Tipo, 
+    gt_name AS Mesa_Nombre, 
+    gu_username AS Mesa_Usuario, 
+    gts_position AS Mesa_Asiento, 
+    gtps_started AS Sesion_Llegada, 
+    CASE WHEN gtps_status = 1 THEN 'Cerrada' ELSE 'Abierta' END AS Sesion_Estado, 
+    CASE 
+        WHEN gtps_finished IS NULL THEN 0 
+        ELSE 
+            CASE 
+                WHEN gtps_status = 0 THEN 
+                    TIMESTAMP_DIFF(gtps_finished, gtps_started, SECOND) - COALESCE(gtps_walk, 0)
+                ELSE COALESCE(gtps_game_time, 0) 
+            END 
+    END AS Sesion_TiempoDeJuego, 
+    CASE 
+        WHEN gtps_finished IS NULL THEN 0 
+        ELSE 
+            CASE 
+                WHEN gtps_status = 2 THEN 
+                    COALESCE(gtps_walk, 0) + TIMESTAMP_DIFF(gtps_finished, gtps_start_walk, SECOND) 
+                ELSE COALESCE(gtps_walk, 0) 
+            END 
+    END AS Sesion_TiempoAusente, 
+    gtps_finished AS Sesion_Salida, 
+    COALESCE(gtps_plays, 0) AS Sesion_NumJugadas, 
+    CASE 
+        WHEN gtps_player_speed = 1 THEN 'Lenta' 
+        WHEN gtps_player_speed = 2 THEN 'Media' 
+        WHEN gtps_player_speed = 3 THEN 'Rápida' 
+        ELSE 'Error' 
+    END AS Sesion_Velocidad, 
+    CASE 
+        WHEN gtps_player_skill = 1 THEN 'Baja' 
+        WHEN gtps_player_skill = 2 THEN 'Normal' 
+        WHEN gtps_player_skill = 3 THEN 'Alta' 
+        ELSE 'Error' 
+    END AS Sesion_Habilidad, 
+    gtps_account_id AS Cuenta_Numero, 
+    ac_holder_name AS Cuenta_Titular, 
+    COALESCE(gtps_computed_points, 0) AS Puntos_Calculados, 
+    COALESCE(gtps_points, 0) AS Puntos_Asignados, 
+    COALESCE(gtps_iso_code, '') AS Jugado_Divisa, 
+    gtps_current_bet AS Jugado_Actual, 
+    gtps_played_amount AS Jugado_Monto, 
+    gtps_played_average AS Jugado_Promedio, 
+    gtps_bet_min AS Jugado_Min, 
+    gtps_bet_max AS Jugado_Max, 
+    COALESCE(gtps_chips_in, 0) AS Fichas_ChipsIn, 
+    COALESCE(gtps_chips_out, 0) AS Fichas_ChipsOut, 
+    COALESCE(gtps_total_sell_chips, 0) AS Fichas_Tickets, 
+    gtps_netwin AS Fichas_Netwin
+ 
+
+FROM  ${ref("VW_GT_PLAY_SESSIONS_GLD")}  AS GtPlaySessions
+LEFT JOIN  ${ref("VW_ACCOUNTS_GLD")} AS AccountV
+    ON gtps_account_id = ac_account_id AND GtPlaySessions.Sala = AccountV.Sala
+LEFT JOIN  ${ref("VW_GAMING_TABLES_GLD")}  AS GamingTables
+    ON gtps_gaming_table_id = gt_gaming_table_id AND GtPlaySessions.Sala = GamingTables.sala
+LEFT JOIN  ${ref("VW_GAMING_TABLES_TYPES_GLD")}  AS GamingTableTypes
+     ON gt_type_id = gtt_gaming_table_type_id AND GamingTables.sala = GamingTableTypes.Sala
+LEFT JOIN ${ref("VW_GT_SEATS_GLD")}  AS Gt_Seats
+    ON gts_seat_id = gtps_seat_id AND Gt_Seats.Sala = GamingTableTypes.Sala
+LEFT JOIN  ${ref("VW_GUI_USERS_GLD")} AS GuiUsers
+    ON gu_user_id = COALESCE(gtps_finished_user_id, gtps_updated_user_id) 
+    AND GuiUsers.Sala = GtPlaySessions.Sala
+
+WHERE gtps_iso_code IN ('MXN')
+AND ac_holder_name is not null
+
+${when(incremental(), `AND gtps_started >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}

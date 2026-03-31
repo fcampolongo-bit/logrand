@@ -1,5 +1,6 @@
 config {
   type: "table",
+    database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_GT_PLAY_SESSIONS_STG",
   bigquery: {
