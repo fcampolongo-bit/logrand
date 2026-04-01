@@ -1,14 +1,10 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_ACCOUNTS_STG",
-  uniqueKey: ["ac_account_id"], 
-  bigquery: {
-    partitionBy: "DATE(ac_created)",
-    clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
-    updatePartitionFilter: "ac_created >= current_datetime() - interval 14 day"
-  },
+  partitionBy: "DATE(ac_created)",
+  clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
  tags: ["carga_full_diaria_stg_jubilee"]
 }
 

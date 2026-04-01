@@ -13,10 +13,10 @@ config {
 
 WITH compra_venta_fichas AS (
   SELECT
-    SUM(venta) AS venta,
-    SUM(compra) AS compra,
-    SUM(premio) AS premio,
-    SUM(Redondeo_por_Decimales) AS Redondeo_por_Decimales,
+    SUM(venta)                    AS venta,
+    SUM(compra)                   AS compra,
+    SUM(premio)                   AS premio,
+    SUM(Redondeo_por_Decimales)   AS Redondeo_por_Decimales,
     id_sala,
     gameday
   FROM ${ref("TBL_COMPRA_VENTA_FICHAS_GLD")}
@@ -25,10 +25,10 @@ WITH compra_venta_fichas AS (
 
 maquinas AS (
   SELECT
-    SUM(playedamount) AS playedamount,
-    SUM(Netwin) AS Netwin,
-    SUM(playedcount) AS playedcount,
-    COUNT(DISTINCT te_base_name) AS MaquinasActivas,
+    SUM(playedamount)             AS playedamount,
+    SUM(Netwin)                   AS Netwin,
+    SUM(playedcount)              AS playedcount,
+    COUNT(DISTINCT te_base_name)  AS MaquinasActivas,
     id_sala,
     gameday
   FROM ${ref("TBL_MAQUINAS_GLD")}
@@ -37,8 +37,8 @@ maquinas AS (
 
 mesas AS (
   SELECT
-    SUM(Tickets) AS Tickets,
-    SUM(Drop_Total) AS DropMesas,
+    SUM(Tickets)                                   AS Tickets,
+    SUM(Drop_Total)                                AS DropMesas,
     SUM(Final - Inicial + Tickets + Credit - Fill) AS WinMesas,
     ID_Sala,
     GameDay
@@ -46,88 +46,89 @@ mesas AS (
   GROUP BY ID_Sala, GameDay
 ),
 
--- CORRECCIÓN VISITAS: Distinct DIARIO por cada fuente
-visitas_diarias AS (
-  SELECT 
-    id_Sala, 
-    GameDay,
-    COUNT(DISTINCT Numero) AS Visitas_Maquinas_Real,
-    -- Usamos Cuenta_Numero que es el campo correcto para Mesas
-    COUNT(DISTINCT Cuenta_Numero) AS Visitas_Mesas_Real 
-  FROM (
-    SELECT id_sala AS id_Sala, gameday AS GameDay, CAST(Numero AS STRING) AS Numero, NULL AS Cuenta_Numero FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
-    UNION ALL
-    SELECT id_Sala, GameDay, NULL AS Numero, CAST(Cuenta_Numero AS STRING) AS Cuenta_Numero FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
-  )
-  GROUP BY 1, 2
-),
-
--- CORRECCIÓN ACUMULADOS: Taxímetro sobre universo único del mes
-primeras_visitas_mes AS (
-  SELECT 
-    id_Sala, 
-    ID_Cliente,
-    MIN(GameDay) AS PrimerDiaMes
-  FROM (
-    SELECT id_sala AS id_Sala, gameday AS GameDay, CAST(Numero AS STRING) AS ID_Cliente FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
-    UNION DISTINCT
-    SELECT id_Sala, GameDay, CAST(Cuenta_Numero AS STRING) AS ID_Cliente FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
-  )
-  GROUP BY 1, 2, DATE_TRUNC(GameDay, MONTH)
-),
-
-acumulados_kpi AS (
-  SELECT 
-    id_Sala, 
-    GameDay,
-    SUM(COUNT(DISTINCT ID_Cliente)) OVER (
-      PARTITION BY id_Sala, DATE_TRUNC(GameDay, MONTH) 
-      ORDER BY GameDay
-    ) AS Clientes_Acumulados
-  FROM primeras_visitas_mes
-  GROUP BY 1, 2
+sesiones_juego AS (
+  SELECT
+    COUNT(DISTINCT Cuenta_Numero)  AS Visitas,
+    id_Sala,
+    GameDay
+  FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+  GROUP BY id_Sala, GameDay
 )
 
 SELECT
+  -- Dimensiones
   A.Sala,
   A.ID_Sala,
   A.GameDay,
-  EXTRACT(YEAR FROM A.GameDay) AS Year,
+   extract(Year from A.GameDay) as Year,
 
-  -- Finanzas (Validación de Devoluciones y Resultado)
-  (A.Entradas - A.Entradas_Tarjeta_Jugador) AS EntradaTotal,
-  ((A.Entradas - A.Entradas_Tarjeta_Jugador) - COALESCE(B.venta, 0)) AS EntradaMaquinas,
-  COALESCE(B.venta, 0) AS EntradaMesas,
-  
-  -- Devoluciones: Usamos COALESCE para evitar el 0 si el campo tiene nulos
-  COALESCE(A.Salidas_Depostio_en_Garantia, 0) AS Devoluciones,
+  -- Sesiones Caja - Campos calculados
+  A.Entradas - A.Entradas_Tarjeta_Jugador
+    AS EntradaTotal,
 
-  ((A.Entradas - A.Entradas_Tarjeta_Jugador) - (A.Premios * 0.93) - (COALESCE(A.Salidas_Depostio_en_Garantia, 0) + A.Salidas_Uso_Instalaciones_y_Terminales)) AS ResultadoCajaTotal,
+  (A.Entradas - A.Entradas_Tarjeta_Jugador) - B.venta
+    AS EntradaMaquinas,
 
-  -- Maquinas y Mesas
-  COALESCE(C.playedamount, 0) AS CoinIn,
-  COALESCE(C.Netwin, 0) AS NetWinMaq,
-  COALESCE(C.playedcount, 0) AS Spins,
-  COALESCE(C.MaquinasActivas, 0) AS MaquinasActivas,
-  COALESCE(D.DropMesas, 0) AS DropMesas,
-  COALESCE(D.WinMesas, 0) AS WinMesas,
+  B.venta
+    AS EntradaMesas,
 
-  -- Campos Amarillos (Lógica diaria y acumulada corregida)
-  COALESCE(V.Visitas_Maquinas_Real, 0) AS Visitas_Maquinas,
-  COALESCE(V.Visitas_Mesas_Real, 0) AS Visitas_Mesas,
-  COALESCE(ACK.Clientes_Acumulados, 0) AS Clientes_Acumulados,
+  (A.Entradas - A.Entradas_Tarjeta_Jugador)
+    - (A.Premios * 0.93)
+    - (A.Salidas_Depostio_en_Garantia + A.Salidas_Uso_Instalaciones_y_Terminales)
+    AS ResultadoCajaTotal,
 
-  -- Operativos
-  A.Premios AS TPremios,
+  (B.venta - (A.Premios * 0.93))
+    - (B.compra + B.Redondeo_por_Decimales)
+    - (A.Premios * 0.93)
+    AS CajaMesas,
+
+  -- Maquinas
+  C.playedamount                  AS CoinIn,
+  C.Netwin                        AS NetWinMaq,
+  C.playedcount                   AS Spins,
+  C.MaquinasActivas,
+  C.Netwin                        AS Netwin_sin_bot,
+
+  -- Mesas
+  D.Tickets,
+  D.DropMesas,
+  D.WinMesas,
+
+  -- Sesiones Caja - Campos crudos
+  A.Entradas,
+  A.Entradas_Tarjeta_Jugador      AS TarjetaJugador,
+  A.Salidas_Uso_Instalaciones_y_Terminales AS UsoInstalaciones,
+  A.Premios                       AS TPremios,
+  A.Entradas_Reserva_Legal        AS ReservaLegal,
   A.Impuestos,
   A.Resultado_Caja,
-  A.Retencion_sobre_Premios AS Retencion_Sobre_Premios
+  A.Salidas_Pago_Premios,
+  A.Salidas_Redondeo_Decimales,
+  A.Entradas_Depostio_en_Garantia AS Entradas_Depositos_En_Garantia,
+  A.Retencion_sobre_Premios       AS Retencion_Sobre_Premios,
+  A.Entradas_Uso_Instalaciones_y_Terminales AS Entradas_Uso_Instalaciones,
 
-FROM ${ref("TBL_SESIONES_CAJA_GLD")} AS A
-LEFT JOIN compra_venta_fichas AS B ON A.GameDay = B.gameday AND A.ID_Sala = B.id_sala
-LEFT JOIN maquinas AS C ON A.GameDay = C.gameday AND A.ID_Sala = C.id_sala
-LEFT JOIN mesas AS D ON A.GameDay = D.GameDay AND A.ID_Sala = D.ID_Sala
-LEFT JOIN visitas_diarias AS V ON A.GameDay = V.GameDay AND A.ID_Sala = V.id_Sala
-LEFT JOIN acumulados_kpi AS ACK ON A.GameDay = ACK.GameDay AND A.ID_Sala = ACK.id_Sala
+  -- Compra Venta Fichas
+  B.venta                         AS VentaFichas,
+  B.premio                        AS PremiosFichas,
+  B.compra                        AS CompraFichas,
+  B.Redondeo_por_Decimales        AS RedondeoDecimales,
+
+  -- Sesiones de Juego
+  E.Visitas
+
+FROM ${ref("TBL_SESIONES_CAJA_GLD")}     AS A
+LEFT JOIN compra_venta_fichas             AS B
+  ON A.GameDay = B.gameday
+  AND A.id_sala = B.id_sala
+LEFT JOIN maquinas                        AS C
+  ON A.GameDay = C.gameday
+  AND A.id_sala = C.id_sala
+LEFT JOIN mesas                           AS D
+  ON A.GameDay = D.GameDay
+  AND A.id_sala = D.ID_Sala
+LEFT JOIN sesiones_juego                  AS E
+  ON A.GameDay = E.GameDay
+  AND A.id_sala = E.id_Sala
 
 ${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}

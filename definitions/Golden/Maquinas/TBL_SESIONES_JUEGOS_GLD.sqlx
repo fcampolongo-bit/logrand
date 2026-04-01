@@ -3,7 +3,7 @@ config {
   database: databases.golden, 
   schema: "GLD_MAQUINAS",
   name: "TBL_SESIONES_JUEGOS_GLD",
-  uniqueKey: ["id_sesion", "Sala","Iniciada"], 
+  uniqueKey: ["id_sesion", "Sala","Iniciada","Finalizada","gameday"], 
   bigquery: {
     partitionBy: "GameDay",
     clusterBy: ["Sala", "Proveedor", "Numero"]
@@ -164,3 +164,4 @@ SELECT
   ps_play_session_id                                                    AS id_sesion
 
 FROM RawSessions
+
