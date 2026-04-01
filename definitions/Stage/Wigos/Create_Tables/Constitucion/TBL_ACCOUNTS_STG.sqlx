@@ -5,7 +5,7 @@ config {
   name: "TBL_ACCOUNTS_STG",
   partitionBy: "DATE(ac_created)",
   clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
-  tags: ["carga_incremental_diaria_stg_constitucion"]
+  tags: ["carga_full_diaria_stg_constitucion"]
 }
 
 SELECT
