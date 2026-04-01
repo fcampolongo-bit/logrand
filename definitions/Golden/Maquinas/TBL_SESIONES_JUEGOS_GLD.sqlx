@@ -92,8 +92,10 @@ WITH RawSessions AS (
 )
 
 SELECT
+ Sala,
+    ID_Sala as Id_Sala,
   GameDay,
-  Sala,
+  Gameyear as Year,
   Proveedor,
   Nombre,
   ID_en_planta,

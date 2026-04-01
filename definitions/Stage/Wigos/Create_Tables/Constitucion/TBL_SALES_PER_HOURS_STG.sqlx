@@ -3,12 +3,10 @@ config {
   database: databases.stage, 
   schema: "STG_WIGOS_CONSTITUCION",
   name: "TBL_SALES_PER_HOUR_STG",
-  uniqueKey: ["sph_terminal_id", "sph_game_id", "sph_base_hour", "sph_unique_id"], 
-  bigquery: {
-    partitionBy: "DATE(sph_base_hour)",
-    clusterBy: ["sph_terminal_id", "sph_game_id", "sph_unique_id"],
-    updatePartitionFilter: "sph_base_hour >= current_datetime() - interval 14 day"
-  },
+  uniqueKey: ["sph_terminal_id", "sph_base_hour","sph_game_id"], 
+  partitionBy: "DATE(sph_base_hour)",
+  clusterBy: ["sph_terminal_id", "sph_game_id"],
+  updatePartitionFilter: "sph_base_hour >= datetime_sub(current_datetime(), interval 12 day)",
   tags: ["carga_incremental_diaria_stg_constitucion"]
 }
 
@@ -36,6 +34,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_SALES_PER_HOUR_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}

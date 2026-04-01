@@ -4,11 +4,9 @@ config {
   schema: "STG_WIGOS_CONSTITUCION",
   name: "TBL_MB_MOVEMENTS_STG",
   uniqueKey: ["mbm_movement_id"], 
-  bigquery: {
-    partitionBy: "DATE(mbm_datetime)",
-    clusterBy: ["mbm_cashier_session_id", "mbm_datetime", "mbm_type"],
-    updatePartitionFilter: "mbm_datetime >= current_datetime() - interval 14 day"
-  },
+  partitionBy: "DATE(mbm_datetime)",
+  clusterBy: ["mbm_cashier_session_id", "mbm_datetime","mbm_type"],
+  updatePartitionFilter: "mbm_datetime >= current_datetime() - interval 12 day",
   tags: ["carga_incremental_diaria_stg_constitucion"]
 }
 
@@ -40,6 +38,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_MB_MOVEMENTS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
