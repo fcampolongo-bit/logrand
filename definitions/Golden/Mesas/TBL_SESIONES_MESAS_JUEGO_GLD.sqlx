@@ -3,7 +3,7 @@ config {
   database: databases.golden, 
   schema: "GLD_MESAS",
   name: "TBL_SESIONES_MESAS_JUEGO_GLD",
-  uniqueKey: [ "nombre", "Cuenta_Numero","usuario","apertura","cierre","sala","GameDay"], 
+  uniqueKey: [ "nombre","usuario","apertura","cierre","sala","GameDay"], 
   bigquery: {
     partitionBy: "GameDay",
     clusterBy: ["Sala", "nombre", "tipo"]
