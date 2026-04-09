@@ -1,0 +1,24 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_WIGOS_GOLDENISLAND",
+  name: "TBL_GAMING_TABLES_TYPES_STG",
+  uniqueKey: ["gtt_gaming_table_type_id"],
+  bigquery: {
+    clusterBy: ["gtt_gaming_table_type_id", "gtt_name"],
+  },
+  tags: ["carga_incremental_diaria_stg_goldenisland"]
+}
+
+SELECT
+  gtt_gaming_table_type_id,
+  gtt_name,
+  gtt_enabled,
+  gtt_report_type_id,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GAMING_TABLES_TYPES_RAW")}
+
+${when(incremental(),
+  `WHERE gtt_gaming_table_type_id > (SELECT MAX(gtt_gaming_table_type_id) FROM ${self()})`
+)}

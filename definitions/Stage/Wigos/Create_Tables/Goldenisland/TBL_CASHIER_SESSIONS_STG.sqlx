@@ -1,0 +1,46 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_WIGOS_GOLDENISLAND",
+  name: "TBL_CASHIER_SESSIONS_STG",
+  uniqueKey: ["cs_session_id"],
+  bigquery: {
+    partitionBy: "DATE(cs_opening_date)",
+    clusterBy: ["cs_cashier_id", "cs_user_id", "cs_status"],
+    updatePartitionFilter: "cs_opening_date >= current_datetime() - interval 14 day"
+  },
+  tags: ["carga_incremental_diaria_stg_goldenisland"]
+}
+
+SELECT
+  cs_session_id,
+  cs_name,
+  cs_cashier_id,
+  cs_user_id,
+  cs_opening_date,
+  cs_closing_date,
+  cs_status,
+  cs_balance,
+  cs_other_balance_1,
+  cs_other_balance_2,
+  cs_tax_a_pct,
+  cs_tax_b_pct,
+  cs_collected_amount,
+  cs_sales_limit,
+  cs_total_sold,
+  cs_mb_sales_limit,
+  cs_mb_total_sold,
+  cs_session_by_terminal,
+  cs_history,
+  cs_gaming_day,
+  cs_short_over_history,
+  cs_has_pinpad_operations,
+  cs_venue_id,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_CASHIER_SESSIONS_RAW")}
+
+${when(incremental(),
+  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
+)}

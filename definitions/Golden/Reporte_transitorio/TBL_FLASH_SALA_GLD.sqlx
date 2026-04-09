@@ -8,31 +8,31 @@ config {
     partitionBy: "GameDay",
     clusterBy: ["Sala"]
   },
-  tags: ["carga_incremental_diaria_golden_prueba"]
+  tags: ["carga_incremental_diaria_golden"]
 }
 
 WITH compra_venta_fichas AS (
   SELECT
-    Id_Sala,
-    gameday,
-    SUM(venta) AS venta,
-    SUM(compra) AS compra,
-    SUM(premio) AS premio,
-    SUM(Redondeo_por_Decimales) AS Redondeo_por_Decimales
+    SUM(venta)                  AS venta,
+    SUM(compra)                 AS compra,
+    SUM(premio)                 AS premio,
+    SUM(Redondeo_por_Decimales) AS Redondeo_por_Decimales,
+    id_sala,
+    gameday
   FROM ${ref("TBL_COMPRA_VENTA_FICHAS_GLD")}
-  GROUP BY 1, 2
+  GROUP BY id_sala, gameday
 ),
 
 maquinas AS (
   SELECT
-    Id_Sala,
-    gameday,
-    SUM(playedamount) AS playedamount,
-    SUM(Netwin) AS Netwin,
-    SUM(playedcount) AS playedcount,
-    COUNT(DISTINCT te_base_name) AS MaquinasActivas
+    SUM(playedamount)            AS playedamount,
+    SUM(Netwin)                  AS Netwin,
+    SUM(playedcount)             AS playedcount,
+    COUNT(DISTINCT te_base_name) AS MaquinasActivas,
+    id_sala,
+    gameday
   FROM ${ref("TBL_MAQUINAS_GLD")}
-  GROUP BY 1, 2
+  GROUP BY id_sala, gameday
 ),
 
 mesas AS (
@@ -40,119 +40,228 @@ mesas AS (
     SUM(Tickets)                                   AS Tickets,
     SUM(Drop_Total)                                AS DropMesas,
     SUM(Final - Inicial + Tickets + Credit - Fill) AS WinMesas,
-    Id_Sala,
+    ID_Sala,
     GameDay
   FROM ${ref("TBL_SESIONES_MESAS_JUEGO_GLD")}
-  GROUP BY id_sala, GameDay
+  GROUP BY ID_Sala, GameDay
+),
+
+sesiones_maquinas AS (
+  SELECT
+    SUM(Total_Jugado)      AS Total_Jugado,
+    SUM(Total_Netwin)      AS Total_Netwin,
+    SUM(Jugado_Redimible)  AS Coin_In_Redimible,
+    SUM(Netwin_Redimible)  AS Netwin_Redimible,
+    Id_Sala,
+    GameDay
+  FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
+  GROUP BY Id_Sala, GameDay
 ),
 
 visitas_maquinas AS (
   SELECT
+    COUNT(DISTINCT Numero)  AS Visitas_Maquinas,
     Id_Sala,
-    GameDay,
-    COUNT(DISTINCT Numero) AS Visitas_Maquinas
+    GameDay
   FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
-  GROUP BY 1, 2
+  GROUP BY Id_Sala, GameDay
 ),
 
 visitas_mesas AS (
   SELECT
-    id_Sala AS id_sala,
-    GameDay,
-    COUNT(DISTINCT Cuenta_Numero) AS Visitas_Mesas
+    COUNT(DISTINCT cuenta_Numero)  AS Visitas_Mesas,
+    id_Sala,
+    GameDay
   FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
-  GROUP BY 1, 2
+  GROUP BY id_Sala, GameDay
 ),
 
 visitas_total AS (
   SELECT
-    Id_Sala,
-    GameDay,
-    COUNT(DISTINCT cliente_id) AS Visitas_Total
+    COUNT(DISTINCT cliente_id) AS Visitas,
+    id_sala,
+    GameDay
   FROM (
-    SELECT id_sala, GameDay, CAST(Numero AS STRING) AS cliente_id
+    SELECT Numero        AS cliente_id, Id_Sala AS id_sala, GameDay
     FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
+
     UNION DISTINCT
-    SELECT id_sala, GameDay, CAST(Cuenta_Numero AS STRING) AS cliente_id
+
+    SELECT cuenta_Numero AS cliente_id, id_Sala AS id_sala, GameDay
     FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
   )
-  GROUP BY 1, 2
+  GROUP BY id_sala, GameDay
 ),
 
-acum_total_base AS (
+acum_maquinas AS (
   SELECT
-    Id_Sala,
-    cliente_id,
-    DATE_TRUNC(GameDay, MONTH) AS mes,
-    MIN(GameDay) AS primer_dia
+    gameday,
+    id_sala,
+    SUM(nuevos_en_el_mes) OVER (
+      PARTITION BY DATE_TRUNC(gameday, MONTH), id_sala
+      ORDER BY gameday ASC
+    ) AS Clientes_Acumulados_Maquinas
   FROM (
-    SELECT id_sala, GameDay, CAST(Numero AS STRING) AS cliente_id
-    FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
-    UNION DISTINCT
-    SELECT id_sala, GameDay, CAST(Cuenta_Numero AS STRING) AS cliente_id
-    FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+    SELECT
+      primer_gameday   AS gameday,
+      id_sala,
+      COUNT(*)         AS nuevos_en_el_mes
+    FROM (
+      SELECT
+        Numero,
+        Id_Sala                    AS id_sala,
+        DATE_TRUNC(gameday, MONTH) AS mes,
+        MIN(gameday)               AS primer_gameday
+      FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
+      GROUP BY Numero, id_sala, mes
+    )
+    GROUP BY primer_gameday, id_sala
   )
-  GROUP BY 1, 2, 3
+),
+
+acum_mesas AS (
+  SELECT
+    gameday,
+    id_Sala,
+    SUM(nuevos_en_el_mes) OVER (
+      PARTITION BY DATE_TRUNC(gameday, MONTH), id_Sala
+      ORDER BY gameday ASC
+    ) AS Clientes_Acumulados_Mesas
+  FROM (
+    SELECT
+      primer_gameday   AS gameday,
+      id_Sala,
+      COUNT(*)         AS nuevos_en_el_mes
+    FROM (
+      SELECT
+        cuenta_Numero,
+        id_Sala,
+        DATE_TRUNC(gameday, MONTH) AS mes,
+        MIN(gameday)               AS primer_gameday
+      FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+      GROUP BY cuenta_Numero, id_Sala, mes
+    )
+    GROUP BY primer_gameday, id_Sala
+  )
 ),
 
 acum_total AS (
   SELECT
-    Id_Sala,
-    primer_dia AS GameDay,
-    SUM(COUNT(*)) OVER (
-      PARTITION BY id_sala, DATE_TRUNC(primer_dia, MONTH)
-      ORDER BY primer_dia ASC
-    ) AS Acum_Total_Mes
-  FROM acum_total_base
-  GROUP BY 1, 2
+    gameday,
+    id_sala,
+    SUM(nuevos_del_dia) OVER (
+      PARTITION BY DATE_TRUNC(gameday, MONTH), id_sala
+      ORDER BY gameday ASC
+    ) AS Clientes_Acumulados
+  FROM (
+    SELECT
+      primer_gameday   AS gameday,
+      id_sala,
+      COUNT(*)         AS nuevos_del_dia
+    FROM (
+      SELECT
+        cliente_id,
+        id_sala,
+        DATE_TRUNC(gameday, MONTH) AS mes,
+        MIN(gameday)               AS primer_gameday
+      FROM (
+        SELECT gameday, Id_Sala AS id_sala, Numero        AS cliente_id
+        FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
+
+        UNION DISTINCT
+
+        SELECT gameday, id_Sala AS id_sala, cuenta_Numero AS cliente_id
+        FROM ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+      )
+      GROUP BY cliente_id, id_sala, mes
+    )
+    GROUP BY primer_gameday, id_sala
+  )
 )
 
 SELECT
-  -- Dimensiones
-  A.Sala,
-  A.Id_Sala,
   A.GameDay,
-  EXTRACT(YEAR FROM A.GameDay) AS Year,
-
-  -- Sesiones Caja 
-  (A.Entradas - A.Entradas_Tarjeta_Jugador) AS EntradaTotal,
-  (A.Entradas - A.Entradas_Tarjeta_Jugador) - COALESCE(B.venta, 0) AS EntradaMaquinas,
-  COALESCE(B.venta, 0) AS EntradaMesas,
+  A.Sala,
+  A.Entradas - A.Entradas_Tarjeta_Jugador
+    AS EntradaTotal,
+  (A.Entradas - A.Entradas_Tarjeta_Jugador) - B.venta
+    AS EntradaMaquinas,
+  B.venta
+    AS EntradaMesas,
   (A.Entradas - A.Entradas_Tarjeta_Jugador)
-    - (COALESCE(A.Premios, 0) * 0.93)
-    - (COALESCE(A.Salidas_Depostio_en_Garantia, 0) + COALESCE(A.Salidas_Uso_Instalaciones_y_Terminales, 0))
+    - (A.Premios * 0.93)
+    - (A.Salidas_Depostio_en_Garantia + A.Salidas_Uso_Instalaciones_y_Terminales)
     AS ResultadoCajaTotal,
-
-  -- Maquinas
-  C.playedamount AS CoinIn,
-  C.Netwin AS NetWinMaq,
-  C.playedcount AS Spins,
+  (A.Entradas - A.Entradas_Tarjeta_Jugador - B.venta)
+    - ((A.Premios * 0.93) - (B.premio * 0.93))
+    - (A.Salidas_Depostio_en_Garantia - ((B.compra + B.Redondeo_por_Decimales) - B.premio) + A.Salidas_Uso_Instalaciones_y_Terminales)
+    AS CajaMaquinas,
+  B.venta - (B.premio * 0.93) - ((B.compra + B.Redondeo_por_Decimales) - B.premio)
+    AS CajaMesas,
+  C.playedamount                              AS CoinIn,
+  C.Netwin                                    AS NetWinMaq,
+  C.playedcount                               AS Spins,
   C.MaquinasActivas,
-
-  -- Mesas
-  D.Tickets,
   D.DropMesas,
   D.WinMesas,
+  A.Entradas_Tarjeta_Jugador                  AS EntradaTarjetaJugador,
+  A.Salidas_Depostio_en_Garantia              AS Devoluciones,
+  A.Salidas_Uso_Instalaciones_y_Terminales    AS UsoInstalaciones,
+  A.Premios                                   AS TPremios,
+  A.Entradas_Reserva_Legal                    AS ReservaLegal,
+  B.venta                                     AS VentaFichas,
+  B.premio                                    AS PremiosFichas,
+  B.compra                                    AS CompraFichas,
+  B.Redondeo_por_Decimales                    AS RedondeoDecimales,
+  A.Entradas_Uso_Instalaciones_y_Terminales,
+  A.Impuestos,
+  A.Resultado_Caja,
+  A.Salidas_Pago_Premios,
+  A.Salidas_Redondeo_Decimales,
+  A.Entradas_Depostio_en_Garantia,
+  A.Retencion_sobre_Premios,
+  C.Netwin                                    AS Netwin_sin_bot,
+  E.Total_Jugado                              AS Coin_In,
+  E.Total_Netwin                              AS Netwin,
+  E.Coin_In_Redimible,
+  E.Netwin_Redimible,
+  G.Visitas_Mesas,
+  F.Visitas_Maquinas,
+  K.Visitas,
+  H.Clientes_Acumulados_Maquinas,
+  I.Clientes_Acumulados_Mesas,
+  J.Clientes_Acumulados
 
-  -- Sesiones Caja 
-  A.Entradas,
-  A.Entradas_Tarjeta_Jugador AS TarjetaJugador,
- COALESCE(A.Salidas_Depostio_en_Garantia, 0) AS Devoluciones,
-  A.Premios AS TPremios,
-
-  -- Visitas y Acumulados
-  COALESCE(VM.Visitas_Maquinas, 0) AS Visitas_Maquinas,
-  COALESCE(VME.Visitas_Mesas, 0) AS Visitas_Mesas,
-  COALESCE(VT.Visitas_Total, 0) AS Visitas_Total,
-  COALESCE(ACT.Acum_Total_Mes, 0) AS Acum_Total_Mes
-
-FROM ${ref("TBL_SESIONES_CAJA_GLD")} AS A
-LEFT JOIN compra_venta_fichas AS B ON A.GameDay = B.gameday AND A.ID_Sala = B.id_sala
-LEFT JOIN maquinas AS C ON A.GameDay = C.gameday AND A.ID_Sala = C.id_sala
-LEFT JOIN mesas AS D ON A.GameDay = D.GameDay AND A.ID_Sala = D.id_sala
-LEFT JOIN visitas_maquinas AS VM ON A.GameDay = VM.GameDay AND A.ID_Sala = VM.id_sala
-LEFT JOIN visitas_mesas AS VME ON A.GameDay = VME.GameDay AND A.ID_Sala = VME.id_sala
-LEFT JOIN visitas_total AS VT ON A.GameDay = VT.GameDay AND A.ID_Sala = VT.id_sala
-LEFT JOIN acum_total AS ACT ON A.GameDay = ACT.GameDay AND A.ID_Sala = ACT.id_sala
+FROM ${ref("TBL_SESIONES_CAJA_GLD")}   AS A
+LEFT JOIN compra_venta_fichas           AS B
+  ON A.GameDay = B.gameday
+  AND A.id_sala = B.id_sala
+LEFT JOIN maquinas                      AS C
+  ON A.GameDay = C.gameday
+  AND A.id_sala = C.id_sala
+LEFT JOIN mesas                         AS D
+  ON A.GameDay = D.GameDay
+  AND A.id_sala = D.ID_Sala
+LEFT JOIN sesiones_maquinas             AS E
+  ON A.GameDay = E.GameDay
+  AND A.id_sala = E.Id_Sala
+LEFT JOIN visitas_maquinas              AS F
+  ON A.GameDay = F.GameDay
+  AND A.id_sala = F.Id_Sala
+LEFT JOIN visitas_mesas                 AS G
+  ON A.GameDay = G.GameDay
+  AND A.id_sala = G.id_Sala
+LEFT JOIN acum_maquinas                 AS H
+  ON A.GameDay = H.gameday
+  AND A.id_sala = H.id_sala
+LEFT JOIN acum_mesas                    AS I
+  ON A.GameDay = I.gameday
+  AND A.id_sala = I.id_Sala
+LEFT JOIN acum_total                    AS J
+  ON A.GameDay = J.gameday
+  AND A.id_sala = J.id_sala
+LEFT JOIN visitas_total                 AS K
+  ON A.GameDay = K.GameDay
+  AND A.id_sala = K.id_sala
 
 ${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}

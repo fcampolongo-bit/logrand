@@ -8,18 +8,18 @@ config {
 
 CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GOLDENISLAND.TBL_CASHIER_MOVEMENTS_RAW
 (
-  cm_movement_id             INT64     NOT NULL,
-  cm_session_id              INT64     NOT NULL,
-  cm_cashier_id              INT64     NOT NULL,
-  cm_user_id                 INT64     NOT NULL,
-  cm_date                    DATETIME  NOT NULL,
-  cm_type                    INT64     NOT NULL,
-  cm_money_type              INT64     NOT NULL,
+  cm_movement_id             INT64      NOT NULL,
+  cm_session_id              INT64      NOT NULL,
+  cm_cashier_id              INT64      NOT NULL,
+  cm_user_id                 INT64      NOT NULL,
+  cm_date                    DATETIME   NOT NULL,
+  cm_type                    INT64      NOT NULL,
+  cm_money_type              INT64      NOT NULL,
   cm_account_movement_id     INT64,
-  cm_initial_balance         NUMERIC   NOT NULL,
-  cm_sub_amount              NUMERIC   NOT NULL,
-  cm_add_amount              NUMERIC   NOT NULL,
-  cm_final_balance           NUMERIC   NOT NULL,
+  cm_initial_balance         NUMERIC    NOT NULL,
+  cm_sub_amount              NUMERIC    NOT NULL,
+  cm_add_amount              NUMERIC    NOT NULL,
+  cm_final_balance           NUMERIC    NOT NULL,
   cm_user_name               STRING,
   cm_cashier_name            STRING,
   cm_card_track_data         STRING,
@@ -32,10 +32,11 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GOLDENISLAND.TBL_CASHIER_M
   cm_currency_denomination   NUMERIC,
   cm_gaming_table_session_id INT64,
   cm_chip_id                 INT64,
-  cm_cage_currency_type      INT64     NOT NULL,
+  cm_cage_currency_type      INT64      NOT NULL,
   cm_chips_sale_denomination INT64,
   cm_related_id              INT64,
-  cm_venue_id                INT64
+  cm_venue_id                INT64, 
+  updated_at                 INT64
 )
 PARTITION BY DATE(cm_date)
-CLUSTER BY cm_session_id, cm_type, cm_cashier_id;
+CLUSTER BY cm_date, cm_type, cm_session_id, cm_operation_id;
