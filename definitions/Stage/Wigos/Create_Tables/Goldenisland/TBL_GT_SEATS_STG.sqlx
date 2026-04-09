@@ -1,0 +1,29 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_WIGOS_GOLDENISLAND",
+  name: "TBL_GT_SEATS_STG",
+  uniqueKey: ["gts_seat_id"],
+  bigquery: {
+    clusterBy: ["gts_gaming_table_id", "gts_account_id", "gts_terminal_id"],
+  },
+  tags: ["carga_incremental_diaria_stg_goldenisland"]
+}
+
+SELECT
+  gts_seat_id,
+  gts_gaming_table_id,
+  gts_enabled,
+  gts_terminal_id,
+  gts_account_id,
+  gts_enabled_date,
+  gts_disabled_date,
+  gts_position,
+  gts_current_play_session_id,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GT_SEATS_RAW")}
+
+${when(incremental(),
+  `WHERE gts_seat_id > (SELECT MAX(gts_seat_id) FROM ${self()})`
+)}

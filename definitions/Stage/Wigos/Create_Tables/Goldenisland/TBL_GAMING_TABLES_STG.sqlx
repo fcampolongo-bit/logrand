@@ -1,0 +1,58 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_WIGOS_GOLDENISLAND",
+  name: "TBL_GAMING_TABLES_STG",
+  uniqueKey: ["gt_gaming_table_id"],
+  bigquery: {
+    clusterBy: ["gt_gaming_table_id", "gt_area_id", "gt_bank_id", "gt_name"],
+  },
+  tags: ["carga_incremental_diaria_stg_goldenisland"]
+}
+
+SELECT
+  gt_gaming_table_id,
+  gt_code,
+  gt_type_id,
+  gt_name,
+  gt_description,
+  gt_area_id,
+  gt_bank_id,
+  gt_floor_id,
+  gt_cur_iso_code,
+  gt_enabled,
+  gt_has_integrated_cashier,
+  gt_cashier_id,
+  gt_created,
+  gt_num_seats,
+  gt_bet_min,
+  gt_bet_max,
+  CAST(gt_design_xml AS STRING) AS gt_design_xml,
+  gt_provider_id,
+  gt_table_speed_slow,
+  gt_table_speed_fast,
+  gt_table_speed_normal,
+  gt_table_speed_selected,
+  gt_plays_count,
+  gt_last_tick_plays_count,
+  gt_player_tracking_pause,
+  gt_timestamp,
+  gt_table_idle_plays,
+  gt_last_tick_date,
+  gt_theoric_hold,
+  gt_dropbox_enabled,
+  gt_bet_min_curr_2,
+  gt_bet_max_curr_2,
+  gt_linked_cashier_id,
+  gt_processing,
+  gt_playstoautopause,
+  gt_playstoautoexcluded,
+  gt_max_players_allowed,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GAMING_TABLES_RAW")}
+
+${when(incremental(),
+  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
+)}
