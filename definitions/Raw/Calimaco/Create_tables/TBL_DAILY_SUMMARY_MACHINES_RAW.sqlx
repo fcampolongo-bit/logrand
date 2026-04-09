@@ -1,0 +1,26 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_DAILY_SUMMARY_MACHINES_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_DAILY_SUMMARY_MACHINES_RAW
+(
+	company STRING NOT NULL,
+	machine INT NOT NULL,
+	summary_date date NOT NULL,
+	currency STRING NOT NULL,
+	users INT NOT NULL,
+	wagers INT ,
+	winnings INT ,
+	games INT ,
+	jackpot_contributions INT NOT NULL,
+	jackpot_prizes INT NOT NULL,
+	commissions INT NOT NULL,
+	trans_out INT NOT NULL,
+	trans_in INT NOT NULL
+	
+	)

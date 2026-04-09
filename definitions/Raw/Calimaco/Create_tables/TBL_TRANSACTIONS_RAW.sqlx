@@ -1,0 +1,31 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_TRANSACTIONS_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_TRANSACTIONS_RAW
+(
+  db INT64 NOT NULL,
+  company STRING NOT NULL,
+  operation INT64 NOT NULL,
+  user INT64,              
+  amount INT64,
+  currency STRING,
+  method STRING,
+  method_account STRING,
+  hashdesc STRING,
+  operation_date DATETIME,
+  type STRING NOT NULL,
+  status STRING NOT NULL,
+  ip STRING,
+  useragent STRING,
+  extra STRING,
+  idempotence STRING,
+  shop INT64,                
+  terminal INT64,
+  payment_account INT64,
+  updated_date DATETIME
+)

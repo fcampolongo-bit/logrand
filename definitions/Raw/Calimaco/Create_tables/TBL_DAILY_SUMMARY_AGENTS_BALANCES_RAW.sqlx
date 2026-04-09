@@ -1,0 +1,18 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_DAILY_SUMMARY_AGENTS_BALANCES_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_DAILY_SUMMARY_AGENTS_BALANCES_RAW
+(
+	company STRING NOT NULL,
+	agent int NOT NULL,
+	account STRING NOT NULL,
+	currency STRING NOT NULL,
+	summary_date date NOT NULL,
+	amount bigint NOT NULL
+	)
