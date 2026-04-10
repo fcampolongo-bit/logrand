@@ -1,15 +1,13 @@
 config {
-  type: "incremental",
-  database: databases.stage,
+  type: "table",
+    database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_GT_PLAY_SESSIONS_STG",
-  uniqueKey: ["gtps_play_session_id"],
   bigquery: {
-    partitionBy: "DATE(gtps_started)",
-    clusterBy: ["gtps_gaming_table_id", "gtps_account_id", "gtps_status"],
-    updatePartitionFilter: "gtps_started >= current_datetime() - interval 14 day"
+    clusterBy: ["gtps_gaming_table_session_id", "gtps_account_id", "gtps_status"]
   },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
+ tags: ["carga_full_diaria_stg_goldenisland"]
+
 }
 
 SELECT
@@ -55,6 +53,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GT_PLAY_SESSIONS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}
