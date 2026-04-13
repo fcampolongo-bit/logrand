@@ -6,8 +6,7 @@ config {
   name: "TBL_PRESUPUESTOS_DIARIO_GLD",
   uniqueKey: ["Fecha", "Sala"], 
   bigquery: {
-    partitionBy: "GameDay",
-    clusterBy: ["Sala", "Proveedor"]
+    partitionBy: "GameDay"
   },
   tags: ["carga_incremental_mensual_golden"]
 }
@@ -70,7 +69,7 @@ CALCULO_DIAS_PRESUPUESTO_NEW as (
 reales_agrupados AS (
     -- 6. Origen FLASH_SALA
     SELECT 
-        gameday, SALA, coin_in, DropMesas, EntradaMaquinas, EntradaMesas, CajaMaquinas, CajaMesas,
+        gameday, SALA, coinin as coin_in, DropMesas, EntradaMaquinas, EntradaMesas, CajaMaquinas, CajaMesas,
         (CajaMaquinas + CajaMesas) AS netwin_real
     FROM `logrand-storage-golden-dev.GLD_REPORTE_TRANSITORIO.TBL_FLASH_SALA_GLD`
     WHERE gameday >= DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH), MONTH)
@@ -191,7 +190,7 @@ SELECT
     NULL AS Netwin_red_ppto,
     ROUND(IF(es_ultimo_dia, dp_raw + dif_dp, dp_raw), 2) AS Drop_ppto,
     pct_ci*Ppto_win_mesas_2 as Win_mesas_ppto,
-    ROUND(IF(es_ultimo_dia, enq_raw + dif_enq, enq_raw), 2) AS Entrada_maq_ppto,
+    ROUND(IF(es_ultimo_dia, enq_raw + dif_enq, enq_raw), 2) AS Entrada_maquinas_ppto,
     ROUND(IF(es_ultimo_dia, ens_raw + dif_ens, ens_raw), 2) AS Entrada_mesas_ppto,
     ROUND(IF(es_ultimo_dia, cmq_raw + dif_cmq, cmq_raw), 2) AS Resultado_maquinas_ppto,
     ROUND(IF(es_ultimo_dia, cms_raw + dif_cms, cms_raw), 2) AS Resultado_mesas_ppto,
