@@ -1,14 +1,12 @@
 config {
   type: "incremental",
-  database: databases.stage,
+  database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_ACCOUNT_MOVEMENTS_STG",
-  uniqueKey: ["am_movement_id"],
-  bigquery: {
-    partitionBy: "DATE(am_datetime)",
-    clusterBy: ["am_account_id", "am_type"],
-    updatePartitionFilter: "am_datetime >= current_datetime() - interval 14 day"
-  },
+  uniqueKey: ["am_movement_id"], 
+  partitionBy: "DATE(am_datetime)",
+  updatePartitionFilter: "am_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["am_account_id", "am_type"],
   tags: ["carga_incremental_diaria_stg_goldenisland"]
 }
 
@@ -38,7 +36,4 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_ACCOUNT_MOVEMENTS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}
 

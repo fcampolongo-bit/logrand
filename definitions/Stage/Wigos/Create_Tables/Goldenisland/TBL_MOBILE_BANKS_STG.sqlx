@@ -1,13 +1,15 @@
 config {
-  type: "incremental",
-  database: databases.stage,
+  type: "table",
+  database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_MOBILE_BANKS_STG",
-  uniqueKey: ["mb_account_id"],
   bigquery: {
-    clusterBy: ["mb_account_id", "mb_cashier_session_id", "mb_terminal_id", "mb_holder_name"],
+    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"],
+    partitionBy: "DATE(mb_last_activity)"
+
   },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
+   tags: ["carga_full_diaria_stg_goldenisland"]
+
 }
 
 SELECT
@@ -47,6 +49,4 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_MOBILE_BANKS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}
+

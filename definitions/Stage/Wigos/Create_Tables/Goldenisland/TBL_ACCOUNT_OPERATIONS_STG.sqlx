@@ -1,16 +1,20 @@
 config {
   type: "incremental",
-  database: databases.stage,
+  database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_ACCOUNT_OPERATIONS_STG",
-  uniqueKey: ["ao_operation_id"],
-  bigquery: {
+  uniqueKey: ["ao_operation_id"], 
+  /*bigquery: {
     partitionBy: "DATE(ao_datetime)",
-    clusterBy: ["ao_code", "ao_account_id", "ao_cashier_session_id", "ao_datetime"],
+    clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
     updatePartitionFilter: "ao_datetime >= current_datetime() - interval 14 day"
-  },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
-}
+  },*/
+    partitionBy: "DATE(ao_datetime)",
+  updatePartitionFilter: "ao_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
+   tags: ["carga_incremental_diaria_stg_goldenisland"]
+
+   }
 
 SELECT
   ao_operation_id,
@@ -41,6 +45,4 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_ACCOUNT_OPERATIONS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}
+

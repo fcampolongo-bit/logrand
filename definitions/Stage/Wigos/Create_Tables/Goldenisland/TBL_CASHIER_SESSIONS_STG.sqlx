@@ -1,15 +1,14 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage,
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_CASHIER_SESSIONS_STG",
-  uniqueKey: ["cs_session_id"],
   bigquery: {
-    partitionBy: "DATE(cs_opening_date)",
-    clusterBy: ["cs_cashier_id", "cs_user_id", "cs_status"],
-    updatePartitionFilter: "cs_opening_date >= current_datetime() - interval 14 day"
+    clusterBy: ["cs_user_id", "cs_status", "cs_cashier_id", "cs_gaming_day"],
+    partitionBy: "DATE(cs_opening_date)"
   },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
+ tags: ["carga_full_diaria_stg_goldenisland"]
+
 }
 
 SELECT

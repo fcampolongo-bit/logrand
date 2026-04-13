@@ -1,13 +1,14 @@
 config {
-  type: "incremental",
-  database: databases.stage,
+  type: "table",
+  database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_GUI_USERS_STG",
-  uniqueKey: ["gu_user_id"],
   bigquery: {
-    clusterBy: ["gu_user_id", "gu_profile_id", "gu_username"],
+    clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"],
+     partitionBy: "DATE(gu_last_changed)"
   },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
+    tags: ["carga_full_diaria_stg_goldenisland"]
+
 }
 
 SELECT
@@ -48,6 +49,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GUI_USERS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}

@@ -1,15 +1,14 @@
 config {
-  type: "incremental",
-  database: databases.stage,
+  type: "table",
+  database: databases.stage, 
   schema: "STG_WIGOS_GOLDENISLAND",
   name: "TBL_GAMING_TABLES_SESSIONS_STG",
-  uniqueKey: ["gts_gaming_table_session_id"],
   bigquery: {
-    clusterBy: ["gts_gaming_table_id", "gts_cashier_session_id", "gts_gaming_table_session_id"],
+    clusterBy: ["gts_gaming_table_session_id", "gts_cashier_session_id"]
   },
-  tags: ["carga_incremental_diaria_stg_goldenisland"]
-}
+  tags: ["carga_full_diaria_stg_goldenisland"]
 
+}
 SELECT
   gts_gaming_table_session_id,
   gts_gaming_table_id,
@@ -40,6 +39,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_GAMING_TABLES_SESSIONS_RAW")}
 
-${when(incremental(),
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})`
-)}
