@@ -1,0 +1,42 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_GRANDJUBILEE",
+  name: "TBL_MB_MOVEMENTS_STG",
+  uniqueKey: ["mbm_movement_id"], 
+  partitionBy: "DATE(mbm_datetime)",
+  clusterBy: ["mbm_cashier_session_id", "mbm_datetime","mbm_type"],
+  updatePartitionFilter: "mbm_datetime >= current_datetime() - interval 12 day",
+  tags: ["carga_incremental_diaria_stg_grandjubilee"]
+}
+
+SELECT
+  mbm_movement_id,
+  mbm_type,
+  mbm_datetime,
+  mbm_cashier_session_id,
+  mbm_mb_id,
+  mbm_terminal_id,
+  mbm_terminal_name,
+  mbm_player_acct_id,
+  mbm_player_trackdata,
+  mbm_wcp_sequence_id,
+  mbm_wcp_transaction_id,
+  mbm_acct_movement_id,
+  mbm_cashier_id,
+  mbm_cashier_name,
+  mbm_initial_balance,
+  mbm_add_amount,
+  mbm_sub_amount,
+  mbm_final_balance,
+  mbm_operation_id,
+  mbm_amount_01,
+  mbm_amount_02,
+  mbm_undo_status,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+   ${ref(databases.raw, "RAW_WIGOS_GRANDJUBILEE", "TBL_MB_MOVEMENTS_RAW")}
+
+   
+
