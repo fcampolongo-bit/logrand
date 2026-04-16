@@ -5,9 +5,10 @@ config {
   name: "TBL_GUI_USERS_STG",
   bigquery: {
     clusterBy: ["gu_user_id", "gu_username", "gu_profile_id"],
-    partitionBy: "DATE(gu_last_changed)"
+     partitionBy: "DATE(gu_last_changed)"
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+    tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT

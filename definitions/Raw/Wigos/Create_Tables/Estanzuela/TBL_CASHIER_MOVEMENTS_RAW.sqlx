@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_CASHIER_MOV
   cm_cage_currency_type      INT64     NOT NULL,
   cm_chips_sale_denomination INT64,
   cm_related_id              INT64,
-  cm_venue_id                INT64
+  cm_venue_id                INT64,
+  updated_at                 INT64
 )
 PARTITION BY DATE(cm_date)
 CLUSTER BY cm_session_id, cm_cashier_id, cm_type, cm_operation_id;

@@ -1,16 +1,16 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_DUBAI",
   name: "TBL_HANDPAYS_STG",
-  uniqueKey: ["hp_id"], 
   bigquery: {
-    partitionBy: "DATE(hp_datetime)",
-    clusterBy: ["hp_terminal_id", "hp_account_id", "hp_type", "hp_status"],
-    updatePartitionFilter: "hp_datetime >= current_datetime() - interval 14 day"
+    clusterBy: ["hp_terminal_id", "hp_play_session_id", "hp_account_id", "hp_status"],
+    partitionBy: "DATE(hp_datetime)"
   },
-  tags: ["carga_incremental_diaria_stg_dubai"]
+ tags: ["carga_full_diaria_stg_dubai"]
+
 }
+
 
 SELECT
   hp_id,
@@ -59,7 +59,3 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_HANDPAYS_RAW")}
-
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}

@@ -6,8 +6,10 @@ config {
   bigquery: {
     clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"],
     partitionBy: "DATE(mb_last_activity)"
+
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+   tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT
@@ -47,3 +49,4 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_MOBILE_BANKS_RAW")}
+

@@ -1,16 +1,13 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_ESTANZUELA",
   name: "TBL_ACCOUNTS_STG",
-  uniqueKey: ["ac_account_id"], 
-  bigquery: {
-    partitionBy: "DATE(ac_created)",
-    clusterBy: ["ac_account_id", "ac_holder_id", "ac_track_data"],
-    updatePartitionFilter: "ac_created >= current_datetime() - interval 14 day"
-  },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+  partitionBy: "DATE(ac_created)",
+  clusterBy: ["ac_account_id", "ac_holder_id","ac_track_data"],
+ tags: ["carga_full_diaria_stg_estanzuela"]
 }
+
 
 SELECT
   ac_account_id,
@@ -190,10 +187,12 @@ SELECT
   ac_fiscal_address,
   ac_mailing_address,
   ac_tax_form_expiration_date,
+  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_ACCOUNTS_RAW")}
+ ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_ACCOUNTS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+
+
+
+  

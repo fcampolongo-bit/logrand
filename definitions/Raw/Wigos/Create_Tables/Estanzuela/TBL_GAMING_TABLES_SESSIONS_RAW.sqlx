@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_GAMING_TABL
   gts_collected_dropbox_tickets_amount   NUMERIC   NOT NULL,
   gts_initial_chips_amount               NUMERIC   NOT NULL,
   gts_final_chips_amount                 NUMERIC   NOT NULL,
-  gts_copy_dealer_validated_amount       NUMERIC   NOT NULL
+  gts_copy_dealer_validated_amount       NUMERIC   NOT NULL,
+  updated_at                             INT64
 )
 PARTITION BY DATE(_PARTITIONTIME)
 CLUSTER BY gts_gaming_table_session_id, gts_gaming_table_id, gts_cashier_session_id;

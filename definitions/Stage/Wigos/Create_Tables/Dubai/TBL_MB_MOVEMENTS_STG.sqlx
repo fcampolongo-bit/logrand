@@ -4,11 +4,9 @@ config {
   schema: "STG_WIGOS_DUBAI",
   name: "TBL_MB_MOVEMENTS_STG",
   uniqueKey: ["mbm_movement_id"], 
-  bigquery: {
-    partitionBy: "DATE(mbm_datetime)",
-    clusterBy: ["mbm_type", "mbm_terminal_id", "mbm_player_acct_id", "mbm_cashier_session_id"],
-    updatePartitionFilter: "mbm_datetime >= current_datetime() - interval 14 day"
-  },
+  partitionBy: "DATE(mbm_datetime)",
+  clusterBy: ["mbm_cashier_session_id", "mbm_datetime","mbm_type"],
+  updatePartitionFilter: "mbm_datetime >= current_datetime() - interval 12 day",
   tags: ["carga_incremental_diaria_stg_dubai"]
 }
 
@@ -38,8 +36,9 @@ SELECT
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_MB_MOVEMENTS_RAW")}
+   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_MB_MOVEMENTS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+   
+--${when(incremental(), 
+  --`WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}

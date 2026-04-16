@@ -6,7 +6,7 @@ config {
   bigquery: {
     clusterBy: ["ar_area_id", "ar_venue_id"]
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"],
+ tags: ["carga_full_diaria_stg_estanzuela"],
   assertions: {
     uniqueKey: ["ar_area_id"] 
   }
@@ -23,3 +23,5 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_AREAS_RAW")}
+
+

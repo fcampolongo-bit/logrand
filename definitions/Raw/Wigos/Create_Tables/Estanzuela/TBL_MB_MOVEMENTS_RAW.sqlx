@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_MB_MOVEMENT
   mbm_operation_id         INT64,
   mbm_amount_01            NUMERIC,
   mbm_amount_02            NUMERIC,
-  mbm_undo_status          INT64
+  mbm_undo_status          INT64,
+  updated_at INT64
 )
 PARTITION BY DATE(mbm_datetime)
 CLUSTER BY mbm_mb_id, mbm_type, mbm_cashier_session_id, mbm_terminal_id;

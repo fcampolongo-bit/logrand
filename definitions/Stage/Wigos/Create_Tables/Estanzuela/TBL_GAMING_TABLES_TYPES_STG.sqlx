@@ -6,7 +6,8 @@ config {
   bigquery: {
     clusterBy: ["gtt_gaming_table_type_id", "gtt_report_type_id"],
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+    tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT

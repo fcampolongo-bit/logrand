@@ -1,13 +1,14 @@
 config {
   type: "table",
-  database: databases.stage, 
+  database: databases.stage,
   schema: "STG_WIGOS_ESTANZUELA",
   name: "TBL_CASHIER_SESSIONS_STG",
   bigquery: {
     clusterBy: ["cs_user_id", "cs_status", "cs_cashier_id", "cs_gaming_day"],
     partitionBy: "DATE(cs_opening_date)"
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+ tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT

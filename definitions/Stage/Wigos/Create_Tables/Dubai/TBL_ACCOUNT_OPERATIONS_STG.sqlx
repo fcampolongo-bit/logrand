@@ -4,12 +4,15 @@ config {
   schema: "STG_WIGOS_DUBAI",
   name: "TBL_ACCOUNT_OPERATIONS_STG",
   uniqueKey: ["ao_operation_id"], 
-  bigquery: {
+  /*bigquery: {
     partitionBy: "DATE(ao_datetime)",
-    clusterBy: ["ao_code", "ao_account_id", "ao_cashier_session_id", "ao_datetime"],
+    clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
     updatePartitionFilter: "ao_datetime >= current_datetime() - interval 14 day"
-  },
-  tags: ["carga_incremental_diaria_stg_dubai"]
+  },*/
+    partitionBy: "DATE(ao_datetime)",
+  updatePartitionFilter: "ao_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
+   tags: ["carga_incremental_diaria_stg_dubai"]
 }
 
 SELECT
@@ -41,6 +44,6 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_ACCOUNT_OPERATIONS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+-- ${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}

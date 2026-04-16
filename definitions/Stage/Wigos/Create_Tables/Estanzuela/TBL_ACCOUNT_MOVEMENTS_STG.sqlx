@@ -4,11 +4,9 @@ config {
   schema: "STG_WIGOS_ESTANZUELA",
   name: "TBL_ACCOUNT_MOVEMENTS_STG",
   uniqueKey: ["am_movement_id"], 
-  bigquery: {
-    partitionBy: "DATE(am_datetime)",
-    clusterBy: ["am_account_id", "am_type"],
-    updatePartitionFilter: "am_datetime >= current_datetime() - interval 14 day"
-  },
+  partitionBy: "DATE(am_datetime)",
+  updatePartitionFilter: "am_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["am_account_id", "am_type"],
   tags: ["carga_incremental_diaria_stg_estanzuela"]
 }
 
@@ -34,11 +32,11 @@ SELECT
   am_undo_status,
   am_track_data,
   am_modified_bucket_reason,
-  updated_at, 
+  updated_at, -- Tu campo secuencial
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_ACCOUNT_MOVEMENTS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+--${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}

@@ -1,15 +1,14 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_DUBAI",
   name: "TBL_DRAWS_STG",
-  uniqueKey: ["dr_id"], 
   bigquery: {
-    partitionBy: "DATE(dr_starting_date)",
-    clusterBy: ["dr_id", "dr_name", "dr_status"],
-    updatePartitionFilter: "dr_starting_date >= current_datetime() - interval 14 day"
+    clusterBy: ["dr_id", "dr_status"],
+    partitionBy: "DATE(dr_starting_date)"
   },
-  tags: ["carga_incremental_diaria_stg_dubai"]
+   tags: ["carga_full_diaria_stg_dubai"]
+
 }
 
 SELECT
@@ -63,6 +62,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_DRAWS_RAW")}
 
-${when(incremental(), 
-  `WHERE dr_id > (SELECT MAX(dr_id) FROM ${self()})` 
-)}

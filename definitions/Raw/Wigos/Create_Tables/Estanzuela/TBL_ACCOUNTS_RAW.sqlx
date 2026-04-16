@@ -184,7 +184,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_ACCOUNTS_RA
   ac_method_contact                   INT64,
   ac_fiscal_address                   INT64,
   ac_mailing_address                  INT64,
-  ac_tax_form_expiration_date         DATETIME
+  ac_tax_form_expiration_date         DATETIME,
+  updated_at                          INT64
 )
 PARTITION BY DATE(ac_created)
 CLUSTER BY ac_account_id, ac_holder_id, ac_holder_birth_date, ac_holder_is_vip;

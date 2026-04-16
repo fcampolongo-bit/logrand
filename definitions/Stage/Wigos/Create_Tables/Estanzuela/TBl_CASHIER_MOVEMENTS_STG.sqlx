@@ -4,11 +4,9 @@ config {
   schema: "STG_WIGOS_ESTANZUELA",
   name: "TBL_CASHIER_MOVEMENTS_STG",
   uniqueKey: ["cm_movement_id"], 
-  bigquery: {
-    partitionBy: "DATE(cm_date)",
-    clusterBy: ["cm_date", "cm_type", "cm_session_id", "cm_operation_id"],
-    updatePartitionFilter: "cm_date >= current_datetime() - interval 14 day"
-  },
+  partitionBy: "DATE(cm_date)",
+  clusterBy: ["cm_date", "cm_type","cm_session_id","cm_operation_id"],
+  updatePartitionFilter: "cm_date >= current_datetime() - interval 12 day",
   tags: ["carga_incremental_diaria_stg_estanzuela"]
 }
 
@@ -46,6 +44,8 @@ SELECT
 FROM
    ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_CASHIER_MOVEMENTS_RAW")}
 
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}
+--${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}
+
+

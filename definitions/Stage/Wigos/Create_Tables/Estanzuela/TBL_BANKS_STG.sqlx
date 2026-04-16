@@ -6,8 +6,8 @@ config {
   bigquery: {
     clusterBy: ["bk_bank_id", "bk_area_id"]
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"],
-  assertions: {
+ tags: ["carga_full_diaria_stg_estanzuela"],
+ assertions: {
     uniqueKey: ["bk_bank_id"] 
   }
 }

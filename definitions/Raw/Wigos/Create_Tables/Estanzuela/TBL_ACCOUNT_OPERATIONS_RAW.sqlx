@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_ACCOUNT_OPE
   ao_reason_id             INT64,
   ao_comment               STRING,
   ao_comment_handpay       STRING,
-  ao_venue_id              INT64
+  ao_venue_id              INT64, 
+  updated_at               INT64
 )
 PARTITION BY DATE(ao_datetime)
 CLUSTER BY ao_account_id, ao_code, ao_cashier_session_id;

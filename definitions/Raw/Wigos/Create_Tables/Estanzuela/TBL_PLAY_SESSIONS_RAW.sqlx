@@ -75,7 +75,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_PLAY_SESSIO
   ps_total_cash_out                      NUMERIC,
   ps_sequence                            INT64,
   ps_handpays_cc_amount                  NUMERIC,
-  ps_handpays_jkp_amount                 NUMERIC
+  ps_handpays_jkp_amount                 NUMERIC,
+  updated_at INT64
 )
 PARTITION BY DATE(ps_started)
 CLUSTER BY ps_account_id, ps_terminal_id, ps_status;

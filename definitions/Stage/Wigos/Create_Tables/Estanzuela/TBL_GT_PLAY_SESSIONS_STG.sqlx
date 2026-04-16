@@ -1,12 +1,13 @@
 config {
   type: "table",
-  database: databases.stage, 
+    database: databases.stage, 
   schema: "STG_WIGOS_ESTANZUELA",
   name: "TBL_GT_PLAY_SESSIONS_STG",
   bigquery: {
     clusterBy: ["gtps_gaming_table_session_id", "gtps_account_id", "gtps_status"]
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+ tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT
@@ -49,4 +50,4 @@ SELECT
   gtps_counter_update_bet,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_GT_PLAY_SESSIONS_RAW")}
+ ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_GT_PLAY_SESSIONS_RAW")}

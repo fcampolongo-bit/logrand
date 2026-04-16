@@ -1,13 +1,13 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
   schema: "STG_WIGOS_DUBAI",
-  name: "TBL_GAMING_TABLES_TYPES_STG",
-  uniqueKey: ["gtt_gaming_table_type_id"], 
+  name: "TBL_GAMING_TABLES_TYPES_STG", 
   bigquery: {
-    clusterBy: ["gtt_gaming_table_type_id", "gtt_name"],
+    clusterBy: ["gtt_gaming_table_type_id", "gtt_report_type_id"],
   },
-  tags: ["carga_incremental_diaria_stg_dubai"]
+    tags: ["carga_full_diaria_stg_dubai"]
+
 }
 
 SELECT
@@ -18,7 +18,3 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_GAMING_TABLES_TYPES_RAW")}
-
-${when(incremental(), 
-  `WHERE gtt_gaming_table_type_id > (SELECT MAX(gtt_gaming_table_type_id) FROM ${self()})` 
-)}

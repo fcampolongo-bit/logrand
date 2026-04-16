@@ -7,7 +7,8 @@ config {
     clusterBy: ["dr_id", "dr_status"],
     partitionBy: "DATE(dr_starting_date)"
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+   tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT

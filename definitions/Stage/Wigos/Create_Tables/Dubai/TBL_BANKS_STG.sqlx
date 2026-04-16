@@ -1,15 +1,16 @@
 config {
-  type: "incremental",
+  type: "table",
   database: databases.stage, 
-  schema: "STG_WIGOS_DUBAI",
+  schema: "STG_WIGOS_DUBAi",
   name: "TBL_BANKS_STG",
-  uniqueKey: ["bk_bank_id"], 
   bigquery: {
-    clusterBy: ["bk_bank_id", "bk_area_id", "bk_name"],
+    clusterBy: ["bk_bank_id", "bk_area_id"]
   },
-  tags: ["carga_incremental_diaria_stg_dubai"]
+ tags: ["carga_full_diaria_stg_dubai"],
+ assertions: {
+    uniqueKey: ["bk_bank_id"] 
+  }
 }
-
 SELECT
   bk_bank_id,
   bk_area_id,
@@ -21,7 +22,3 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_BANKS_RAW")}
-
-${when(incremental(), 
-  `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
-)}

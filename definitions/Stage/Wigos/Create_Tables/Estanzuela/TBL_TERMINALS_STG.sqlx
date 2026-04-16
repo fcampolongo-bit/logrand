@@ -7,7 +7,8 @@ config {
     clusterBy: ["te_terminal_id", "te_floor_id", "te_provider_id"],
     partitionBy: "DATE(te_creation_date)"
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+   tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT
@@ -103,8 +104,7 @@ SELECT
   te_min_denomination,
   te_chk_equity_percentage,
   te_creation_date,
-  te_retirement_date AS replacement_date_check, 
-  te_creation_date AS te_creation_date_dup,
+  te_replacement_date,
   te_reserve_account_id,
   te_reservation_expires,
   te_manufacture_month,

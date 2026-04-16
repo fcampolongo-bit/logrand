@@ -6,7 +6,8 @@ config {
   bigquery: {
     clusterBy: ["gt_gaming_table_id", "gt_area_id", "gt_bank_id"]
   },
-  tags: ["carga_incremental_diaria_stg_estanzuela"]
+ tags: ["carga_full_diaria_stg_estanzuela"]
+
 }
 
 SELECT
@@ -50,3 +51,4 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_ESTANZUELA", "TBL_GAMING_TABLES_RAW")}
+
