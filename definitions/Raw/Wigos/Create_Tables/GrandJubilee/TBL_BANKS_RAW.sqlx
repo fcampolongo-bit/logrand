@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_BANKS_RAW
   bk_name          STRING NOT NULL,
   bk_timestamp     BYTES,
   bk_multiposition BOOL,
-  bk_external_id   STRING
+  bk_external_id   STRING,
+  updated_at    INT64
 )
 CLUSTER BY bk_bank_id, bk_area_id;

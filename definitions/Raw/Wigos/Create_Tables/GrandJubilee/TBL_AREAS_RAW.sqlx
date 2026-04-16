@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_AREAS_RAW
   ar_smoking       BOOL NOT NULL,
   ar_timestamp     STRING,
   ar_venue_id      INT64,
-  ar_external_id   STRING
+  ar_external_id   STRING,
+  updated_at       INT64
 )
 CLUSTER BY ar_area_id;

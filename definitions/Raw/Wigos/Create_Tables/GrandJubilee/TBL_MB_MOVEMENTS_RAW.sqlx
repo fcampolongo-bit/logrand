@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_MB_MOVEME
   mbm_operation_id       INT64,
   mbm_amount_01          NUMERIC,
   mbm_amount_02          NUMERIC,
-  mbm_undo_status        INT64
+  mbm_undo_status        INT64,
+  updated_at INT64
 )
 PARTITION BY DATE(mbm_datetime)
 CLUSTER BY mbm_movement_id, mbm_cashier_session_id, mbm_mb_id;
