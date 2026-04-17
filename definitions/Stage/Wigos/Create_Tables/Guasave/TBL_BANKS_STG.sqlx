@@ -1,16 +1,17 @@
 config {
   type: "table",
   database: databases.stage, 
-  schema: "STG_WIGOS_DUBAI",
+  schema: "STG_WIGOS_GUASAVE",
   name: "TBL_BANKS_STG",
   bigquery: {
     clusterBy: ["bk_bank_id", "bk_area_id"]
   },
- tags: ["carga_full_diaria_stg_dubai"],
+ tags: ["carga_full_diaria_stg_guasave"],
  assertions: {
     uniqueKey: ["bk_bank_id"] 
   }
 }
+
 SELECT
   bk_bank_id,
   bk_area_id,
@@ -21,4 +22,5 @@ SELECT
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_BANKS_RAW")}
+  ${ref(databases.raw, "RAW_WIGOS_GUASAVE", "TBL_BANKS_RAW")}
+
