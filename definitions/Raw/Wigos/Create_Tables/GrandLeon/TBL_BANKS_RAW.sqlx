@@ -8,11 +8,12 @@ config {
 
 CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_BANKS_RAW
 (
-  bk_bank_id       INT64     NOT NULL,
-  bk_area_id       INT64     NOT NULL,
-  bk_name          STRING    NOT NULL,
-  bk_timestamp     STRING    NOT NULL,
+  bk_bank_id      INT64    NOT NULL,
+  bk_area_id      INT64    NOT NULL,
+  bk_name         STRING   NOT NULL,
+  bk_timestamp    STRING   NOT NULL, 
   bk_multiposition BOOL,
-  bk_external_id   STRING
+  bk_external_id  STRING,
+  updated_at int64
 )
 CLUSTER BY bk_bank_id;

@@ -52,9 +52,11 @@ sesiones_maquinas AS (
     SUM(Total_Netwin)      AS Total_Netwin,
     SUM(Jugado_Redimible)  AS Coin_In_Redimible,
     SUM(Netwin_Redimible)  AS Netwin_Redimible,
+    SUM(Jugadas) AS Jugadas,--se agregó este campo  17/04
+    count(distinct nombre) AS Total_Maquinas, --se agregó este campo  17/04
     Id_Sala,
     GameDay
-  FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
+  FROM `logrand-storage-golden-dev.GLD_MAQUINAS.TBL_SESIONES_JUEGOS_GLD`
   GROUP BY Id_Sala, GameDay
 ),
 
@@ -225,6 +227,8 @@ SELECT
   E.Total_Netwin                              AS Netwin,
   E.Coin_In_Redimible,
   E.Netwin_Redimible,
+  E.Jugadas,--campo agregado 17/04
+  E.Total_Maquinas,--campo agregado 17/04
   G.Visitas_Mesas,
   F.Visitas_Maquinas,
   K.Visitas,
