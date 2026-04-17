@@ -29,8 +29,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_DRAWS_RAW
   dr_min_played_pct         NUMERIC,
   dr_min_spent_pct          NUMERIC,
   dr_min_cash_in            NUMERIC,
-  dr_provider_list          STRING,   -- XML crudo
-  dr_offer_list             STRING,   -- XML crudo
+  dr_provider_list          STRING,
+  dr_offer_list             STRING,
   dr_number_points          NUMERIC,
   dr_gender_filter          INT64      NOT NULL,
   dr_limit_per_operation    INT64      NOT NULL,
@@ -46,6 +46,13 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_DRAWS_RAW
   dr_vip                    BOOL,
   dr_visible_on_promobox    BOOL       NOT NULL,
   dr_award_on_promobox      BOOL       NOT NULL,
-  dr_text_on_promobox       STRING
+  dr_text_on_promobox       STRING,
+  dr_auto_print             INT64,
+  dr_use_first_price        BOOL,
+  dr_number_first_price     NUMERIC,
+  dr_entry_levels_points    STRING,
+  dr_observations           STRING,
+  dr_type_document          STRING,
+  dr_first_document         BOOL
 )
 CLUSTER BY dr_id;

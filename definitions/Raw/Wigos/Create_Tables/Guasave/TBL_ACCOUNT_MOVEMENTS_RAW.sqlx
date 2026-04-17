@@ -7,6 +7,7 @@ config {
 }
 
 CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_ACCOUNT_MOVEMENTS_RAW
+  
 (
   am_movement_id            INT64      NOT NULL,
   am_play_session_id        INT64,
@@ -28,6 +29,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_ACCOUNT_MOVEME
   am_reasons                STRING,
   am_undo_status            INT64,
   am_track_data             STRING,
-  am_modified_bucket_reason INT64
+  am_modified_bucket_reason INT64,
+  updated_at INT64
 )
-CLUSTER BY am_movement_id;
+PARTITION BY DATE(am_datetime)
+CLUSTER BY am_account_id, am_play_session_id, am_terminal_id, am_type;

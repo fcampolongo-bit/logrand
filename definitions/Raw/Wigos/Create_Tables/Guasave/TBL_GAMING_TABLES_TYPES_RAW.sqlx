@@ -8,9 +8,9 @@ config {
 
 CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_GAMING_TABLES_TYPES_RAW
 (
-  gtt_gaming_table_type_id   INT64     NOT NULL,
-  gtt_name                   STRING    NOT NULL,
-  gtt_enabled                BOOL      NOT NULL,
+  gtt_gaming_table_type_id   INT64  NOT NULL,
+  gtt_name                   STRING NOT NULL,
+  gtt_enabled                BOOL   NOT NULL,
   gtt_report_type_id         INT64
 )
 CLUSTER BY gtt_gaming_table_type_id;

@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_CASHIER_MOVEME
   cm_cage_currency_type      INT64      NOT NULL,
   cm_chips_sale_denomination INT64,
   cm_related_id              INT64,
-  cm_venue_id                INT64
+  cm_venue_id                INT64,
+  updated_at INT64
 )
-CLUSTER BY cm_movement_id;
+PARTITION BY DATE(cm_date)
+CLUSTER BY cm_session_id, cm_type, cm_account_id, cm_movement_id;
+
