@@ -35,6 +35,56 @@ maquinas AS (
   GROUP BY id_sala, gameday
 ),
 
+HistoricoMaquinas AS (
+SELECT
+    id_sala,
+    gameday,
+    playedamount,
+    Netwin,
+    
+    -- 1. ACUMULADOS (Desde día 1 hasta el día de la fila)
+    SUM(playedamount) OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Played,
+    SUM(Netwin)       OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Netwin,
+
+    -- 2. PROMEDIOS VARIABLES (Desde día 2 hasta el día de la fila)
+    -- PlayedAmount
+    AVG(IF(EXTRACT(DAY FROM gameday) > 1, playedamount, NULL)) OVER (
+        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Played,
+    -- Netwin
+    AVG(IF(EXTRACT(DAY FROM gameday) > 1, Netwin, NULL)) OVER (
+        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Netwin,
+
+    -- 3. DATOS DE CALENDARIO
+    EXTRACT(DAY FROM LAST_DAY(gameday)) AS Dias_Totales_Mes,
+    EXTRACT(DAY FROM gameday) AS Dia_Actual_Serial
+  FROM maquinas
+),
+proyectado_mensual_maquinas as (
+
+SELECT 
+  id_sala,
+  gameday,
+  
+  -- Campos PlayedAmount
+  Acum_Played,
+  ROUND(Prom_Played, 2) AS Promedio_Diario_Played,
+  ROUND((COALESCE(Prom_Played, playedamount) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Played, 2) AS Proyectado_Played_Mensual,
+
+  -- Campos Netwin
+  Acum_Netwin,
+  ROUND(Prom_Netwin, 2) AS Promedio_Diario_Netwin,
+  ROUND((COALESCE(Prom_Netwin, Netwin) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Netwin, 2) AS Proyectado_Netwin_Mensual,
+
+  -- Info adicional
+  (Dias_Totales_Mes - Dia_Actual_Serial) AS Dias_Restantes_Desde_Ese_Dia
+FROM HistoricoMaquinas
+ORDER BY gameday DESC, id_sala
+),
+
 mesas AS (
   SELECT
     SUM(Tickets)                                   AS Tickets,
@@ -44,6 +94,56 @@ mesas AS (
     GameDay
   FROM ${ref("TBL_SESIONES_MESAS_JUEGO_GLD")}
   GROUP BY ID_Sala, GameDay
+),
+
+HistoricoMesas AS (
+  SELECT
+    ID_Sala,
+    GameDay,
+    DropMesas,
+    WinMesas,
+    
+    -- 1. ACUMULADOS POR MES Y SALA
+    SUM(DropMesas) OVER (PARTITION BY ID_Sala, DATE_TRUNC(GameDay, MONTH) ORDER BY GameDay) AS Acum_Drop,
+    SUM(WinMesas)  OVER (PARTITION BY ID_Sala, DATE_TRUNC(GameDay, MONTH) ORDER BY GameDay) AS Acum_Win,
+
+    -- 2. PROMEDIOS VARIABLES (Desde el día 2 de cada mes)
+    -- DropMesas
+    AVG(IF(EXTRACT(DAY FROM GameDay) > 1, DropMesas, NULL)) OVER (
+        PARTITION BY ID_Sala, DATE_TRUNC(GameDay, MONTH) ORDER BY GameDay 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Drop,
+    -- WinMesas
+    AVG(IF(EXTRACT(DAY FROM GameDay) > 1, WinMesas, NULL)) OVER (
+        PARTITION BY ID_Sala, DATE_TRUNC(GameDay, MONTH) ORDER BY GameDay 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Win,
+
+    -- 3. DATOS DE CALENDARIO
+    EXTRACT(DAY FROM LAST_DAY(GameDay)) AS Dias_Totales_Mes,
+    EXTRACT(DAY FROM GameDay) AS Dia_Actual_Serial
+  FROM mesas
+),
+proyectado_mensual_mesas as (
+
+SELECT 
+  ID_Sala,
+  GameDay,
+  
+  -- Proyectado DropMesas
+  Acum_Drop,
+  ROUND(Prom_Drop, 2) AS Promedio_Diario_Drop,
+  ROUND((COALESCE(Prom_Drop, DropMesas) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Drop, 2) AS Proyectado_Drop_Mensual,
+
+  -- Proyectado WinMesas
+  Acum_Win,
+  ROUND(Prom_Win, 2) AS Promedio_Diario_Win,
+  ROUND((COALESCE(Prom_Win, WinMesas) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Win, 2) AS Proyectado_Win_Mensual,
+
+  -- Info de apoyo
+  (Dias_Totales_Mes - Dia_Actual_Serial) AS Dias_Restantes_Desde_Ese_Dia
+FROM HistoricoMesas
+ORDER BY GameDay DESC, ID_Sala
 ),
 
 sesiones_maquinas AS (
@@ -56,7 +156,7 @@ sesiones_maquinas AS (
     count(distinct nombre) AS Total_Maquinas, --se agregó este campo  17/04
     Id_Sala,
     GameDay
-  FROM `logrand-storage-golden-dev.GLD_MAQUINAS.TBL_SESIONES_JUEGOS_GLD`
+  FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
   GROUP BY Id_Sala, GameDay
 ),
 
@@ -228,7 +328,11 @@ SELECT
   E.Coin_In_Redimible,
   E.Netwin_Redimible,
   E.Jugadas,--campo agregado 17/04
-  E.Total_Maquinas,--campo agregado 17/04
+  E.Total_Maquinas,--campo agregado 17/04,
+  M.Proyectado_Played_Mensual AS CoinIn_proyectado_mensual,
+  M.Proyectado_Netwin_Mensual AS NetWinMaq_proyectado_mensual,
+  N. Proyectado_Drop_Mensual AS DropMesas_proyectado_mensual,
+  N.Proyectado_Win_Mensual  AS WinMesas_proyectado_mensual ,
   G.Visitas_Mesas,
   F.Visitas_Maquinas,
   K.Visitas,
@@ -236,7 +340,7 @@ SELECT
   I.Clientes_Acumulados_Mesas,
   J.Clientes_Acumulados
 
-FROM ${ref("TBL_SESIONES_CAJA_GLD")}   AS A
+FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_SESIONES_CAJA_GLD`   AS A
 LEFT JOIN compra_venta_fichas           AS B
   ON A.GameDay = B.gameday
   AND A.id_sala = B.id_sala
@@ -267,5 +371,11 @@ LEFT JOIN acum_total                    AS J
 LEFT JOIN visitas_total                 AS K
   ON A.GameDay = K.GameDay
   AND A.id_sala = K.id_sala
+LEFT JOIN proyectado_mensual_maquinas AS M
+ON A.GameDay = M.GameDay
+  AND A.id_sala = M.id_sala
+LEFT JOIN proyectado_mensual_mesas AS N
+ON A.GameDay = N.GameDay
+  AND A.id_sala = N.id_sala
 
 ${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}

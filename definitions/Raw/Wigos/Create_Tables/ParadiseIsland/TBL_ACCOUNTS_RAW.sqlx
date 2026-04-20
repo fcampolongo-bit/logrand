@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_ACCOUNT
   ac_cash_in                          NUMERIC,
   ac_cash_won                         NUMERIC,
   ac_not_redeemable                   NUMERIC,
-  ac_timestamp                        BYTES,
+  ac_timestamp                        STRING,
   ac_track_data                       STRING,
   ac_total_cash_in                    NUMERIC,
   ac_total_cash_out                   NUMERIC,
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_ACCOUNT
   ac_draw_last_play_session_remainder NUMERIC,
   ac_nr_won_lock                      NUMERIC,
   ac_nr_expiration                    DATETIME,
-  ac_cashin_while_playing             NUMERIC,
+  ac_cashin_while_playing            NUMERIC,
   ac_holder_level                     INT64,
   ac_card_paid                        BOOL,
   ac_cancellable_operation_id         INT64,
@@ -184,7 +184,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_ACCOUNT
   ac_method_contact                   INT64,
   ac_fiscal_address                   INT64,
   ac_mailing_address                  INT64,
-  ac_tax_form_expiration_date         DATETIME
+  ac_tax_form_expiration_date         DATETIME,
+  updated_at    INT64
 )
 PARTITION BY DATE(ac_created)
-CLUSTER BY ac_account_id, ac_holder_id;
+CLUSTER BY ac_account_id, ac_holder_id, ac_track_data;
