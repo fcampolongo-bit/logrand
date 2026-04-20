@@ -6,7 +6,7 @@ config {
   hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_ACCOUNT_OPERATIONS_RAW
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_ACCOUNT_OPERATIONS_RAW
 (
   ao_operation_id          INT64      NOT NULL,
   ao_datetime              DATETIME   NOT NULL,

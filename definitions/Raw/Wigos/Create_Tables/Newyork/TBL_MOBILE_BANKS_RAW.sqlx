@@ -6,7 +6,8 @@ config {
   hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBILE_BANKS_RAW (
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBILE_BANKS_RAW
+(
   mb_account_id                 INT64     NOT NULL,
   mb_account_type               INT64     NOT NULL,
   mb_holder_name                STRING,
@@ -24,7 +25,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBILE_BANKS_R
   mb_last_activity              DATETIME,
   mb_last_terminal_id           INT64,
   mb_last_terminal_name         STRING,
-  mb_timestamp                  BYTES     NOT NULL,
+  mb_timestamp                  STRING    NOT NULL, 
   mb_track_number               INT64,
   mb_terminal_id                INT64,
   mb_over_cash                  NUMERIC   NOT NULL,
@@ -38,6 +39,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBILE_BANKS_R
   mb_shortfall_cash_session     NUMERIC   NOT NULL,
   mb_session_status             INT64     NOT NULL,
   mb_user_id                    INT64,
-  mb_lock                       BOOL      NOT NULL
+  mb_lock                       BOOL      NOT NULL,
+  updated_at                    INT64
 )
-CLUSTER BY mb_account_id;
+PARTITION BY DATE(mb_last_activity) 
+CLUSTER BY mb_account_id, mb_terminal_id, mb_cashier_session_id;

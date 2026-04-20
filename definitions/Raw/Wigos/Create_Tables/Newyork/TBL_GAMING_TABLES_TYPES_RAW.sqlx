@@ -6,10 +6,12 @@ config {
   hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_GAMING_TABLES_TYPES_RAW (
-  gtt_gaming_table_type_id   INT64   NOT NULL,
-  gtt_name                   STRING  NOT NULL,
-  gtt_enabled                BOOL    NOT NULL,
-  gtt_report_type_id         INT64
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_GAMING_TABLES_TYPES_RAW
+(
+  gtt_gaming_table_type_id   INT64     NOT NULL,
+  gtt_name                   STRING    NOT NULL,
+  gtt_enabled                BOOL      NOT NULL,
+  gtt_report_type_id         INT64,
+  gtt_timestamp              STRING    
 )
 CLUSTER BY gtt_gaming_table_type_id;
