@@ -1,12 +1,13 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_VIVAMEXICO",
-  name: "TBL_SALES_PER_HOUR_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_VIVAMEXICO",
+    name: "TBL_SALES_PER_HOUR_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_SALES_PER_HOUR_RAW (
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_SALES_PER_HOUR_RAW
+(
   sph_base_hour                     DATETIME  NOT NULL,
   sph_terminal_id                   INT64     NOT NULL,
   sph_terminal_name                 STRING,
@@ -24,7 +25,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_SALES_PER_H
   sph_progressive_jackpot_amount    NUMERIC,
   sph_progressive_jackpot_amount_0  NUMERIC,
   sph_progressive_provision_amount  NUMERIC,
-  sph_timestamp                     BYTES     NOT NULL
+  sph_timestamp                    STRING NOT NULL,
+  updated_at INT64
 )
 PARTITION BY DATE(sph_base_hour)
-CLUSTER BY sph_terminal_id, sph_game_id;
+CLUSTER BY sph_terminal_id, sph_game_id, sph_unique_id;

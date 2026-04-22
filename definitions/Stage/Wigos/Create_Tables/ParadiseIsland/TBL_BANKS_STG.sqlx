@@ -6,7 +6,7 @@ config {
   bigquery: {
     clusterBy: ["bk_bank_id", "bk_area_id"]
   },
- tags: ["carga_full_diaria_stg_aradiseisland"],
+ tags: ["carga_full_diaria_stg_paradiseisland"],
  assertions: {
     uniqueKey: ["bk_bank_id"] 
   }

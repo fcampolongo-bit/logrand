@@ -1,16 +1,17 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_VIVAMEXICO",
-  name: "TBL_GAMING_TABLES_TYPES_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_VIVAMEXICO",
+    name: "TBL_GAMING_TABLES_TYPES_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GAMING_TABLES_TYPES_RAW (
-  gtt_gaming_table_type_id  INT64  NOT NULL,
-  gtt_name                  STRING NOT NULL,
-  gtt_enabled               BOOL   NOT NULL,
-  gtt_report_type_id        INT64
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GAMING_TABLES_TYPES_RAW
+(
+  gtt_gaming_table_type_id   INT64     NOT NULL,
+  gtt_name                   STRING    NOT NULL,
+  gtt_enabled                BOOL      NOT NULL,
+  gtt_report_type_id         INT64,
+  gtt_timestamp              STRING    
 )
-PARTITION BY DATE(_PARTITIONTIME)
 CLUSTER BY gtt_gaming_table_type_id;

@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_GAMING_TABLE
   gt_processing             BOOL     NOT NULL,
   gt_playstoautopause       INT64,
   gt_playstoautoexcluded    INT64,
-  gt_max_players_allowed    INT64
+  gt_max_players_allowed    INT64,
+  updated_at                INT64
 )
 CLUSTER BY gt_gaming_table_id;

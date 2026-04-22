@@ -1,25 +1,26 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_ZAPOPAN",
-  name: "TBL_DRAWS_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_ZAPOPAN",
+    name: "TBL_DRAWS_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ZAPOPAN.TBL_DRAWS_RAW (
-  dr_id                         INT64       NOT NULL,
-  dr_name                       STRING      NOT NULL,
-  dr_starting_date              DATETIME    NOT NULL,
-  dr_ending_date                DATETIME    NOT NULL,
-  dr_last_number                INT64       NOT NULL,
-  dr_number_price               NUMERIC     NOT NULL,
-  dr_status                     INT64       NOT NULL,
-  dr_limited                    BOOL        NOT NULL,
-  dr_limit                      INT64       NOT NULL,
-  dr_limit_per_voucher          INT64       NOT NULL,
-  dr_initial_number             INT64       NOT NULL,
-  dr_max_number                 INT64       NOT NULL,
-  dr_credit_type                INT64       NOT NULL,
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ZAPOPAN.TBL_DRAWS_RAW
+(
+  dr_id                         INT64     NOT NULL,
+  dr_name                       STRING    NOT NULL,
+  dr_starting_date              DATETIME  NOT NULL,
+  dr_ending_date                DATETIME  NOT NULL,
+  dr_last_number                INT64     NOT NULL,
+  dr_number_price               NUMERIC   NOT NULL,
+  dr_status                     INT64     NOT NULL,
+  dr_limited                    BOOL      NOT NULL,
+  dr_limit                      INT64     NOT NULL,
+  dr_limit_per_voucher          INT64     NOT NULL,
+  dr_initial_number             INT64     NOT NULL,
+  dr_max_number                 INT64     NOT NULL,
+  dr_credit_type                INT64     NOT NULL,
   dr_header                     STRING,
   dr_footer                     STRING,
   dr_detail1                    STRING,
@@ -31,20 +32,20 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ZAPOPAN.TBL_DRAWS_RAW (
   dr_provider_list              STRING,
   dr_offer_list                 STRING,
   dr_number_points              NUMERIC,
-  dr_gender_filter              INT64       NOT NULL,
-  dr_limit_per_operation        INT64       NOT NULL,
-  dr_first_cash_in_constrained  BOOL        NOT NULL,
-  dr_bingo_format               BOOL        NOT NULL,
+  dr_gender_filter              INT64     NOT NULL,
+  dr_limit_per_operation        INT64     NOT NULL,
+  dr_first_cash_in_constrained  BOOL      NOT NULL,
+  dr_bingo_format               BOOL      NOT NULL,
   dr_small_resource_id          INT64,
   dr_large_resource_id          INT64,
-  dr_level_filter               INT64       NOT NULL,
+  dr_level_filter               INT64     NOT NULL,
   dr_points_level1              NUMERIC,
   dr_points_level2              NUMERIC,
   dr_points_level3              NUMERIC,
   dr_points_level4              NUMERIC,
   dr_vip                        BOOL,
-  dr_visible_on_promobox        BOOL        NOT NULL,
-  dr_award_on_promobox          BOOL        NOT NULL,
+  dr_visible_on_promobox        BOOL      NOT NULL,
+  dr_award_on_promobox          BOOL      NOT NULL,
   dr_text_on_promobox           STRING,
   dr_auto_print                 INT64,
   dr_use_first_price            BOOL,
@@ -52,7 +53,8 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ZAPOPAN.TBL_DRAWS_RAW (
   dr_entry_levels_points        STRING,
   dr_observations               STRING,
   dr_type_document              STRING,
-  dr_first_document             BOOL
+  dr_first_document             BOOL,
+  dr_timestamp                  STRING    
 )
-PARTITION BY DATE(dr_starting_date)
-CLUSTER BY dr_id, dr_status, dr_ending_date;
+PARTITION BY DATE(dr_starting_date) 
+CLUSTER BY dr_id, dr_status; 

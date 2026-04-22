@@ -1,0 +1,40 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVENTO4RIOS",
+  name: "TBL_SALES_PER_HOUR_STG",
+  uniqueKey: ["sph_terminal_id", "sph_base_hour","sph_game_id"], 
+  partitionBy: "DATE(sph_base_hour)",
+  clusterBy: ["sph_terminal_id", "sph_game_id"],
+  updatePartitionFilter: "sph_base_hour >= datetime_sub(current_datetime(), interval 12 day)",
+ tags: ["carga_incremental_diaria_stg_vivento4rios"]
+}
+
+SELECT
+  sph_base_hour,
+  sph_terminal_id,
+  sph_terminal_name,
+  sph_game_id,
+  sph_game_name,
+  sph_played_count,
+  sph_played_amount,
+  sph_won_count,
+  sph_won_amount,
+  sph_num_active_terminals,
+  sph_last_play_id,
+  sph_theoretical_won_amount,
+  sph_unique_id,
+  sph_jackpot_amount,
+  sph_progressive_jackpot_amount,
+  sph_progressive_jackpot_amount_0,
+  sph_progressive_provision_amount,
+  sph_timestamp,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO4RIOS", "TBL_SALES_PER_HOUR_RAW")}
+
+--${when(incremental(), 
+ --`WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}
+

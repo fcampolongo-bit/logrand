@@ -1,34 +1,36 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_VIVENTO",
-  name: "TBL_MB_MOVEMENTS_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_VIVENTO",
+    name: "TBL_MB_MOVEMENTS_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVENTO.TBL_MB_MOVEMENTS_RAW (
-  mbm_movement_id           INT64       NOT NULL,
-  mbm_type                  INT64       NOT NULL,
-  mbm_datetime              TIMESTAMP   NOT NULL,
-  mbm_cashier_session_id    INT64       NOT NULL,
-  mbm_mb_id                 INT64       NOT NULL,
-  mbm_terminal_id           INT64,
-  mbm_terminal_name         STRING,
-  mbm_player_acct_id        INT64,
-  mbm_player_trackdata      STRING,
-  mbm_wcp_sequence_id       INT64,
-  mbm_wcp_transaction_id    INT64,
-  mbm_acct_movement_id      INT64,
-  mbm_cashier_id            INT64,
-  mbm_cashier_name          STRING,
-  mbm_initial_balance       NUMERIC     NOT NULL,
-  mbm_add_amount            NUMERIC     NOT NULL,
-  mbm_sub_amount            NUMERIC     NOT NULL,
-  mbm_final_balance         NUMERIC     NOT NULL,
-  mbm_operation_id          INT64,
-  mbm_amount_01             NUMERIC,
-  mbm_amount_02             NUMERIC,
-  mbm_undo_status           INT64
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVENTO.TBL_MB_MOVEMENTS_RAW
+(
+  mbm_movement_id          INT64      NOT NULL,
+  mbm_type                 INT64      NOT NULL,
+  mbm_datetime             DATETIME   NOT NULL,
+  mbm_cashier_session_id   INT64      NOT NULL,
+  mbm_mb_id                INT64      NOT NULL,
+  mbm_terminal_id          INT64,
+  mbm_terminal_name        STRING,
+  mbm_player_acct_id       INT64,
+  mbm_player_trackdata     STRING,
+  mbm_wcp_sequence_id      INT64,
+  mbm_wcp_transaction_id   INT64,
+  mbm_acct_movement_id     INT64,
+  mbm_cashier_id           INT64,
+  mbm_cashier_name         STRING,
+  mbm_initial_balance      NUMERIC    NOT NULL,
+  mbm_add_amount           NUMERIC    NOT NULL,
+  mbm_sub_amount           NUMERIC    NOT NULL,
+  mbm_final_balance        NUMERIC    NOT NULL,
+  mbm_operation_id         INT64,
+  mbm_amount_01            NUMERIC,
+  mbm_amount_02            NUMERIC,
+  mbm_undo_status          INT64,
+  updated_at               INT64
 )
 PARTITION BY DATE(mbm_datetime)
-CLUSTER BY mbm_cashier_session_id, mbm_type, mbm_terminal_id, mbm_mb_id;
+CLUSTER BY mbm_cashier_session_id, mbm_datetime, mbm_type;

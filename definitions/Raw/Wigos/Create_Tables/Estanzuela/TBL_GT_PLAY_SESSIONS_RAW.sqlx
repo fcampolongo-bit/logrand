@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS
     gtps_import_operation_id INT64,
     gtps_iso_code STRING NOT NULL,
     gtps_auto_action BOOL,
-    gtps_counter_update_bet INT64 )
+    gtps_counter_update_bet INT64,
+      updated_at                           INT64 )
 PARTITION BY
   DATE(gtps_started)
 CLUSTER BY

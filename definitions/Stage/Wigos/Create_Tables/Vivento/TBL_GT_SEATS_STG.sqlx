@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVENTO",
+  name: "TBL_GT_SEATS_STG",
+  bigquery: {
+    clusterBy: ["gts_seat_id", "gts_gaming_table_id"]
+  },
+   tags: ["carga_full_diaria_stg_vivento"]
+
+}
+
+SELECT
+  gts_seat_id,
+  gts_gaming_table_id,
+  gts_enabled,
+  gts_terminal_id,
+  gts_account_id,
+  gts_enabled_date,
+  gts_disabled_date,
+  gts_position,
+  gts_current_play_session_id,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO", "TBL_GT_SEATS_RAW")}

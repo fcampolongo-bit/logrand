@@ -1,0 +1,51 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVAMEXICO",
+  name: "TBL_CASHIER_MOVEMENTS_STG",
+  uniqueKey: ["cm_movement_id"], 
+  partitionBy: "DATE(cm_date)",
+  clusterBy: ["cm_date", "cm_type","cm_session_id","cm_operation_id"],
+  updatePartitionFilter: "cm_date >= current_datetime() - interval 12 day",
+  tags: ["carga_incremental_diaria_stg_vivamexico"]
+}
+
+SELECT
+  cm_movement_id,
+  cm_session_id,
+  cm_cashier_id,
+  cm_user_id,
+  cm_date,
+  cm_type,
+  cm_money_type,
+  cm_account_movement_id,
+  cm_initial_balance,
+  cm_sub_amount,
+  cm_add_amount,
+  cm_final_balance,
+  cm_user_name,
+  cm_cashier_name,
+  cm_card_track_data,
+  cm_account_id,
+  cm_operation_id,
+  cm_details,
+  cm_currency_iso_code,
+  cm_aux_amount,
+  cm_undo_status,
+  cm_currency_denomination,
+  cm_gaming_table_session_id,
+  cm_chip_id,
+  cm_cage_currency_type,
+  cm_chips_sale_denomination,
+  cm_related_id,
+  cm_venue_id,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+   ${ref(databases.raw, "RAW_WIGOS_VIVAMEXICO", "TBL_CASHIER_MOVEMENTS_RAW")}
+
+--${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}
+
+

@@ -1,33 +1,37 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_TAJMAHAL",
-  name: "TBL_ACCOUNT_MOVEMENTS_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_TAJMAHAL",
+    name: "TBL_ACCOUNT_MOVEMENTS_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_TAJMAHAL.TBL_ACCOUNT_MOVEMENTS_RAW (
-    am_movement_id INT64,
-    am_play_session_id INT64,
-    am_account_id INT64,
-    am_terminal_id INT64,
-    am_wcp_sequence_id INT64,
-    am_wcp_transaction_id INT64,
-    am_datetime DATETIME,
-    am_type INT64,
-    am_initial_balance NUMERIC,
-    am_sub_amount NUMERIC,
-    am_add_amount NUMERIC,
-    am_final_balance NUMERIC,
-    am_cashier_id INT64,
-    am_cashier_name STRING,
-    am_terminal_name STRING,
-    am_operation_id INT64,
-    am_details STRING,
-    am_reasons STRING,
-    am_undo_status INT64,
-    am_track_data STRING,
-    am_modified_bucket_reason INT64
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_TAJMAHAL.TBL_ACCOUNT_MOVEMENTS_RAW
+  
+(
+  am_movement_id            INT64      NOT NULL,
+  am_play_session_id        INT64,
+  am_account_id             INT64      NOT NULL,
+  am_terminal_id            INT64,
+  am_wcp_sequence_id        INT64,
+  am_wcp_transaction_id     INT64,
+  am_datetime               DATETIME   NOT NULL,
+  am_type                   INT64      NOT NULL,
+  am_initial_balance        NUMERIC    NOT NULL,
+  am_sub_amount             NUMERIC    NOT NULL,
+  am_add_amount             NUMERIC    NOT NULL,
+  am_final_balance          NUMERIC    NOT NULL,
+  am_cashier_id             INT64,
+  am_cashier_name           STRING,
+  am_terminal_name          STRING,
+  am_operation_id           INT64,
+  am_details                STRING,
+  am_reasons                STRING,
+  am_undo_status            INT64,
+  am_track_data             STRING,
+  am_modified_bucket_reason INT64,
+  updated_at INT64
 )
 PARTITION BY DATE(am_datetime)
-CLUSTER BY am_account_id, am_play_session_id, am_terminal_id;
+CLUSTER BY am_account_id, am_type, am_datetime;

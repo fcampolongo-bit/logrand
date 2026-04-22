@@ -1,23 +1,24 @@
 config {
-  type: "operations",
-  schema: "RAW_WIGOS_VIVAMEXICO",
-  name: "TBL_GAMING_TABLES_RAW",
-  database: (databases.raw),
-  hasOutput: true
+    type: "operations",
+    schema: "RAW_WIGOS_VIVAMEXICO",
+    name: "TBL_GAMING_TABLES_RAW",
+    database: (databases.raw),
+    hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GAMING_TABLES_RAW (
-  gt_gaming_table_id          INT64       NOT NULL,
-  gt_code                     STRING      NOT NULL,
-  gt_type_id                  INT64       NOT NULL,
-  gt_name                     STRING      NOT NULL,
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GAMING_TABLES_RAW
+(
+  gt_gaming_table_id          INT64     NOT NULL,
+  gt_code                     STRING    NOT NULL,
+  gt_type_id                  INT64     NOT NULL,
+  gt_name                     STRING    NOT NULL,
   gt_description              STRING,
   gt_area_id                  INT64,
   gt_bank_id                  INT64,
   gt_floor_id                 STRING,
   gt_cur_iso_code             STRING,
-  gt_enabled                  BOOL        NOT NULL,
-  gt_has_integrated_cashier   BOOL        NOT NULL,
+  gt_enabled                  BOOL      NOT NULL,
+  gt_has_integrated_cashier   BOOL      NOT NULL,
   gt_cashier_id               INT64,
   gt_created                  DATETIME,
   gt_num_seats                INT64,
@@ -31,19 +32,20 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GAMING_TABL
   gt_table_speed_selected     INT64,
   gt_plays_count              INT64,
   gt_last_tick_plays_count    INT64,
-  gt_player_tracking_pause    BOOL        NOT NULL,
-  gt_timestamp                BYTES       NOT NULL,
+  gt_player_tracking_pause    BOOL      NOT NULL,
+  gt_timestamp                STRING    NOT NULL,
   gt_table_idle_plays         INT64,
   gt_last_tick_date           DATETIME,
-  gt_theoric_hold             NUMERIC(5,2),
-  gt_dropbox_enabled          BOOL        NOT NULL,
+  gt_theoric_hold             NUMERIC,
+  gt_dropbox_enabled          BOOL      NOT NULL,
   gt_bet_min_curr_2           NUMERIC,
   gt_bet_max_curr_2           NUMERIC,
   gt_linked_cashier_id        INT64,
-  gt_processing               BOOL        NOT NULL,
+  gt_processing               BOOL      NOT NULL,
   gt_playstoautopause         INT64,
   gt_playstoautoexcluded      INT64,
-  gt_max_players_allowed      INT64
+  gt_max_players_allowed      INT64,
+  updated_at                  INT64
 )
-PARTITION BY DATE(_PARTITIONTIME)
-CLUSTER BY gt_gaming_table_id, gt_type_id, gt_area_id, gt_bank_id;
+PARTITION BY DATE(gt_created) 
+CLUSTER BY gt_gaming_table_id;
