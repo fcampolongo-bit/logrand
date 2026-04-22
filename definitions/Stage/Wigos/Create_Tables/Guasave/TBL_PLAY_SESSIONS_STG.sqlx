@@ -76,9 +76,9 @@ SELECT
   ps_handpays_paid_amount,
   ps_total_cash_in,
   ps_total_cash_out,
-  ps_sequence,
+  /*ps_sequence,
   ps_handpays_cc_amount,
-  ps_handpays_jkp_amount,
+  ps_handpays_jkp_amount,*/
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM

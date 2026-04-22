@@ -35,56 +35,6 @@ maquinas AS (
   GROUP BY id_sala, gameday
 ),
 
-HistoricoMaquinas AS (
-SELECT
-    id_sala,
-    gameday,
-    playedamount,
-    Netwin,
-    
-    -- 1. ACUMULADOS (Desde día 1 hasta el día de la fila)
-    SUM(playedamount) OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Played,
-    SUM(Netwin)       OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Netwin,
-
-    -- 2. PROMEDIOS VARIABLES (Desde día 2 hasta el día de la fila)
-    -- PlayedAmount
-    AVG(IF(EXTRACT(DAY FROM gameday) > 1, playedamount, NULL)) OVER (
-        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
-        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) AS Prom_Played,
-    -- Netwin
-    AVG(IF(EXTRACT(DAY FROM gameday) > 1, Netwin, NULL)) OVER (
-        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
-        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-    ) AS Prom_Netwin,
-
-    -- 3. DATOS DE CALENDARIO
-    EXTRACT(DAY FROM LAST_DAY(gameday)) AS Dias_Totales_Mes,
-    EXTRACT(DAY FROM gameday) AS Dia_Actual_Serial
-  FROM maquinas
-),
-proyectado_mensual_maquinas as (
-
-SELECT 
-  id_sala,
-  gameday,
-  
-  -- Campos PlayedAmount
-  Acum_Played,
-  ROUND(Prom_Played, 2) AS Promedio_Diario_Played,
-  ROUND((COALESCE(Prom_Played, playedamount) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Played, 2) AS Proyectado_Played_Mensual,
-
-  -- Campos Netwin
-  Acum_Netwin,
-  ROUND(Prom_Netwin, 2) AS Promedio_Diario_Netwin,
-  ROUND((COALESCE(Prom_Netwin, Netwin) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Netwin, 2) AS Proyectado_Netwin_Mensual,
-
-  -- Info adicional
-  (Dias_Totales_Mes - Dia_Actual_Serial) AS Dias_Restantes_Desde_Ese_Dia
-FROM HistoricoMaquinas
-ORDER BY gameday DESC, id_sala
-),
-
 mesas AS (
   SELECT
     SUM(Tickets)                                   AS Tickets,
@@ -158,6 +108,55 @@ sesiones_maquinas AS (
     GameDay
   FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}
   GROUP BY Id_Sala, GameDay
+),
+HistoricoMaquinas AS (
+SELECT
+    id_sala,
+    gameday,
+    playedamount,
+    Netwin,
+    
+    -- 1. ACUMULADOS (Desde día 1 hasta el día de la fila)
+    SUM(playedamount) OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Played,
+    SUM(Netwin)       OVER (PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday) AS Acum_Netwin,
+
+    -- 2. PROMEDIOS VARIABLES (Desde día 2 hasta el día de la fila)
+    -- PlayedAmount
+    AVG(IF(EXTRACT(DAY FROM gameday) > 1, playedamount, NULL)) OVER (
+        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Played,
+    -- Netwin
+    AVG(IF(EXTRACT(DAY FROM gameday) > 1, Netwin, NULL)) OVER (
+        PARTITION BY id_sala, DATE_TRUNC(gameday, MONTH) ORDER BY gameday 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS Prom_Netwin,
+
+    -- 3. DATOS DE CALENDARIO
+    EXTRACT(DAY FROM LAST_DAY(gameday)) AS Dias_Totales_Mes,
+    EXTRACT(DAY FROM gameday) AS Dia_Actual_Serial
+  FROM maquinas
+),
+proyectado_mensual_maquinas as (
+
+SELECT 
+  id_sala,
+  gameday,
+  
+  -- Campos PlayedAmount
+  Acum_Played,
+  ROUND(Prom_Played, 2) AS Promedio_Diario_Played,
+  ROUND((COALESCE(Prom_Played, playedamount) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Played, 2) AS Proyectado_Played_Mensual,
+
+  -- Campos Netwin
+  Acum_Netwin,
+  ROUND(Prom_Netwin, 2) AS Promedio_Diario_Netwin,
+  ROUND((COALESCE(Prom_Netwin, Netwin) * (Dias_Totales_Mes - Dia_Actual_Serial)) + Acum_Netwin, 2) AS Proyectado_Netwin_Mensual,
+
+  -- Info adicional
+  (Dias_Totales_Mes - Dia_Actual_Serial) AS Dias_Restantes_Desde_Ese_Dia
+FROM HistoricoMaquinas
+ORDER BY gameday DESC, id_sala
 ),
 
 visitas_maquinas AS (
@@ -329,10 +328,10 @@ SELECT
   E.Netwin_Redimible,
   E.Jugadas,--campo agregado 17/04
   E.Total_Maquinas,--campo agregado 17/04,
-  M.Proyectado_Played_Mensual AS CoinIn_proyectado_mensual,
-  M.Proyectado_Netwin_Mensual AS NetWinMaq_proyectado_mensual,
-  N. Proyectado_Drop_Mensual AS DropMesas_proyectado_mensual,
-  N.Proyectado_Win_Mensual  AS WinMesas_proyectado_mensual ,
+  M.Proyectado_Played_Mensual AS CoinIn_Proyectado_Mensual,
+  M.Proyectado_Netwin_Mensual AS NetWinMaq_Proyectado_Mensual,
+  N. Proyectado_Drop_Mensual AS DropMesas_Proyectado_Mensual,
+  N.Proyectado_Win_Mensual  AS WinMesas_Proyectado_Mensual ,
   G.Visitas_Mesas,
   F.Visitas_Maquinas,
   K.Visitas,

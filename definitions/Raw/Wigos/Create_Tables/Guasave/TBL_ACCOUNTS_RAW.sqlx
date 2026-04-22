@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_ACCOUNTS_RAW
   ac_mode_reserved                    BOOL,
   ac_external_aml_file_sequence       STRING,
   ac_provision                        NUMERIC,
-  ac_sales_chips_rounding_amount      NUMERIC,
+  /*ac_sales_chips_rounding_amount      NUMERIC,
   ac_egm_reserved                     INT64,
   ac_last_update_in_local_time        DATETIME,
   ac_last_update_in_utc_time          DATETIME,
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GUASAVE.TBL_ACCOUNTS_RAW
   ac_method_contact                   INT64,
   ac_fiscal_address                   INT64,
   ac_mailing_address                  INT64,
-  ac_tax_form_expiration_date         DATETIME,
+  ac_tax_form_expiration_date         DATETIME,*/
   updated_at    INT64
 )
 PARTITION BY DATE(ac_created)

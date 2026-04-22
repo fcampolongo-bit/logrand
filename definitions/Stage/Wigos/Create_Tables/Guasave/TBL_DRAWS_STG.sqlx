@@ -51,13 +51,13 @@ SELECT
   dr_visible_on_promobox,
   dr_award_on_promobox,
   dr_text_on_promobox,
-  dr_auto_print,
+  /*dr_auto_print,
   dr_use_first_price,
   dr_number_first_price,
   dr_entry_levels_points,
   dr_observations,
   dr_type_document,
-  dr_first_document,
+  dr_first_document,*/
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GUASAVE", "TBL_DRAWS_RAW")}
