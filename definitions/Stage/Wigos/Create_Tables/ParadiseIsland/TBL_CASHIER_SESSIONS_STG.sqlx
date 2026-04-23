@@ -35,7 +35,7 @@ SELECT
   cs_short_over_history,
   cs_has_pinpad_operations,
   cs_venue_id,
-  updated_at,
+  null as updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_CASHIER_SESSIONS_RAW")}

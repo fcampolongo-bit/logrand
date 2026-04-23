@@ -33,7 +33,7 @@ SELECT
   mbm_amount_01,
   mbm_amount_02,
   mbm_undo_status,
-  updated_at,
+  null as updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
    ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_MB_MOVEMENTS_RAW")}

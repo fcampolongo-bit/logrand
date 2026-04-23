@@ -32,7 +32,7 @@ SELECT
   am_undo_status,
   am_track_data,
   am_modified_bucket_reason,
-  updated_at, -- Tu campo secuencial
+  null as updated_at, 
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_ACCOUNT_MOVEMENTS_RAW")}

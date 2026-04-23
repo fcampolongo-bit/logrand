@@ -4,15 +4,10 @@ config {
   schema: "STG_WIGOS_JUBILEE",
   name: "TBL_ACCOUNT_OPERATIONS_STG",
   uniqueKey: ["ao_operation_id"], 
-  /*bigquery: {
-    partitionBy: "DATE(ao_datetime)",
-    clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
-    updatePartitionFilter: "ao_datetime >= current_datetime() - interval 14 day"
-  },*/
-    partitionBy: "DATE(ao_datetime)",
+  partitionBy: "DATE(ao_datetime)",
   updatePartitionFilter: "ao_datetime >= datetime_sub(current_datetime(), interval 12 day)",
   clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
-   tags: ["carga_incremental_diaria_stg_jubilee"]
+   tags: ["c rga_incremental_diaria_stg_jubilee"]
 }
 
 SELECT
@@ -44,6 +39,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_ACCOUNT_OPERATIONS_RAW")}
 
--- ${when(incremental(), 
- -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
---)}
