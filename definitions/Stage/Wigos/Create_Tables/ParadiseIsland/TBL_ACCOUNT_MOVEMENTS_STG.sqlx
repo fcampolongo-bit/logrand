@@ -37,6 +37,3 @@ SELECT
 FROM
   ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_ACCOUNT_MOVEMENTS_RAW")}
 
---${when(incremental(), 
- -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
---)}
