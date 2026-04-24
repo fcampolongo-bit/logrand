@@ -34,7 +34,7 @@ SELECT
   cs_gaming_day,
   cs_short_over_history,
   cs_has_pinpad_operations,
-  --cs_venue_id,
+  NULL AS cs_venue_id,
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
