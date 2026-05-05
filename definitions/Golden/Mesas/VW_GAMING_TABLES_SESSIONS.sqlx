@@ -3,7 +3,37 @@ config {
   database: databases.golden,
   schema: "GLD_MESAS",
   name: "VW_GAMING_TABLES_SESSIONS_GLD",
-  description: "Vista consolidada escalable. Actualmente: Jubilee."
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    gts_gaming_table_session_id: "🆔 Identificador único de la sesión operativa de la mesa.",
+    gts_gaming_table_id: "🎲 Identificador de la mesa asociada a la sesión.",
+    gts_cashier_session_id: "🏧 Identificador de la sesión de cajero vinculada.",
+    gts_fills_chips_amount: "💰 Valor total de fichas ingresadas a la mesa (fills).",
+    gts_credits_chips_amount: "💳 Valor total de créditos en fichas otorgados durante la sesión.",
+    gts_own_sales_amount: "💵 Monto de ventas realizadas directamente por la mesa.",
+    gts_external_sales_amount: "💵 Monto de ventas realizadas por medios externos vinculados.",
+    gts_own_purchase_amount: "💰 Monto de compras (recompras) realizadas directamente en la mesa.",
+    gts_external_purchase_amount: "💰 Monto de compras realizadas mediante sistemas externos.",
+    gts_collected_amount: "📥 Valor total recaudado en efectivo durante la sesión.",
+    gts_tips: "🎁 Monto total de propinas registradas en la sesión.",
+    gts_client_visits: "👥 Número de visitas de clientes registradas en la sesión.",
+    gts_total_sales_amount: "📊 Suma total de ventas (propias + externas).",
+    gts_total_purchase_amount: "📊 Suma total de compras (propias + externas).",
+    gts_last_external_sale_session_id: "🔎 Identificador de la última sesión externa de venta asociada.",
+    gts_last_external_purchase_session_id: "🔎 Identificador de la última sesión externa de compra asociada.",
+    gts_pre_closing: "⏳ Indica si la sesión está en estado previo al cierre.",
+    gts_dropbox_enabled: "📦 Indica si durante la sesión estuvo habilitado el dropbox.",
+    gts_collected_dropbox_amount: "💰 Valor total recolectado en efectivo desde el dropbox.",
+    gts_collected_dropbox_chips_amount: "🎲 Valor total recolectado en fichas desde el dropbox.",
+    gts_collected_dropbox_tickets_amount: "🎟 Valor total recolectado en tickets desde el dropbox.",
+    gts_initial_chips_amount: "🪙 Valor total de fichas disponibles al inicio de la sesión.",
+    gts_final_chips_amount: "🪙 Valor total de fichas al cierre de la sesión.",
+    gts_copy_dealer_validated_amount: "✔ Monto validado por el dealer en proceso de copia o conciliación.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
 }
 
 ${salas.lista_salas.map(s => `

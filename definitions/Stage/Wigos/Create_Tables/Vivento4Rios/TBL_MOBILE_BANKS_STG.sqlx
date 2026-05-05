@@ -8,7 +8,7 @@ config {
     partitionBy: "DATE(mb_last_activity)"
 
   },
-   tags: ["carga_full_diaria_stg_vivento4rios"]
+   tags: ["carga_full_diaria_stg_Vivento4rios"]
 
 }
 

@@ -3,7 +3,19 @@ config {
   database: databases.golden,
   schema: "GLD_MAQUINAS",
   name: "VW_BANKS_GLD",
-  description: "Vista consolidada escalable. Actualmente: Jubilee."
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    bk_bank_id: "🆔 Identificador único del banco o agrupación de máquinas dentro del piso de juego.",
+    bk_area_id: "🗺 Identificador del área física a la que pertenece el banco de máquinas. Relaciona con la dimensión de áreas.",
+    bk_name: "🏷 Nombre funcional u operativo del banco de máquinas (ej. “Banco Progresivos Norte”).",
+    bk_timestamp: "🕒 Marca de tiempo técnica asociada al registro (última actualización o sincronización).",
+    bk_multiposition: "🎰 Indica si el banco contiene máquinas multiposición (varios jugadores simultáneos).",
+    bk_external_id: "🔗 Identificador del banco en sistemas externos o proveedor.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
 }
 
 ${salas.lista_salas.map(s => `

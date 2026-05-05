@@ -3,7 +3,16 @@ config {
   database: databases.golden,
   schema: "GLD_MESAS",
   name: "VW_GAMING_TABLES_TYPES_GLD",
-  description: "Vista consolidada escalable. Actualmente: Jubilee."
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    gtt_gaming_table_type_id: "🆔 Identificador único del tipo de mesa de juego.",
+    gtt_name: "🎲 Nombre del tipo de juego asociado a la mesa (ej. Ruleta, Blackjack, Poker, Baccarat).",
+    gtt_enabled: "✅ Indica si el tipo de mesa está habilitado para uso operativo.",
+    gtt_report_type_id: "📊 Identificador del tipo de reporte o categoría analítica asociada al tipo de mesa.",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
 }
 
 ${salas.lista_salas.map(s => `

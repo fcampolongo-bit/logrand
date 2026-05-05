@@ -3,8 +3,19 @@ config {
   database: databases.golden,
   schema: "GLD_OPERACION_EN_SALAS",
   name: "VW_AREAS_GLD",
-  description: "Vista final de áreas de las salas de todos los casinos."
-
+  description: "Vista final de áreas de las salas de todos los casinos.",
+  columns: {
+    ar_area_id: "🆔 ID interno del área. Clave primaria/identificador del área dentro del modelo. Se usa para relacionar con terminales, eventos u otras tablas operativas.",
+    ar_name: "🏷 Nombre del área. Denominación funcional/operativa del sector (ej. “VIP”, “Slots Norte”). Se usa para visualización y segmentación en reportes.",
+    ar_smoking: "🚬 Indicador de área de fumadores. Representa si el área permite fumar. Se usa para segmentación operativa y análisis de comportamiento por zona.",
+    ar_timestamp: "Valor de versión de registro (rowversion) proveniente de SQL Server. No representa fecha ni hora real; se utiliza para control técnico de cambios y procesos de carga incremental.",
+    ar_venue_id: "🏢 ID del venue/sala en el sistema fuente. Representa la sala a la que pertenece el área. Se usa para agrupar y filtrar por unidad operativa.",
+    ar_external_id: "🔗 ID externo del área. Identificador proveniente de un sistema externo o legado. Se usa para integraciones, conciliación y mapeos cross-sistemas.",
+    updated_at: "🔄 Última actualización (epoch/numérico). Representa cuándo se actualizó el registro en la fuente o en el pipeline. Se usa para control de cambios e incremental.",
+    ingestion_ts: "📥 Timestamp de ingesta. Fecha/hora en que el dato fue cargado al entorno analítico (trazabilidad del pipeline).",
+    sala: "🏷🏢 Nombre descriptivo de la sala. Campo de apoyo para lectura humana (ej. “Casino Monterrey”). Usado en reportes y filtros amigables.",
+    id_sala: "🆔🏢 ID interno de sala (homologado). Llave de referencia de sala en el modelo corporativo (no necesariamente igual a ar_venue_id). Útil para estandarización multi-fuente."
+  }
 }
 
 ${salas.lista_salas.map(s => `

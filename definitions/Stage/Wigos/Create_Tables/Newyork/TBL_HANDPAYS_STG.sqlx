@@ -1,7 +1,7 @@
 config {
   type: "table",
   database: databases.stage, 
-  schema: "STG_WIGOS_JNEWYORK",
+  schema: "STG_WIGOS_NEWYORK",
   name: "TBL_HANDPAYS_STG",
   bigquery: {
     clusterBy: ["hp_terminal_id", "hp_play_session_id", "hp_account_id", "hp_status"],

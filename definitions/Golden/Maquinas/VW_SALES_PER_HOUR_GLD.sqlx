@@ -3,7 +3,31 @@ config {
   database: databases.golden,
   schema: "GLD_MAQUINAS",
   name: "VW_SALES_PER_HOUR_GLD",
-  description: "Vista consolidada escalable. Actualmente: Jubilee."
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    sph_base_hour: "🕒 Hora base (truncada a hora) utilizada como dimensión temporal para la agregación de ventas.",
+    sph_terminal_id: "🎰 Identificador único de la máquina o terminal de juego.",
+    sph_terminal_name: "🏷 Nombre operativo del terminal de juego.",
+    sph_game_id: "🆔 Identificador del juego ejecutado en el terminal.",
+    sph_game_name: "🎮 Nombre comercial del juego.",
+    sph_played_count: "🔢 Número total de partidas/apuestas realizadas en la hora.",
+    sph_played_amount: "💰 Valor total apostado (coin-in) durante la hora.",
+    sph_won_count: "🏆 Número total de premios otorgados en la hora.",
+    sph_won_amount: "💵 Valor total pagado en premios durante la hora (coin-out).",
+    sph_num_active_terminals: "📊 Número de terminales activas en esa hora para el juego o agrupación.",
+    sph_last_play_id: "🔎 Identificador de la última jugada considerada en la agregación.",
+    sph_theoretical_won_amount: "📈 Valor teórico estimado de premios según configuración matemática del juego.",
+    sph_unique_id: "🆔 Identificador único del registro horario.",
+    sph_jackpot_amount: "🎰💎 Valor total pagado por jackpots durante la hora.",
+    sph_progressive_jackpot_amount: "📈💰 Valor pagado por jackpots progresivos en la hora.",
+    sph_progressive_jackpot_amount_0: "🎰 Nivel específico de jackpot progresivo pagado (configuración 0).",
+    sph_progressive_provision_amount: "📊 Valor provisionado para jackpots progresivos en la hora.",
+    sph_timestamp: "🕒 Marca de tiempo técnica asociada al registro agregado.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
 }
 
 ${salas.lista_salas.map(s => `
