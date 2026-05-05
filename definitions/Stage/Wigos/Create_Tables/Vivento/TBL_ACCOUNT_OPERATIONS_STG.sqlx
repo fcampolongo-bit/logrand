@@ -12,7 +12,7 @@ config {
     partitionBy: "DATE(ao_datetime)",
   updatePartitionFilter: "ao_datetime >= datetime_sub(current_datetime(), interval 12 day)",
   clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
-   tags: ["carga_incremental_diaria_stg_vivaento"]
+   tags: ["carga_incremental_diaria_stg_vivento"]
 }
 
 SELECT
