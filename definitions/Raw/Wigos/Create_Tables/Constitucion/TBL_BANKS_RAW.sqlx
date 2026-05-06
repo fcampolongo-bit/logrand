@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_BANKS_RAW
   bk_bank_id       INT64     NOT NULL,
   bk_area_id       INT64     NOT NULL,
   bk_name          STRING    NOT NULL,
-  bk_timestamp     TIMESTAMP NOT NULL,
+  bk_timestamp     string    NOT NULL,
   bk_multiposition BOOL,
   bk_external_id   STRING,
   updated_at       INT64

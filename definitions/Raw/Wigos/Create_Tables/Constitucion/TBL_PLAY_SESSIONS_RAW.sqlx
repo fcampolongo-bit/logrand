@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_PLAY_SESS
   ps_cash_out                           NUMERIC   NOT NULL,
   ps_finished                           DATETIME,
   ps_final_balance                      NUMERIC,
-  ps_timestamp                          BYTES,
+  ps_timestamp                          STRING,
   ps_locked                             DATETIME,
   ps_stand_alone                        BOOL      NOT NULL,
   ps_promo                              BOOL      NOT NULL,

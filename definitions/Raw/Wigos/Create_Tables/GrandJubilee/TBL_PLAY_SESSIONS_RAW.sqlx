@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_PLAY_SESS
   ps_cash_out                           NUMERIC   NOT NULL,
   ps_finished                           DATETIME,
   ps_final_balance                      NUMERIC,
-  ps_timestamp                          BYTES,
+  ps_timestamp                          STRING,
   ps_locked                             DATETIME,
   ps_stand_alone                        BOOL      NOT NULL,
   ps_promo                              BOOL      NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDJUBILEE.TBL_PLAY_SESS
   ps_sequence                           INT64,
   ps_handpays_cc_amount                 NUMERIC,
   ps_handpays_jkp_amount                NUMERIC,
-  updated_at                            INT64
+  updated_at   INT64
 )
 PARTITION BY DATE(ps_started)
 CLUSTER BY ps_play_session_id, ps_terminal_id, ps_account_id;

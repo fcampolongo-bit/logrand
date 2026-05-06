@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_GT_PLAY_S
   gtps_in_session_last_play           INT64,
   gtps_updated_played_current         DATETIME,
   gtps_updated                        DATETIME,
-  gtps_timestamp                      BYTES     NOT NULL,
+  gtps_timestamp                      STRING     NOT NULL,
   gtps_import_operation_id            INT64,
   gtps_iso_code                       STRING    NOT NULL,
   gtps_auto_action                    BOOL,

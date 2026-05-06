@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_MOBILE_BA
   mb_last_activity             DATETIME,
   mb_last_terminal_id          INT64,
   mb_last_terminal_name        STRING,
-  mb_timestamp                 BYTES      NOT NULL,
+  mb_timestamp                 STRING      NOT NULL,
   mb_track_number              INT64,
   mb_terminal_id               INT64,
   mb_over_cash                 NUMERIC    NOT NULL,

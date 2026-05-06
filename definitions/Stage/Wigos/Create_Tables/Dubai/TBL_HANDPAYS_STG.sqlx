@@ -13,8 +13,7 @@ config {
 
 
 SELECT
-  hp_id,
-  hp_terminal_id,
+   hp_terminal_id,
   hp_game_base_name,
   hp_datetime,
   hp_previous_meters,
@@ -34,13 +33,15 @@ SELECT
   hp_transaction_id,
   hp_candidate_play_session_id,
   hp_candidate_prev_play_session_id,
-  CAST(hp_long_poll_1b_data AS STRING) AS hp_long_poll_1b_data,
+  hp_long_poll_1b_data,
+  hp_id,
   hp_progressive_id,
   hp_level,
   hp_status_changed,
   hp_tax_base_amount,
   hp_tax_amount,
   hp_tax_pct,
+  HP_TIMESTAMP,
   hp_payment_mode,
   hp_status_calculated,
   hp_operation_id,

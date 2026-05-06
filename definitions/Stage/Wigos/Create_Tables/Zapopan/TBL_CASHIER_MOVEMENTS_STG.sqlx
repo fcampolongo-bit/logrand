@@ -39,7 +39,7 @@ SELECT
   cm_chips_sale_denomination,
   cm_related_id,
   cm_venue_id,
-  --updated_at,
+  cast(null as int) as updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
    ${ref(databases.raw, "RAW_WIGOS_ZAPOPAN", "TBL_CASHIER_MOVEMENTS_RAW")}

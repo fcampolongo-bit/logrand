@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_TERMINALS_R
   te_server_id                      INT64,
   te_external_id                    STRING,
   te_blocked                        BOOL      NOT NULL,
-  te_timestamp                      BYTES     NOT NULL,
+  te_timestamp                      STRING NOT NULL,
   te_active                         BOOL      NOT NULL,
   te_provider_id                    STRING,
   te_client_id                      INT64,
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_TERMINALS_R
   te_sas_flags2_use_site_default    INT64,
   te_cashier_draw_device_ip         STRING,
   te_ven_id                         INT64,
-  updated_at INT64
+  updated_at                        INT64
 )
 PARTITION BY DATE(te_creation_date)
 CLUSTER BY te_terminal_id, te_terminal_type, te_provider_id, te_floor_id;
