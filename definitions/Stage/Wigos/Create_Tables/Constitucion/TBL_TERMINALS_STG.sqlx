@@ -11,7 +11,7 @@ config {
 }
 
 SELECT
-  te_terminal_id,
+ te_terminal_id,
   te_type,
   te_server_id,
   te_external_id,
@@ -103,7 +103,7 @@ SELECT
   te_min_denomination,
   te_chk_equity_percentage,
   te_creation_date,
-  te_retirement_date , 
+  te_replacement_date,
   te_reserve_account_id,
   te_reservation_expires,
   te_manufacture_month,

@@ -187,7 +187,8 @@ SELECT
   ac_fiscal_address,
   ac_mailing_address,
   ac_tax_form_expiration_date,
-  CURRENT_TIMESTAMP() AS ingestion_ts,
-  updated_at
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+  
 FROM
  ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_ACCOUNTS_RAW")}

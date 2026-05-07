@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_GAMING_TA
   gt_plays_count              INT64,
   gt_last_tick_plays_count    INT64,
   gt_player_tracking_pause    BOOL        NOT NULL,
-  gt_timestamp                BYTES       NOT NULL,  
+  gt_timestamp                STRING       NOT NULL,  
   gt_table_idle_plays         INT64,
   gt_last_tick_date           DATETIME,
   gt_theoric_hold             NUMERIC,

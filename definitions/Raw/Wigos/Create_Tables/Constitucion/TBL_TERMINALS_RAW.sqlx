@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_CONSTITUCION.TBL_TERMINALS
   te_server_id                   INT64,
   te_external_id                 STRING,
   te_blocked                     BOOL      NOT NULL,
-  te_timestamp                   BYTES     NOT NULL,
+  te_timestamp                   STRING     NOT NULL,
   te_active                      BOOL      NOT NULL,
   te_provider_id                 STRING,
   te_client_id                   INT64,

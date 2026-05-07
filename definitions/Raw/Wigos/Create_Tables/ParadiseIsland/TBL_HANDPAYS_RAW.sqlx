@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_HANDPAY
   hp_tax_base_amount                    NUMERIC,
   hp_tax_amount                         NUMERIC,
   hp_tax_pct                            NUMERIC,
-  HP_TIMESTAMP                          TIMESTAMP  NOT NULL,
+  HP_TIMESTAMP                          STRING  NOT NULL,
   hp_payment_mode                       INT64      NOT NULL,
   hp_status_calculated                  INT64,
   hp_operation_id                       INT64,

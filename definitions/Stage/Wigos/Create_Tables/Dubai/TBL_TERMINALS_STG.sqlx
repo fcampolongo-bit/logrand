@@ -117,7 +117,6 @@ SELECT
   te_sas_flags2_use_site_default,
   te_cashier_draw_device_ip,
   te_ven_id,
-  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_DUBAI", "TBL_TERMINALS_RAW")}
