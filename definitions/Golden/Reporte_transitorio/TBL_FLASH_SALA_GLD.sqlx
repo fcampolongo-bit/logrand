@@ -285,19 +285,27 @@ SELECT
   A.Sala,
   A.Entradas - A.Entradas_Tarjeta_Jugador
     AS EntradaTotal,
-  (A.Entradas - A.Entradas_Tarjeta_Jugador) - B.venta
+(A.Entradas - A.Entradas_Tarjeta_Jugador) - COALESCE(B.venta, 0)
     AS EntradaMaquinas,
-  B.venta
+
+COALESCE(B.venta, 0)
     AS EntradaMesas,
-  (A.Entradas - A.Entradas_Tarjeta_Jugador)
+
+(A.Entradas - A.Entradas_Tarjeta_Jugador)
     - (A.Premios * 0.93)
     - (A.Salidas_Depostio_en_Garantia + A.Salidas_Uso_Instalaciones_y_Terminales)
     AS ResultadoCajaTotal,
-  (A.Entradas - A.Entradas_Tarjeta_Jugador - B.venta)
-    - ((A.Premios * 0.93) - (B.premio * 0.93))
-    - (A.Salidas_Depostio_en_Garantia - ((B.compra + B.Redondeo_por_Decimales) - B.premio) + A.Salidas_Uso_Instalaciones_y_Terminales)
+
+-- CAJA MAQUINAS: Ajustada para tratar nulos en B.venta, B.premio, B.compra y B.Redondeo
+(A.Entradas - A.Entradas_Tarjeta_Jugador - COALESCE(B.venta, 0))
+    - ((A.Premios * 0.93) - (COALESCE(B.premio, 0) * 0.93))
+    - (A.Salidas_Depostio_en_Garantia - ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0)) + A.Salidas_Uso_Instalaciones_y_Terminales)
     AS CajaMaquinas,
-  B.venta - (B.premio * 0.93) - ((B.compra + B.Redondeo_por_Decimales) - B.premio)
+
+-- CAJA MESAS: Ajustada íntegramente
+COALESCE(B.venta, 0) 
+    - (COALESCE(B.premio, 0) * 0.93) 
+    - ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0))
     AS CajaMesas,
   C.playedamount                              AS CoinIn,
   C.Netwin                                    AS NetWinMaq,

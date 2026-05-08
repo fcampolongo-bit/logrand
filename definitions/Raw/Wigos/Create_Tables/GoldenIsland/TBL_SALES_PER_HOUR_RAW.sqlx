@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GOLDENISLAND.TBL_SALES_PER
   sph_progressive_jackpot_amount_0  NUMERIC,
   sph_progressive_provision_amount  NUMERIC,
   sph_timestamp                    STRING NOT NULL,
-  updated_at INT64                      INT64
+  updated_at INT64
 )
 PARTITION BY DATE(sph_base_hour)
 CLUSTER BY sph_terminal_id, sph_game_id, sph_unique_id;

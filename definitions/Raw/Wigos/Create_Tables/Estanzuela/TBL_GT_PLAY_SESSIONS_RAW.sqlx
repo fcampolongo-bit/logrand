@@ -7,7 +7,7 @@ config {
 }
 
 CREATE TABLE IF NOT EXISTS
-  ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_GT_PLAY_SESSIONS_RAW ( gtps_play_session_id INT64 NOT NULL,
+  ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_GT_PLAY_SESSIONS_RAW ( 
   gtps_play_session_id                 INT64     NOT NULL,
   gtps_gaming_table_id                 INT64     NOT NULL,
   gtps_gaming_table_session_id         INT64     NOT NULL,
