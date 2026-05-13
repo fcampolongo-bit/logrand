@@ -17,10 +17,10 @@ SELECT
     GtPlaySessions.id_Sala AS Id_Sala, 
     --GtPlaySessions.GameDay AS GameDay
       DATE(DATETIME_SUB(CAST(gtps_started AS DATETIME), 
-    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
   ) AS GameDay,
 EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(gtps_started AS DATETIME), 
-    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    INTERVAL (CASE WHEN GtPlaySessions.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
   )) AS Year,
     gtt_name AS Mesa_Tipo, 
     gt_name AS Mesa_Nombre, 

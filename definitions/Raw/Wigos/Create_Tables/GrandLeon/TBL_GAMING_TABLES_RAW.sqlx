@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_GAMING_TABLE
   gt_enabled                BOOL     NOT NULL,
   gt_has_integrated_cashier BOOL     NOT NULL,
   gt_cashier_id             INT64,
-  gt_created                STRING,
+  gt_created                DATETIME,
   gt_num_seats              INT64,
   gt_bet_min                NUMERIC,
   gt_bet_max                NUMERIC,
