@@ -54,7 +54,7 @@ SELECT
         HandPays.Sala, 
         hp_datetime, 
         hp_terminal_id, 
-        hp_amount, 
+        --hp_amount, SE COMENTA ESTA LINEA PQ HUBO UN CASO DUPLICADO CON DIFERENTE MONTO ( WHERE hp_datetime='2026-05-21T20:20:25'AND SALA='CONSTITUCION'AND hp_te_name='10773-5')
         hp_type 
       ORDER BY hp_timestamp desc
     ) AS fila_numero

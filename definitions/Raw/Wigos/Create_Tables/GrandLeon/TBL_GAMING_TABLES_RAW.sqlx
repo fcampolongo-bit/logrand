@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_GAMING_TABLE
   gt_player_tracking_pause  BOOL     NOT NULL,
   gt_timestamp              STRING   NOT NULL,
   gt_table_idle_plays       INT64,
-  gt_last_tick_date         STRING,
+  gt_last_tick_date         DATETIME,
   gt_theoric_hold           NUMERIC(5,2),
   gt_dropbox_enabled        BOOL     NOT NULL,
   gt_bet_min_curr_2         NUMERIC,

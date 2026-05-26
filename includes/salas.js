@@ -9,7 +9,11 @@ const lista_salas = [
     { esquema: "STG_WIGOS_TAJMAHAL", nombre: "TAJMAHAL", id: 94 } ,
     { esquema: "STG_WIGOS_VIVAMEXICO", nombre: "VIVAMEXICO", id: 7 },
      {esquema: "STG_WIGOS_NEWYORK", nombre: "NEWYORK", id: 90 },
-      {esquema: "STG_WIGOS_GRANDLEON", nombre: "LEON", id: 73 }
+      {esquema: "STG_WIGOS_GRANDLEON", nombre: "LEON", id: 73 },
+      {esquema: "STG_WIGOS_VIVENTO", nombre: "VIVENTOAPODACA", id: 281 },
+     {esquema: "STG_WIGOS_VIVENTO4RIOS", nombre: "VIVENTO4RIOS", id: 96 },
+       {esquema: "STG_WIGOS_ZAPOPAN", nombre: "VIVENTOZAPOPAN", id: 72 }
+          
 ];
 
 module.exports = { lista_salas };
