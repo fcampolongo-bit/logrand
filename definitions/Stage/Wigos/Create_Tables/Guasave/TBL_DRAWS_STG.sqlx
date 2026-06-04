@@ -52,12 +52,12 @@ SELECT
   dr_award_on_promobox,
   dr_text_on_promobox,
   NULL AS dr_auto_print,
-  NULL AS dr_use_first_price,
+  dr_use_first_price,
   NULL AS dr_number_first_price,
-  NULL AS dr_entry_levels_points,
-  NULL AS dr_observations,
-  NULL AS dr_type_document,
-  NULL AS dr_first_document,
+   dr_entry_levels_points,
+   dr_observations,
+   dr_type_document,
+  dr_first_document,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GUASAVE", "TBL_DRAWS_RAW")}
