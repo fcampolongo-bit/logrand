@@ -32,7 +32,8 @@ SELECT
   am_undo_status,
   am_track_data,
   am_modified_bucket_reason,
-  updated_at
+  updated_at,
+    CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_ACCOUNT_MOVEMENTS_RAW")}
 

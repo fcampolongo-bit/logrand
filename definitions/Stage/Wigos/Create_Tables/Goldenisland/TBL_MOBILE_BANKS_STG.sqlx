@@ -30,6 +30,7 @@ SELECT
   mb_last_activity,
   mb_last_terminal_id,
   mb_last_terminal_name,
+  mb_timestamp,
   mb_track_number,
   mb_terminal_id,
   mb_over_cash,

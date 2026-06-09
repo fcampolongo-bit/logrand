@@ -14,7 +14,9 @@ const lista_salas = [
      {esquema: "STG_WIGOS_VIVENTO4RIOS", nombre: "VIVENTO4RIOS", id: 96 },
        {esquema: "STG_WIGOS_ZAPOPAN", nombre: "VIVENTOZAPOPAN", id: 72 },
         {esquema: "STG_WIGOS_GUASAVE", nombre: "GUASAVE", id: 61},
-         {esquema: "STG_WIGOS_PARADISEISLAND", nombre: "PARADISEISLAND", id: 92}
+    {esquema: "STG_WIGOS_PARADISEISLAND", nombre: "PARADISEISLAND", id: 92},
+    {esquema: "STG_WIGOS_SANMARCOS", nombre: "SANMARCOS", id: 91},
+    {esquema: "STG_WIGOS_GOLDENISLAND", nombre: "GOLDENISLAND", id: 88},
           
 ];
 
