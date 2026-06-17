@@ -1,0 +1,42 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVAMEXICO",
+  name: "TBL_GAMING_TABLES_SESSIONS_STG",
+  bigquery: {
+    clusterBy: ["gts_gaming_table_session_id", "gts_cashier_session_id"]
+  },
+  tags: ["carga_full_diaria_stg_vivamexico"]
+
+}
+SELECT
+  gts_gaming_table_session_id,
+  gts_gaming_table_id,
+  gts_cashier_session_id,
+  gts_fills_chips_amount,
+  gts_credits_chips_amount,
+  gts_own_sales_amount,
+  gts_external_sales_amount,
+  gts_own_purchase_amount,
+  gts_external_purchase_amount,
+  gts_collected_amount,
+  gts_tips,
+  gts_client_visits,
+  gts_total_sales_amount,
+  gts_total_purchase_amount,
+  gts_last_external_sale_session_id,
+  gts_last_external_purchase_session_id,
+  gts_pre_closing,
+  gts_dropbox_enabled,
+  gts_collected_dropbox_amount,
+  gts_collected_dropbox_chips_amount,
+  gts_collected_dropbox_tickets_amount,
+  gts_initial_chips_amount,
+  gts_final_chips_amount,
+  gts_copy_dealer_validated_amount,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+  
+  FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVAMEXICO", "TBL_GAMING_TABLES_SESSIONS_RAW")}
+

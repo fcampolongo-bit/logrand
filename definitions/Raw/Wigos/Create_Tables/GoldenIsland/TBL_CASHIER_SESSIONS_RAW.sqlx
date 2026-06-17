@@ -1,0 +1,37 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_GOLDENISLAND",
+  name: "TBL_CASHIER_SESSIONS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GOLDENISLAND.TBL_CASHIER_SESSIONS_RAW
+(
+  cs_session_id            INT64     NOT NULL,
+  cs_name                  STRING    NOT NULL,
+  cs_cashier_id            INT64     NOT NULL,
+  cs_user_id               INT64     NOT NULL,
+  cs_opening_date          DATETIME  NOT NULL,
+  cs_closing_date          DATETIME,
+  cs_status                INT64     NOT NULL,
+  cs_balance               NUMERIC   NOT NULL,
+  cs_other_balance_1       NUMERIC   NOT NULL,
+  cs_other_balance_2       NUMERIC   NOT NULL,
+  cs_tax_a_pct             NUMERIC,
+  cs_tax_b_pct             NUMERIC,
+  cs_collected_amount      NUMERIC,
+  cs_sales_limit           NUMERIC,
+  cs_total_sold            NUMERIC,
+  cs_mb_sales_limit        NUMERIC,
+  cs_mb_total_sold         NUMERIC,
+  cs_session_by_terminal   BOOL      NOT NULL,
+  cs_history               BOOL      NOT NULL,
+  cs_gaming_day            DATETIME,
+  cs_short_over_history    BOOL      NOT NULL,
+  cs_has_pinpad_operations INT64,
+  cs_venue_id              INT64,
+  updated_at               INT64
+)
+PARTITION BY DATE(cs_opening_date)
+CLUSTER BY cs_user_id, cs_status, cs_cashier_id, cs_gaming_day;

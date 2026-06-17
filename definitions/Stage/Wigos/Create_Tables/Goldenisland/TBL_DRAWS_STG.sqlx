@@ -1,0 +1,63 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_GOLDENISLAND",
+  name: "TBL_DRAWS_STG",
+  bigquery: {
+    clusterBy: ["dr_id", "dr_status"],
+    partitionBy: "DATE(dr_starting_date)"
+  },
+   tags: ["carga_full_diaria_stg_goldenisland"]
+
+}
+
+SELECT
+  dr_id,
+  dr_name,
+  dr_starting_date,
+  dr_ending_date,
+  dr_last_number,
+  dr_number_price,
+  dr_status,
+  dr_limited,
+  dr_limit,
+  dr_limit_per_voucher,
+  dr_initial_number,
+  dr_max_number,
+  dr_credit_type,
+  dr_header,
+  dr_footer,
+  dr_detail1,
+  dr_detail2,
+  dr_detail3,
+  dr_min_played_pct,
+  dr_min_spent_pct,
+  dr_min_cash_in,
+  CAST(dr_provider_list AS STRING) AS dr_provider_list,
+  CAST(dr_offer_list AS STRING) AS dr_offer_list,
+  dr_number_points,
+  dr_gender_filter,
+  dr_limit_per_operation,
+  dr_first_cash_in_constrained,
+  dr_bingo_format,
+  dr_small_resource_id,
+  dr_large_resource_id,
+  dr_level_filter,
+  dr_points_level1,
+  dr_points_level2,
+  dr_points_level3,
+  dr_points_level4,
+  dr_vip,
+  dr_visible_on_promobox,
+  dr_award_on_promobox,
+  dr_text_on_promobox,
+  dr_auto_print,
+  dr_use_first_price,
+  dr_number_first_price,
+  CAST(dr_entry_levels_points AS STRING) AS dr_entry_levels_points,
+  dr_observations,
+  dr_type_document,
+  dr_first_document,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_GOLDENISLAND", "TBL_DRAWS_RAW")}

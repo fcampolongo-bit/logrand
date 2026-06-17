@@ -1,0 +1,49 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_NEWYORK",
+  name: "TBL_ACCOUNT_OPERATIONS_STG",
+  uniqueKey: ["ao_operation_id"], 
+  /*bigquery: {
+    partitionBy: "DATE(ao_datetime)",
+    clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
+    updatePartitionFilter: "ao_datetime >= current_datetime() - interval 14 day"
+  },*/
+    partitionBy: "DATE(ao_datetime)",
+  updatePartitionFilter: "ao_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["ao_code", "ao_account_id","ao_cashier_session_id","ao_datetime"],
+   tags: ["carga_incremental_diaria_stg_newyork"]
+}
+
+SELECT
+  ao_operation_id,
+  ao_datetime,
+  ao_code,
+  ao_account_id,
+  ao_cashier_session_id,
+  ao_mb_account_id,
+  ao_promo_id,
+  ao_amount,
+  ao_non_redeemable,
+  ao_won_lock,
+  ao_operation_data,
+  ao_automatically_printed,
+  ao_non_redeemable2,
+  ao_redeemable,
+  ao_promo_redeemable,
+  ao_promo_not_redeemable,
+  ao_user_id,
+  ao_undo_status,
+  ao_undo_operation_id,
+  ao_reason_id,
+  ao_comment,
+  ao_comment_handpay,
+  ao_venue_id,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_NEWYORK", "TBL_ACCOUNT_OPERATIONS_RAW")}
+
+-- ${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}

@@ -1,0 +1,43 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_BOCA",
+  name: "VW_ACCOUNT_MOVEMENTS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    am_movement_id: "🆔 ID interno del movimiento de cuenta. Clave primaria del registro dentro del modelo analítico. Identifica de forma única cada transacción asociada a la cuenta del cliente.",
+    am_play_session_id: "🎮 ID de sesión de juego asociada al movimiento. Permite relacionar la transacción con una sesión específica para análisis de comportamiento y trazabilidad operativa.",
+    am_account_id: "🆔 ID interno de la cuenta del cliente. Llave foránea que vincula el movimiento con la cuenta dentro del modelo corporativo.",
+    am_terminal_id: "🖥 ID de la terminal donde se generó el movimiento. Identifica el punto operativo asociado a la transacción.",
+    am_wcp_sequence_id: "🔢 Identificador de secuencia en el sistema WCP. Campo técnico usado para control de orden y sincronización de transacciones.",
+    am_wcp_transaction_id: "🔗 ID de transacción en el sistema WCP. Permite conciliación e integración con el sistema fuente.",
+    am_datetime: "📅 Fecha y hora del movimiento. Momento exacto en que se ejecutó la transacción. Clave para análisis temporal y auditoría.",
+    am_type: "🏷 Tipo de movimiento (recarga, débito, ajuste, premio, reverso, etc.). Permite segmentación analítica y reportes financieros.",
+    am_initial_balance: "💰 Saldo inicial antes del movimiento. Representa el valor disponible previo a la transacción.",
+    am_sub_amount: "➖ Monto debitado. Valor que se resta del saldo de la cuenta como resultado del movimiento.",
+    am_add_amount: "➕ Monto acreditado. Valor que se suma al saldo como resultado del movimiento.",
+    am_final_balance: "💵 Saldo final después del movimiento. Representa el valor disponible tras aplicar la transacción.",
+    am_cashier_id: "🧑‍💼 ID del cajero asociado al movimiento (si aplica). Permite identificar al operador que ejecutó la transacción.",
+    am_cashier_name: "🏷 Nombre del cajero que gestionó la operación. Campo descriptivo para reportes operativos y auditoría.",
+    am_terminal_name: "🖥 Nombre descriptivo de la terminal. Campo amigable para visualización en reportes.",
+    am_operation_id: "🔄 ID de operación asociada. Permite agrupar múltiples movimientos bajo una misma operación lógica.",
+    am_details: "📝 Detalle descriptivo del movimiento. Información adicional sobre la naturaleza específica de la transacción.",
+    am_reasons: "📌 Motivo del movimiento. Describe la razón operativa o administrativa que originó la transacción.",
+    am_undo_status: "↩️ Indicador de reversión. Define si el movimiento fue anulado o revertido posteriormente.",
+    am_track_data: "🔍 Información de trazabilidad técnica proveniente del sistema fuente para seguimiento interno y auditoría.",
+    am_modified_bucket_reason: "🗂 Motivo de reclasificación del movimiento dentro de una categoría operativa o bucket contable.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏷🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_ACCOUNT_MOVEMENTS_STG") + `
+`).join("\n UNION ALL \n")}

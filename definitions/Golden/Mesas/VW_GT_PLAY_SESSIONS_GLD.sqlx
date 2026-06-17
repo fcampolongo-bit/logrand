@@ -1,0 +1,58 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "VW_GT_PLAY_SESSIONS_GLD",
+  description: "Registro detallado de todos los movimientos asociados a la cuenta del jugador, incluyendo transacciones financieras ejecutadas en los distintos puntos de operación.",
+  columns: {
+    gtps_play_session_id: "🆔 Identificador único de la sesión de juego del jugador en mesa.",
+    gtps_gaming_table_id: "🎲 Identificador de la mesa donde se desarrolla la sesión.",
+    gtps_gaming_table_session_id: "🏷 Identificador de la sesión operativa de la mesa asociada.",
+    gtps_started: "🕒 Fecha y hora de inicio de la sesión de juego del jugador.",
+    gtps_finished: "🕒 Fecha y hora de finalización de la sesión.",
+    gtps_account_id: "👤 Identificador de la cuenta del jugador.",
+    gtps_seat_id: "🪑 Identificador del asiento ocupado por el jugador.",
+    gtps_status: "📊 Estado actual o final de la sesión (activa, cerrada, cancelada, etc.).",
+    gtps_plays: "🔢 Cantidad total de jugadas realizadas en la sesión.",
+    gtps_current_bet: "💰 Valor de la apuesta vigente en el momento del registro.",
+    gtps_bet_min: "💵 Valor mínimo de apuesta aplicado durante la sesión.",
+    gtps_bet_max: "💵 Valor máximo de apuesta aplicado durante la sesión.",
+    gtps_played_amount: "💰 Valor total apostado por el jugador en la sesión.",
+    gtps_played_average: "📊 Valor promedio apostado por jugada.",
+    gtps_points: "⭐ Puntos acumulados por el jugador durante la sesión.",
+    gtps_computed_points: "🧮 Puntos calculados automáticamente según reglas del sistema.",
+    gtps_game_time: "⏱ Duración total de la sesión de juego.",
+    gtps_start_walk: "🚶 Valor de walk (saldo) al inicio de la sesión.",
+    gtps_walk: "🚶 Valor de walk (saldo) al finalizar la sesión.",
+    gtps_player_skill: "🎯 Indicador estimado de habilidad del jugador.",
+    gtps_player_speed: "⚡ Métrica asociada al ritmo de juego del jugador.",
+    gtps_finished_user_id: "👤 Identificador del usuario que cerró la sesión.",
+    gtps_updated_user_id: "👤 Identificador del usuario que realizó la última actualización.",
+    gtps_total_sell_chips: "💵 Valor total de fichas vendidas al jugador.",
+    gtps_chips_out: "🎲 Valor de fichas retiradas por el jugador.",
+    gtps_chips_in: "🎲 Valor de fichas ingresadas por el jugador.",
+    gtps_netwin: "📈 Resultado neto del jugador (ganancia o pérdida).",
+    gtps_in_session_plays_table: "🔢 Número de jugadas registradas en la mesa durante la sesión.",
+    gtps_in_session_last_played_amount: "💰 Valor apostado en la última jugada de la sesión.",
+    gtps_in_session_last_play: "🕒 Fecha y hora de la última jugada registrada.",
+    gtps_updated_played_current: "🔄 Indicador de actualización de apuesta actual.",
+    gtps_updated: "🕒 Fecha y hora de la última actualización del registro.",
+    gtps_timestamp: "🕒 Marca de tiempo técnica del registro.",
+    gtps_import_operation_id: "📥 Identificador del proceso de importación asociado.",
+    gtps_iso_code: "💱 Código ISO de la moneda utilizada en la sesión.",
+    gtps_auto_action: "⚙ Indicador de acciones automáticas configuradas en la sesión.",
+    gtps_counter_update_bet: "🔢 Indicador o contador relacionado con actualizaciones de apuestas.",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_GT_PLAY_SESSIONS_STG") + `
+`).join("\n UNION ALL \n")}

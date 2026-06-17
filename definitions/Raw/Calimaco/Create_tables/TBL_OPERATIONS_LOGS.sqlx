@@ -1,0 +1,20 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_OPERATIONS_LOGS_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_OPERATIONS_LOGS_RAW
+(
+db int NOT NULL,
+	company STRING NOT NULL,
+	operation bigint NOT NULL,
+	log_date datetime ,
+	user bigint ,
+	comments STRING ,
+	status STRING ,
+	ip STRING ,
+	useragent STRING
+)

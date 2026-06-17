@@ -1,0 +1,31 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_DAILY_SUMMARY_USERS_ACCOUNTS_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+CREATE TABLE IF NOT EXISTS ${databases.raw}. RAW_CALIMACO.TBL_DAILY_SUMMARY_USERS_ACCOUNTS_RAW(	
+company STRING NOT NULL,
+	user bigint NOT NULL,
+	summary_date date NOT NULL,
+	account STRING NOT NULL,
+	currency STRING NOT NULL,
+	deposits bigint NOT NULL,
+	payouts bigint NOT NULL,
+	wagers bigint ,
+	winnings bigint ,
+	promotions bigint ,
+	converted_promotions bigint ,
+	wagers_count bigint ,
+	winnings_count bigint ,
+	deposits_count bigint ,
+	payouts_count bigint ,
+	manual bigint NOT NULL,
+	jackpot_contributions bigint NOT NULL,
+	jackpot_prizes bigint NOT NULL,
+	commissions bigint NOT NULL,
+	trans_out bigint NOT NULL,
+	trans_in bigint NOT NULL,
+	taxes bigint NOT NULL
+	)

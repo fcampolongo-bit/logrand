@@ -1,0 +1,135 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_BOCA",
+  name: "TBL_PAGOS_MANUALES_GLD",
+  uniqueKey: ["Fecha","GameDay","Sala","Nombre"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Proveedor"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+with pago_manuales as (
+SELECT
+   HandPays.Sala AS Sala,
+    HandPays.ID_Sala as Id_Sala,
+    DATE(DATETIME_SUB(CAST(hp_datetime AS DATETIME), 
+      INTERVAL (CASE WHEN HandPays.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+    ) AS GameDay,
+    EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(hp_datetime AS DATETIME), 
+      INTERVAL (CASE WHEN HandPays.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+    )) AS Year,
+    0 AS hp_site_id,
+    hp_datetime AS Fecha,
+    hp_te_provider_id AS Proveedor,
+    hp_te_name AS Nombre,
+    hp_type AS Tipo,
+    CAST(hp_amount AS FLOAT64) AS Pago_MontoEmision,
+    COALESCE(CAST(hp_tax_base_amount AS FLOAT64), 0.0) AS hp_tax_base_amount,
+    COALESCE(CAST(hp_tax_base_amount AS FLOAT64), CAST(hp_amount AS FLOAT64)) AS base,
+    (COALESCE(CAST(hp_amount AS FLOAT64), 0.0) - COALESCE(CAST(hp_tax_base_amount AS FLOAT64), 0.0)) AS Pago_Cantidad,
+    COALESCE(CAST(hp_tax_amount AS FLOAT64), 0.0) AS taxes,
+    (COALESCE(CAST(hp_amount AS FLOAT64), 0.0) - COALESCE(CAST(hp_tax_amount AS FLOAT64), 0.0)) AS paid_amount,
+    te_provider_id,
+    te_name,
+    te_floor_id AS ID_en_Planta,
+    COALESCE(CAST(ac_account_id AS STRING), '0') AS NumeroCliente,
+    COALESCE(CAST(ac_holder_name AS STRING), 'JUGADOR_ANONIMO') AS Titular,
+    COALESCE(CAST(ac_type AS STRING), 'N/A') AS ac_type,
+    CAST(hp_long_poll_1b_data AS STRING) AS hp_long_poll_1b_data,
+    hp_terminal_id,
+    hp_status AS Estado,
+    COALESCE(CAST(hp_level AS INT64), 0) AS hp_level,
+    COALESCE(CAST(hp_amt0 AS FLOAT64), 0.0) AS hp_amt0,
+    COALESCE(CAST(hp_cur0 AS STRING), 'MXN') AS hp_cur0,
+    am_cashier_name as supervisor,
+    hp_timestamp,
+
+    -- Definimos el lote por los campos que se repiten
+    -- Usamos hp_datetime y hp_terminal_id como anclas principales
+    ROW_NUMBER() OVER(
+      PARTITION BY 
+        HandPays.Sala, 
+        hp_datetime, 
+        hp_terminal_id, 
+        --hp_amount, SE COMENTA ESTA LINEA PQ HUBO UN CASO DUPLICADO CON DIFERENTE MONTO ( WHERE hp_datetime='2026-05-21T20:20:25'AND SALA='CONSTITUCION'AND hp_te_name='10773-5')
+        hp_type 
+      ORDER BY hp_timestamp desc
+    ) AS fila_numero
+
+FROM
+  ${ref("VW_HANDPAYS_GLD")} AS HandPays
+  LEFT JOIN 
+  ${ref("VW_ACCOUNT_MOVEMENTS_GLD")} AS AccountMovements 
+ON AccountMovements.am_movement_id = hp_movement_id 
+AND AccountMovements.Sala = HandPays.Sala 
+LEFT JOIN 
+  ${ref("VW_TERMINALS_GLD")} AS Terminals 
+  ON Terminals.te_terminal_id = HandPays.hp_terminal_id AND Terminals.Sala = HandPays.Sala
+LEFT JOIN 
+  ${ref("VW_ACCOUNTS_GLD")} AS AccountV 
+  ON AccountV.ac_account_id = HandPays.hp_account_id AND AccountV.Sala = HandPays.Sala
+
+WHERE
+  hp_terminal_id IN (
+    SELECT te_terminal_id FROM ${ref("VW_TERMINALS_GLD")} 
+    WHERE te_terminal_type IN (1, 3, 5, 100)
+  )
+  AND hp_type <> 30 
+  AND (
+    hp_type IN (0, 2, 10, 1010, 1000)
+    OR (hp_type = 20 AND hp_payment_mode <> 2)
+    OR (hp_type IN (1, 1001) AND ((hp_level < 1 OR hp_level > 32) AND hp_level <> 64 OR hp_level IS NULL))
+    OR (hp_type IN (1, 1001) AND hp_level BETWEEN 1 AND 32)
+    OR (hp_type IN (1, 1001) AND hp_level = 64)
+  )
+
+  ${when(incremental(), `AND CAST(hp_datetime AS DATETIME) >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+
+  )
+
+select distinct 
+Sala,
+ Id_Sala,
+ GameDay	,
+Year,
+Fecha	,
+Proveedor	,
+Nombre,
+	ID_en_planta,
+  paid_amount as	Cantidad	,
+   CASE 
+        -- Tipo 2
+        WHEN Tipo = 2 THEN 'Créditos Abandonados'
+        
+        -- Tipo 1000 (con excepción de am_type 35)
+        WHEN Tipo = 1000 AND SAFE_CAST(ac_type AS INT64)= 35 THEN '(Anulación) Manual - Créditos Cancelados'  --revisar pr no existe el am_type aca 
+        WHEN Tipo = 1000 THEN 'Manual - Créditos Cancelados'
+        
+        -- Tipo 0
+        WHEN Tipo = 0 THEN 'Créditos Cancelados'
+        
+        -- Tipo 1 (Jackpots)
+        WHEN Tipo = 1 AND (hp_level IN (0, 116, 121, 122, 7, 6, 3) OR hp_level IS NULL) THEN 'Jackpot'
+        WHEN Tipo = 1 AND hp_level = 64 THEN 'Jackpot premio máximo'
+        WHEN Tipo = 1 AND hp_level IN (1, 2, 4, 5, 9, 10, 16) THEN 'Jackpot progresivo'
+        
+        -- Tipo 1001 y otros
+        WHEN Tipo = 1001 AND hp_level = 0 THEN 'Manual - Jackpot'
+        WHEN Tipo = 1010 THEN 'Manual - Otros'
+        WHEN Tipo = 20 THEN 'Jackpot de Sala'
+        
+        -- Valor por defecto si no cumple ninguna
+        ELSE 'ERROR'
+    END AS Tipo,
+    CASE 
+    WHEN Estado = 32768 THEN concat('Pagado a la cuenta' ,' ',NumeroCliente,' ',Titular, ' por' ,' ',Supervisor)
+    WHEN Estado = 16384 THEN 'Expirado '
+    WHEN Estado = 0     THEN 'Expirado '
+    ELSE 'ERROR'
+END AS Estado
+ from pago_manuales
+
+ WHERE fila_numero = 1

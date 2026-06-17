@@ -1,0 +1,42 @@
+config {
+  type: "incremental",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVENTO4RIOS",
+  name: "TBL_ACCOUNT_MOVEMENTS_STG",
+  uniqueKey: ["am_movement_id"], 
+  partitionBy: "DATE(am_datetime)",
+  updatePartitionFilter: "am_datetime >= datetime_sub(current_datetime(), interval 12 day)",
+  clusterBy: ["am_account_id", "am_type"],
+  tags: ["carga_incremental_diaria_stg_vivento4rios"]
+}
+
+SELECT
+  am_movement_id,
+  am_play_session_id,
+  am_account_id,
+  am_terminal_id,
+  am_wcp_sequence_id,
+  am_wcp_transaction_id,
+  am_datetime,
+  am_type,
+  am_initial_balance,
+  am_sub_amount,
+  am_add_amount,
+  am_final_balance,
+  am_cashier_id,
+  am_cashier_name,
+  am_terminal_name,
+  am_operation_id,
+  am_details,
+  am_reasons,
+  am_undo_status,
+  am_track_data,
+  am_modified_bucket_reason,
+  updated_at, -- Tu campo secuencial
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO4RIOS", "TBL_ACCOUNT_MOVEMENTS_RAW")}
+
+--${when(incremental(), 
+ -- `WHERE updated_at > (SELECT MAX(updated_at) FROM ${self()})` 
+--)}

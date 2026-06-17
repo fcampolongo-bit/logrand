@@ -1,0 +1,4 @@
+defaultProject: logrand-computo-dev
+defaultDataset: dataform
+defaultAssertionDataset: dataform_assertions
+dataformCoreVersion: 3.0.26

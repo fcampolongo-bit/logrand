@@ -1,0 +1,27 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_SANMARCOS",
+  name: "TBL_AREAS_STG",
+  bigquery: {
+    clusterBy: ["ar_area_id", "ar_venue_id"]
+  },
+ tags: ["carga_full_diaria_stg_sanmarcos"],
+  assertions: {
+    uniqueKey: ["ar_area_id"] 
+  }
+}
+
+SELECT
+  ar_area_id,
+  ar_name,
+  ar_smoking, 
+  ar_timestamp, 
+  ar_venue_id,
+  ar_external_id,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_SANMARCOS", "TBL_AREAS_RAW")}
+
+

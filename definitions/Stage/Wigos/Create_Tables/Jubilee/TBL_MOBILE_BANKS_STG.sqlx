@@ -1,0 +1,52 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_JUBILEE",
+  name: "TBL_MOBILE_BANKS_STG",
+  bigquery: {
+    clusterBy: ["mb_account_id", "mb_terminal_id", "mb_cashier_session_id"],
+    partitionBy: "DATE(mb_last_activity)"
+
+  },
+   tags: ["carga_full_diaria_stg_jubilee"]
+
+}
+
+SELECT
+  mb_account_id,
+  mb_account_type,
+  mb_holder_name,
+  mb_blocked,
+  mb_track_data,
+  mb_balance,
+  mb_initial_limit,
+  mb_cash_in,
+  mb_deposit,
+  mb_extension,
+  mb_pending_cash,
+  mb_pin,
+  mb_cashier_session_id,
+  mb_failed_login_attempts,
+  mb_last_activity,
+  mb_last_terminal_id,
+  mb_last_terminal_name,
+  mb_timestamp,
+  mb_track_number,
+  mb_terminal_id,
+  mb_over_cash,
+  mb_total_limit,
+  mb_recharge_limit,
+  mb_number_of_recharges_limit,
+  mb_actual_number_of_recharges,
+  mb_employee_code,
+  mb_shortfall_cash,
+  mb_over_cash_session,
+  mb_shortfall_cash_session,
+  mb_session_status,
+  mb_user_id,
+  mb_lock,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_JUBILEE", "TBL_MOBILE_BANKS_RAW")}
+

@@ -1,0 +1,103 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_MAQUINAS",
+  name: "TBL_MAQUINAS_GLD",
+  uniqueKey: ["GameDay", "te_terminal_id", "Sala"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Proveedor"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+
+SELECT
+    A.Sala,
+    a.ID_Sala as Id_Sala,
+  DATE(DATETIME_SUB(CAST(sph_base_hour AS DATETIME), 
+    INTERVAL (CASE WHEN A.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+  ) AS GameDay,
+EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(sph_base_hour AS DATETIME), 
+    INTERVAL (CASE WHEN A.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+  )) AS Year,
+  te_provider_id AS Proveedor,
+  te_provider_id,
+  te_name,
+  te_terminal_id,
+  te_floor_id AS ID_en_planta,
+  SUM(sph_played_amount) AS playedamount,
+  SUM(sph_won_amount) AS wonamount,
+  CASE
+    WHEN SUM(sph_won_count) > SUM(sph_played_count) THEN SUM(sph_won_count)
+    ELSE SUM(sph_played_count)
+  END AS playedcount,
+  SUM(sph_won_count) AS woncount,
+MIN(sph_game_id) AS mingameid, 
+MAX(sph_game_id) AS maxgameid,
+ SUM(sph_theoretical_won_amount) AS theoreticalwonamount, 
+ 0 AS siteid,
+ SUM(COALESCE(sph_progressive_provision_amount, 0)) AS progressiveprovisionamount, 
+ SUM(COALESCE(sph_jackpot_amount, 0)) - SUM(COALESCE(sph_progressive_jackpot_amount, 0)) AS nonprogressivejackpotamount,
+ SUM(COALESCE(sph_progressive_jackpot_amount, 0)) AS nonprogressivejackpotamount1, 
+ SUM(COALESCE(sph_progressive_jackpot_amount, 0)) AS progressivejackpotamount, 
+ SUM(COALESCE(sph_progressive_jackpot_amount_0, 0)) AS progressivejackpotamount0, 
+
+  --ROUND(SUM(sph_played_amount) - (SUM(sph_won_amount) + SUM(NULLIF(sph_progressive_provision_amount, 0)) - SUM(NULLIF(sph_progressive_jackpot_amount_0, 0))), 2) AS Netwin,
+  /* AJUSTE DE NETWIN: Cambiamos NULLIF por COALESCE para evitar que los ceros anulen la operación */
+  ROUND(
+    SUM(sph_played_amount) - (
+      SUM(sph_won_amount) + 
+      SUM(COALESCE(sph_progressive_provision_amount, 0)) - 
+      SUM(COALESCE(sph_progressive_jackpot_amount_0, 0))
+    ), 2
+  ) AS Netwin,
+  te_vendor_id,
+  te_change_id,
+  te_base_name,
+  te_cabinet_type,
+  te_game_theme,
+  te_contract_type,
+  te_serial_number,
+  te_program,
+  te_theoretical_payout,
+  te_number_lines,
+  te_multi_denomination,
+  te_max_bet,
+  te_activation_date,
+  te_manufacture_year
+
+FROM
+  ${ref("VW_SALES_PER_HOUR_GLD")} A
+LEFT JOIN 
+  ${ref("VW_TERMINALS_GLD")} T 
+  ON A.sph_terminal_id = T.te_terminal_id AND A.Sala = T.Sala
+
+WHERE
+  T.te_terminal_type IN (1, 3, 5, 106, 113, 108, 109, 110)
+  
+${when(incremental(), `AND sph_base_hour >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+
+GROUP BY
+  Proveedor,
+  A.Sala,
+  a.id_sala,
+  GameDay, 
+  Year,
+  te_name,
+  te_terminal_id,
+  ID_en_planta,
+  te_vendor_id,
+  te_change_id,
+  te_base_name,
+  te_cabinet_type,
+  te_game_theme,
+  te_contract_type,
+  te_serial_number,
+  te_program,
+  te_theoretical_payout,
+  te_number_lines,
+  te_multi_denomination,
+  te_max_bet,
+  te_activation_date,
+  te_manufacture_year

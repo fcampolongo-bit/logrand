@@ -1,0 +1,44 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_BOCA",
+  name: "VW_ACCOUNT_OPERATIONS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    ao_operation_id: "🆔 ID interno de la operación de cuenta. Clave primaria del registro en el modelo analítico. Identifica de forma única cada operación ejecutada sobre la cuenta del cliente.",
+    ao_datetime: "📅 Fecha y hora de la operación. Momento exacto en que se ejecutó la operación en el sistema fuente.",
+    ao_code: "🏷 Código de tipo de operación. Clasificación técnica/funcional que identifica la naturaleza de la operación (ej. recarga, retiro, ajuste, premio, promoción).",
+    ao_account_id: "🆔 ID de la cuenta del cliente asociada a la operación. Llave foránea para consolidación de saldos y análisis financiero.",
+    ao_cashier_session_id: "🧑‍💼 ID de sesión de cajero asociada. Permite vincular la operación a un turno o sesión operativa específica.",
+    ao_mb_account_id: "💳 ID de cuenta en modalidad MB (ej. mobile/billetera). Permite identificar operaciones realizadas sobre cuentas digitales o modalidades específicas.",
+    ao_promo_id: "🎯 ID de promoción asociada a la operación. Permite vincular la transacción con campañas o incentivos comerciales.",
+    ao_amount: "💰 Monto total de la operación. Valor monetario principal impactado en la cuenta como resultado de la operación.",
+    ao_non_redeemable: "🚫💵 Monto no redimible asociado a la operación. Representa saldo promocional o restringido que no puede convertirse en efectivo.",
+    ao_won_lock: "🔒 Indicador de bloqueo por premio ganado. Define si el monto quedó temporalmente retenido por reglas operativas o validaciones.",
+    ao_operation_data: "📝 Información estructurada adicional de la operación. Campo técnico que puede contener metadatos o detalles extendidos del sistema fuente.",
+    ao_automatically_printed: "🖨 Indicador de impresión automática. Define si la operación generó impresión automática de voucher o comprobante.",
+    ao_non_redeemable2: "🚫💵 Segundo componente de monto no redimible. Utilizado cuando existen múltiples bolsas promocionales restringidas.",
+    ao_redeemable: "💵 Monto redimible. Parte del saldo que puede ser retirado o convertido a efectivo según reglas operativas.",
+    ao_promo_redeemable: "🎁💵 Monto promocional redimible asociado a campañas específicas.",
+    ao_promo_not_redeemable: "🎁🚫 Monto promocional no redimible. Saldo sujeto a condiciones o restricciones de uso.",
+    ao_user_id: "👤 ID del usuario que ejecutó la operación (cajero, supervisor u operador). Permite trazabilidad operativa.",
+    ao_undo_status: "↩️ Indicador de reversión de la operación. Define si la operación fue anulada o revertida posteriormente.",
+    ao_undo_operation_id: "🔄 ID de la operación que realiza el reverso. Permite relacionar la operación original con su transacción de anulación.",
+    ao_reason_id: "📌 ID del motivo asociado a la operación. Permite clasificar la causa operativa o administrativa.",
+    ao_comment: "📝 Comentario general asociado a la operación. Campo libre para anotaciones operativas o administrativas.",
+    ao_comment_handpay: "💵📝 Comentario específico asociado a pagos manuales (handpay). Utilizado para registrar detalles adicionales en pagos asistidos.",
+    ao_venue_id: "🏢 ID del venue/sala en el sistema fuente. Permite identificar la unidad operativa donde ocurrió la operación.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏷🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_ACCOUNT_OPERATIONS_STG") + `
+`).join("\n UNION ALL \n")}

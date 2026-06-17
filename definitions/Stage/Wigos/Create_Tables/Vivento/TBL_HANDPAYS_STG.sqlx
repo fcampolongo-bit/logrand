@@ -1,0 +1,61 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_VIVENTO",
+  name: "TBL_HANDPAYS_STG",
+  bigquery: {
+    clusterBy: ["hp_terminal_id", "hp_play_session_id", "hp_account_id", "hp_status"],
+    partitionBy: "DATE(hp_datetime)"
+  },
+ tags: ["carga_full_diaria_stg_vivento"]
+
+}
+
+SELECT
+  hp_terminal_id,
+  hp_game_base_name,
+  hp_datetime,
+  hp_previous_meters,
+  hp_amount,
+  hp_te_name,
+  hp_te_provider_id,
+  hp_movement_id,
+  hp_type,
+  hp_play_session_id,
+  hp_site_jackpot_index,
+  hp_site_jackpot_name,
+  hp_site_jackpot_awarded_on_terminal_id,
+  hp_site_jackpot_awarded_to_account_id,
+  hp_status,
+  hp_site_jackpot_notified,
+  hp_ticket_id,
+  hp_transaction_id,
+  hp_candidate_play_session_id,
+  hp_candidate_prev_play_session_id,
+  hp_long_poll_1b_data,
+  hp_id,
+  hp_progressive_id,
+  hp_level,
+  hp_status_changed,
+  hp_tax_base_amount,
+  hp_tax_amount,
+  hp_tax_pct,
+  HP_TIMESTAMP,
+  hp_payment_mode,
+  hp_status_calculated,
+  hp_operation_id,
+  hp_amt0,
+  hp_cur0,
+  hp_amt1,
+  hp_cur1,
+  hp_tax_apply_type,
+  hp_void_comments,
+  hp_account_id,
+  hp_operation_id_authorization,
+  hp_original_amount,
+  hp_previous_status,
+  hp_in_candidate_ps,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO", "TBL_HANDPAYS_RAW")}

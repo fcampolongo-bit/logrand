@@ -1,0 +1,86 @@
+config {
+  type: "incremental",
+ database: databases.golden, 
+  schema: "GLD_MESAS",
+  name: "TBL_COMPRA_VENTA_FICHAS_GLD",
+  uniqueKey: [ "Sala", "GameDay"],
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Gameday"]
+  },
+   tags: ["carga_incremental_diaria_golden"]
+}
+
+
+WITH BaseMovements AS (
+    SELECT 
+        *,
+        DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), 
+            INTERVAL (CASE WHEN Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+        ) AS GameDay,
+        EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), 
+            INTERVAL (CASE WHEN Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+        )) AS gameYear
+    FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")} 
+    
+  WHERE 1 = 1
+    ${when(incremental(), 
+        `AND DATE(DATETIME_SUB(CAST(cm_date AS DATETIME), INTERVAL (CASE WHEN Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)) >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`
+    )}
+),
+compra_venta_fichas_temp AS (
+    SELECT 
+        x.cm_operation_id AS Operacion_ID, 
+        SUM(CASE WHEN x.cm_type = 304 THEN x.cm_add_amount ELSE 0 END) AS Compra, 
+        SUM(CASE WHEN x.cm_type = 303 THEN x.cm_sub_amount ELSE 0 END) AS Venta, 
+        SUM(CASE WHEN x.cm_type = 312 THEN x.cm_sub_amount ELSE 0 END) AS Saldo_Sobrante, 
+        SUM(CASE WHEN x.cm_type = 8 THEN x.cm_sub_amount ELSE 0 END) AS Premio, 
+        SUM(CASE WHEN x.cm_type = 6 THEN x.cm_add_amount ELSE 0 END) AS Impuesto_Federal, 
+        SUM(CASE WHEN x.cm_type = 14 THEN x.cm_add_amount ELSE 0 END) AS Impuesto_Estatal, 
+        SUM(CASE WHEN x.cm_type = 70 THEN x.cm_sub_amount ELSE 0 END) AS Redondeo_por_Decimales, 
+        SUM(CASE WHEN x.cm_type = 5 THEN x.cm_sub_amount ELSE 0 END) AS Premio_Neto, 
+        x.Sala AS Sala, 
+        x.id_sala AS id_sala, 
+        x.GameDay AS GameDay,
+        x.gameYear AS GameYear
+    FROM (
+      
+        SELECT cm_operation_id, cm_type, cm_add_amount, cm_sub_amount, cm_account_id, Sala, id_sala, GameDay, gameYear
+        FROM BaseMovements
+        WHERE cm_operation_id IN (
+            SELECT MAX(cm_operation_id)
+            FROM BaseMovements
+            WHERE cm_type IN (38, 40, 36, 41, 8, 6, 14, 626, 34, 55, 35, 86, 142, 146, 5, 79, 147, 148, 515, 517, 519, 92, 524, 74, 70, 71, 619, 143, 37, 39, 54, 85, 65, 4, 303, 304, 309, 310, 312, 311, 69)
+            GROUP BY cm_operation_id, cm_type, Sala, GameDay
+        )
+    ) AS x
+    INNER JOIN (
+      
+        SELECT cm_operation_id, Sala, GameDay
+        FROM BaseMovements
+        WHERE cm_type IN (301, 302, 303, 304, 305, 306, 307, 308, 309, 310)
+        GROUP BY cm_operation_id, Sala, GameDay
+    ) AS y 
+    ON x.cm_operation_id = y.cm_operation_id 
+       AND x.Sala = y.Sala 
+       AND x.GameDay = y.GameDay
+    GROUP BY 1, 10, 11, 12, 13 
+)
+SELECT 
+  Sala,
+    Id_Sala ,
+    GameDay,
+    GameYear as Year,
+    sum(Compra) AS Compra, 
+    sum(Venta) AS Venta, 
+    sum(Saldo_Sobrante) AS Saldo_Sobrante, 
+    sum(Premio) AS Premio,
+    sum(Impuesto_Federal) AS Impuesto_Federal, 
+    sum(Impuesto_Estatal) AS Impuesto_Estatal, 
+    sum(Redondeo_por_Decimales) AS Redondeo_por_Decimales,
+    sum(Premio_Neto) AS Premio_Neto, 
+    Count(Operacion_ID) AS Count
+   
+FROM compra_venta_fichas_temp
+--WHERE EXTRACT(MONTH FROM GameDay) = 2
+GROUP BY GameDay, GameYear, Sala, id_sala

@@ -1,0 +1,54 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_TI",
+  name: "VW_GUI_USERS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    gu_user_id: "🆔 ID interno del usuario. Clave primaria del usuario en el sistema GUI.",
+    gu_profile_id: "👤 ID del perfil asignado. Identifica el rol o conjunto de permisos del usuario dentro del sistema",
+    gu_username: "🔑 Nombre de usuario de autenticación. Identificador único usado para login en el sistema.",
+    gu_enabled: "✅ Indicador de usuario habilitado. Define si la cuenta está activa y puede iniciar sesión.",
+    gu_password: "🔐 Contraseña actual del usuario",
+    gu_not_valid_before: "📅 Fecha de vigencia desde. Indica a partir de qué momento la cuenta es válida.",
+    gu_not_valid_after: "⛔ Fecha de vigencia hasta. Define la expiración de la cuenta o restricción temporal de uso.",
+    gu_last_changed: "🔄 Fecha del último cambio de contraseña.",
+    gu_password_exp: "⏳ Fecha de expiración de contraseña.",
+    gu_pwd_chg_req: "⚠️ Indicador de cambio obligatorio de contraseña. Señala si el usuario debe actualizar su password en el siguiente login.",
+    gu_login_failures: "🚫 Número de intentos fallidos de inicio de sesión.",
+    gu_password_h1: "🔐 Histórico de contraseña 1.",
+    gu_password_h2: "🔐 Histórico de contraseña 2.",
+    gu_password_h3: "🔐 Histórico de contraseña 3.",
+    gu_password_h4: "🔐 Histórico de contraseña 4.",
+    gu_password_h5: "🔐 Histórico de contraseña 5.",
+    gu_full_name: "🧾 Nombre completo del usuario.",
+    gu_timestamp: "🔢 Valor de versión del registro. Campo técnico proveniente del sistema fuente.",
+    gu_user_type: "🏷 Tipo de usuario. Clasificación funcional (ej. cajero, supervisor, administrador)",
+    gu_logged_in: "🟢 Indicador de sesión activa.",
+    gu_logon_computer: "💻 Equipo de inicio de sesión. Identifica el dispositivo o terminal desde el cual el usuario accedió al sistema.",
+    gu_last_activity: "📊 Fecha/hora de última actividad. Representa la interacción más reciente del usuario en el sistema.",
+    gu_last_action: "📝 Última acción ejecutada. Describe la operación más reciente realizada por el usuario dentro del sistema.",
+    gu_exit_code: "🚪 Código de salida de sesión. Indica el motivo o tipo de cierre de sesión (normal, forzado, error, etc.).",
+    gu_sales_limit: "💰 Límite de ventas asignado. Define el monto máximo autorizado para operaciones del usuario.",
+    gu_mb_sales_limit: "💳 Límite de ventas en modalidad específica (ej. mobile/billetera).",
+    gu_block_reason: "⛔ Motivo de bloqueo del usuario. Describe la causa por la cual la cuenta fue inhabilitada (ej. seguridad, política interna).",
+    gu_master_id: "🆔 ID maestro asociado. Identificador de referencia en estructuras jerárquicas o consolidaciones multi-sistema.",
+    gu_master_sequence_id: "🔢 Secuencia maestra. Campo técnico utilizado para control de sincronización o replicación entre sistemas.",
+    gu_employee_code: "🧑‍💼 Código de empleado. Identificador corporativo del colaborador en sistemas de RRHH.",
+    gu_gui_last_login: "🖥 Último login en GUI. Fecha/hora del último acceso a la interfaz gráfica del sistema.",
+    gu_cashier_last_login: "💵 Último login como cajero. Fecha/hora del último acceso en rol de caja u operación directa.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏷🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_GUI_USERS_STG") + `
+`).join("\n UNION ALL \n")}

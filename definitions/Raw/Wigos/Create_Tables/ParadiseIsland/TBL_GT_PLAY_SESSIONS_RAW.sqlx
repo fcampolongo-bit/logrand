@@ -1,0 +1,51 @@
+config {
+    type: "operations",
+    schema: "RAW_WIGOS_PARADISEISLAND",
+    name: "TBL_GT_PLAY_SESSIONS_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_GT_PLAY_SESSIONS_RAW
+(
+  gtps_play_session_id                 INT64     NOT NULL,
+  gtps_gaming_table_id                 INT64     NOT NULL,
+  gtps_gaming_table_session_id         INT64     NOT NULL,
+  gtps_started                         DATETIME  NOT NULL,
+  gtps_finished                        DATETIME,
+  gtps_account_id                      INT64     NOT NULL,
+  gtps_seat_id                         INT64     NOT NULL,
+  gtps_status                          INT64     NOT NULL,
+  gtps_plays                           INT64,
+  gtps_current_bet                     NUMERIC   NOT NULL,
+  gtps_bet_min                         NUMERIC   NOT NULL,
+  gtps_bet_max                         NUMERIC   NOT NULL,
+  gtps_played_amount                   NUMERIC   NOT NULL,
+  gtps_played_average                  NUMERIC   NOT NULL,
+  gtps_points                          NUMERIC,
+  gtps_computed_points                 NUMERIC,
+  gtps_game_time                       INT64,
+  gtps_start_walk                      DATETIME,
+  gtps_walk                            INT64,
+  gtps_player_skill                    INT64,
+  gtps_player_speed                    INT64,
+  gtps_finished_user_id                INT64,
+  gtps_updated_user_id                 INT64,
+  gtps_total_sell_chips                NUMERIC,
+  gtps_chips_out                       NUMERIC,
+  gtps_chips_in                        NUMERIC,
+  gtps_netwin                          NUMERIC,
+  gtps_in_session_plays_table          INT64,
+  gtps_in_session_last_played_amount   NUMERIC,
+  gtps_in_session_last_play            INT64,
+  gtps_updated_played_current          DATETIME,
+  gtps_updated                         DATETIME,
+  gtps_timestamp                       STRING NOT NULL,
+  gtps_import_operation_id             INT64,
+  gtps_iso_code                        STRING    NOT NULL,
+  gtps_auto_action                     BOOL,
+  gtps_counter_update_bet              INT64,
+  updated_at                           INT64
+)
+PARTITION BY DATE(gtps_started)
+CLUSTER BY gtps_gaming_table_session_id, gtps_account_id, gtps_status;

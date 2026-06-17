@@ -1,0 +1,105 @@
+config {
+    type: "incremental",
+    database: databases.golden,
+    schema: "GLD_BOCA",
+    name: "TBL_MOVIMIENTOS_CAJA_GLD",
+    uniqueKey: ["GameDay", "Sala", "cm_operation_id"],
+    bigquery: {
+        partitionBy: "GameDay",
+        clusterBy: ["Sala"]
+    },
+    tags: ["carga_incremental_diaria_golden"]
+}
+
+SELECT
+    a.Sala,
+    a.GameDay,
+    a.cs_name                                                                   AS Sesion,
+    a.cm_date                                                                   AS Fecha,
+    a.cm_cashier_name                                                           AS Terminal,
+    a.cm_user_name                                                              AS Usuario,
+    CASE
+        WHEN a.cm_type = 28                                     THEN 'SustituciondeTarjeta'
+        WHEN a.cm_type = 4  AND a.cm_undo_status = 2           THEN 'AnulaciondeRecarga'
+        WHEN a.cm_type = 5                                      THEN 'Retiro'
+        WHEN a.cm_type = 3  AND a.cm_undo_status = 2           THEN '(Anulacion)RetirodeCaja-Total'
+        WHEN a.cm_type = 3  AND a.cm_cage_currency_type = 1001 THEN 'Retiro de Caja-Total-Fichasredimibles'
+        WHEN a.cm_type = 3  AND a.cm_undo_status <> 1          THEN 'RetirodeCajaTotal'
+        WHEN a.cm_type = 4  AND a.cm_undo_status <> 1          THEN 'Recarga'
+        ELSE 'SinClasificacion'
+    END                                                                         AS Tipo,
+    NULLIF(CAST(a.cm_account_id AS STRING), '0')                                AS Cuenta,
+    a.cm_currency_iso_code                                                      AS Divisa,
+    a.cm_undo_status                                                            AS Denominacion,
+    a.cm_cage_currency_type                                                     AS Tipo_1,
+    a.cm_aux_amount                                                             AS Cant,
+    a.cm_initial_balance                                                        AS Total,
+    a.cm_sub_amount                                                             AS Restado,
+    a.cm_add_amount                                                             AS Aniadido,
+    NULLIF(b.ac_holder_name, ' ')                                               AS Titular,
+    a.cm_operation_id                                                           AS Operacion_id
+
+FROM (
+    SELECT
+        mov.cm_session_id,
+        mov.cm_date,
+        mov.cm_cashier_id,
+        mov.cm_cashier_name,
+        mov.cm_user_id,
+        mov.cm_user_name,
+        mov.cm_type,
+        mov.cm_account_id,
+        mov.cm_initial_balance,
+        mov.cm_sub_amount,
+        mov.cm_add_amount,
+        mov.cm_final_balance,
+        mov.cm_details,
+        mov.cm_currency_iso_code,
+        mov.cm_aux_amount,
+        mov.cm_undo_status,
+        mov.cm_cage_currency_type,
+        mov.cm_chip_id,
+        mov.cm_operation_id,
+        mov.Sala,
+        mov.GameDay,
+        cs.cs_name
+
+    FROM (
+        SELECT
+            cm.cm_session_id,
+            cm.cm_date,
+            cm.cm_cashier_id,
+            cm.cm_cashier_name,
+            cm.cm_user_id,
+            cm.cm_user_name,
+            cm.cm_type,
+            cm.cm_account_id,
+            cm.cm_initial_balance,
+            cm.cm_sub_amount,
+            cm.cm_add_amount,
+            cm.cm_final_balance,
+            cm.cm_details,
+            cm.cm_currency_iso_code,
+            cm.cm_aux_amount,
+            cm.cm_undo_status,
+            cm.cm_cage_currency_type,
+            cm.cm_chip_id,
+            cm.cm_operation_id,
+            cm.sala                                                             AS Sala,
+            DATE(DATETIME_SUB(CAST(cm.cm_date AS DATETIME), INTERVAL (
+                CASE WHEN cm.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END
+            ) HOUR))                                                            AS GameDay
+        FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")} cm
+        WHERE cm.cm_type IN (3, 4, 5, 28, 543)
+        ${when(incremental(), `AND cm.cm_date >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+    ) AS mov
+
+    LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs
+        ON  mov.cm_session_id = cs.cs_session_id
+        AND mov.Sala          = cs.sala
+        AND mov.GameDay       = DATE(cs.cs_gaming_day)
+
+) AS a
+LEFT JOIN ${ref("VW_ACCOUNTS_GLD")} b
+    ON  a.cm_account_id = b.ac_account_id
+    AND a.Sala          = b.Sala

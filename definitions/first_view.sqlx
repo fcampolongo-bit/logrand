@@ -1,0 +1,13 @@
+config {
+
+type: "view",
+database: (databases.raw),
+schema: "DATASET_PRUEBA",
+name: "VW_PRUEBA"
+
+
+}
+
+-- The rest of a SQLX file contains your SELECT statement used to create the table.
+
+SELECT * FROM  ${ref("RAW_WIGOS_JUBILEE","TBL_ACCOUNT_MOVEMENTS_RAW")}

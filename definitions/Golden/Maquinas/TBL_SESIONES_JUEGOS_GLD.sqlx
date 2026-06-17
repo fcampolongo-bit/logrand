@@ -1,0 +1,169 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_MAQUINAS",
+  name: "TBL_SESIONES_JUEGOS_GLD",
+  uniqueKey: ["id_sesion", "Sala","gameday"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Proveedor", "Numero"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+WITH RawSessions AS (
+  SELECT 
+    ps_play_session_id,
+    ps_started,
+    ps_finished,
+    ps_status,
+    ps_type,
+    te_provider_id                AS Proveedor,
+    te_name                       AS Nombre,
+    te_floor_id                   AS ID_en_planta,
+    te_multi_denomination         AS Denominacion_contable,
+    ac_account_id                 AS Numero,
+    ac_holder_name                AS Titular,
+    ps_total_cash_in,
+    CASE 
+      WHEN ps_status = 5 AND ps_type IN (100, 110) 
+        THEN ps_total_cash_out - ps_redeemable_cash_out - ps_non_redeemable_cash_out 
+      ELSE ps_total_cash_out 
+    END                           AS ps_total_cash_out,
+    ps_played_amount,
+    ps_won_amount,
+    ps_played_count,
+    ps_won_count,
+    ps_cash_in,
+    ps_redeemable_cash_in,
+    ps_redeemable_played,
+    ps_redeemable_won,
+    ps_redeemable_cash_out,
+    ps_non_redeemable_cash_in,
+    ps_non_redeemable_played,
+    ps_non_redeemable_won,
+    ps_non_redeemable_cash_out,
+    ps_re_cash_out,
+    ps_handpays_amount,
+    ps_handpays_paid_amount,
+    ps_computed_points,
+    ps_awarded_points,
+    te_cabinet_type,
+    te_vendor_id,
+    COALESCE(ps_handpays_amount, 0) AS Pago_Manual,
+    CASE 
+      WHEN ps_status = 0  THEN 'Abierta' 
+      WHEN ps_status = 1  THEN 'Cerrada' 
+      WHEN ps_status = 2  THEN 'Abandonada'
+      WHEN ps_status = 3  THEN 'Cerrada Manual'
+      WHEN ps_status = 4  THEN 'Cancelada'
+      WHEN ps_type = 100 AND ps_status = 5  THEN 'P.M. - Créditos Cancelados'
+      WHEN ps_type = 101  THEN 'P.M. - Jackpot'
+      WHEN ps_type = 102  THEN 'P.M. - Créditos Abandonados'
+      WHEN ps_type = 300  THEN 'Provisión de progresivo'
+      WHEN ps_type = 110 AND ps_status = 5  THEN 'P.M. - Manual'
+      WHEN ps_type = 100 AND ps_status = 6  THEN 'P.M.A. - Créditos Cancelados'
+      WHEN ps_type = 110 AND ps_status = 6  THEN 'P.M.A. - Manual'
+      WHEN ps_status = 20 THEN 'Reserva por progresivo'
+      ELSE 'error' 
+    END                           AS Estado,
+    PlaySessions.Sala,
+    PlaySessions.ID_Sala,
+
+    DATE(DATETIME_SUB(CAST(ps_finished AS DATETIME), 
+      INTERVAL (CASE WHEN PlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    )                             AS GameDay,
+    EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(ps_finished AS DATETIME), 
+      INTERVAL (CASE WHEN PlaySessions.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    ))                            AS GameYear
+
+  FROM ${ref("VW_PLAY_SESSIONS_GLD")}   AS PlaySessions
+  INNER JOIN ${ref("VW_ACCOUNTS_GLD")}  AS AccountV 
+    ON ps_account_id = ac_account_id 
+    AND PlaySessions.Sala = AccountV.Sala
+  INNER JOIN ${ref("VW_TERMINALS_GLD")} AS Terminals 
+    ON te_terminal_id = ps_terminal_id 
+    AND PlaySessions.Sala = Terminals.Sala
+  WHERE te_name <> 'SORTEADOR MESAS' 
+    AND te_provider_id <> 'CASINO'
+    AND ps_type <> 201
+    AND te_terminal_type IN (1, 3, 5, 106, 113, 108, 109, 110)
+    ${when(incremental(), `AND CAST(ps_finished AS DATETIME) >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+)
+
+SELECT
+ Sala,
+    ID_Sala as Id_Sala,
+  GameDay,
+  Gameyear as Year,
+  Proveedor,
+  Nombre,
+  ID_en_planta,
+  Denominacion_contable,
+  ps_started                                                            AS Iniciada,
+  ps_finished                                                           AS Finalizada,
+  Estado,
+  TIMESTAMP_DIFF(ps_finished, ps_started, SECOND)                      AS Duracion,
+  Numero,
+  Titular,
+  ps_redeemable_cash_in                                                 AS TotalIn_Redimible,
+  ps_redeemable_played                                                  AS Jugado_Redimible,
+  ps_redeemable_won                                                     AS Ganado_Redimible,
+  ps_redeemable_cash_out                                                AS TotalOut_Redimible,
+  CASE 
+    WHEN ps_type = 100 THEN 0
+    WHEN Estado = 'P.M. - Manual'
+      THEN ROUND(-ps_re_cash_out - (ps_non_redeemable_cash_in - ps_non_redeemable_cash_out), 2)
+    WHEN Estado = 'P.M. - Créditos Cancelados' THEN 0
+    WHEN ps_status = 6 THEN 0
+    ELSE ROUND((ps_total_cash_in - ps_total_cash_out) - (ps_non_redeemable_cash_in - ps_non_redeemable_cash_out), 2)
+  END                                                                   AS Netwin_Redimible,
+  ps_non_redeemable_cash_in                                             AS TotalIn_NoRedimible,
+  ps_non_redeemable_played                                              AS Jugado_NoRedimible,
+  ps_non_redeemable_won                                                 AS Ganado_NoRedimible,
+  ps_non_redeemable_cash_out                                            AS TotalOut_NoRedimible,
+  ps_non_redeemable_cash_in - ps_non_redeemable_cash_out               AS Netwin_NoRedimible,
+  CASE 
+    WHEN ps_status = 6 AND ps_type = 100 THEN 0 
+    ELSE ps_total_cash_in 
+  END                                                                   AS TotalIn,
+  ps_played_amount                                                      AS Total_Jugado,
+  ps_won_amount                                                         AS Total_Ganado,
+  CASE 
+    WHEN ps_type = 110 AND ps_status = 6 THEN 0
+    WHEN ps_type = 100 THEN 0
+    WHEN ps_type = 110 AND ps_status = 5 
+      THEN ps_redeemable_cash_out + ps_non_redeemable_cash_out
+    ELSE ps_total_cash_out 
+  END                                                                   AS TotalOut,
+  ROUND(
+    CASE 
+      WHEN Estado = 'P.M. - Manual' 
+        THEN -ps_re_cash_out + (ps_non_redeemable_cash_in - ps_non_redeemable_cash_out)
+      WHEN Estado IN ('P.M. - Créditos Cancelados', 'P.M.A - Créditos Cancelados') THEN 0
+      ELSE ps_total_cash_in - ps_total_cash_out 
+    END, 2)                                                             AS Total_Netwin,
+  Pago_Manual,
+  ps_cash_in                                                            AS Recargas,
+  ROUND(ps_computed_points, 2)                                          AS Puntos_Calculados,
+  ROUND(ps_awarded_points, 2)                                           AS Puntos_Asignados,
+  ps_played_count                                                       AS Jugadas,
+  ps_won_count                                                          AS Ganadas,
+  COALESCE(ps_handpays_paid_amount, 0)                                  AS Pagados_pago_manual,
+  ROUND(
+    CASE 
+      WHEN Estado IN ('P.M. - Manual', 'P.M. - Créditos Cancelados') THEN 0
+      WHEN ps_status = 6 THEN 0
+      WHEN ps_type = 300 THEN 0
+      ELSE ps_total_cash_in - ps_total_cash_out 
+    END, 2) - (ps_played_amount - ps_won_amount)                       AS Descuadre,
+  CASE 
+    WHEN ps_type IN (300, 100, 101) THEN 0
+    ELSE ps_played_amount - ps_won_amount 
+  END                                                                   AS Netwin_Estad,
+  te_cabinet_type                                                       AS Gabinete,
+  te_vendor_id                                                          AS Juego,
+  ps_play_session_id                                                    AS id_sesion
+
+FROM RawSessions
+

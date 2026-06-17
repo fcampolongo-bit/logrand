@@ -1,0 +1,60 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_MESAS",
+  name: "TBL_SESIONES_MESAS_JUEGO_GLD",
+  uniqueKey: [ "nombre","usuario","apertura","cierre","sala","GameDay"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "nombre", "tipo"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+
+SELECT 
+ GamingTableSessions.Sala,
+  GamingTableSessions.ID_Sala as Id_Sala,
+  DATE(DATETIME_SUB(CAST(cs_gaming_day AS DATETIME), 
+    INTERVAL (CASE WHEN GamingTableSessions.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+  ) AS GameDay,
+EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(cs_gaming_day AS DATETIME), 
+    INTERVAL (CASE WHEN GamingTableSessions.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)
+  )) AS Year,
+gt_name AS Nombre, gtt_name AS Tipo,
+ --ct_name AS Cajero_Integrado, se quitó ya que no se usa
+ gu_username AS Usuario, 
+ cs_opening_date AS Apertura,
+  cs_closing_date AS Cierre, 
+  SUM(gts_total_purchase_amount) AS Compra,
+   SUM(gts_total_sales_amount) AS Venta, 
+   SUM(gts_initial_chips_amount) AS Inicial, 
+   SUM(gts_fills_chips_amount) AS Fill, 
+   SUM(gts_credits_chips_amount) AS Credit, 
+   SUM(gts_final_chips_amount) AS Final,
+    CASE WHEN gt_has_integrated_cashier = TRUE THEN SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) ELSE SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) + SUM(gts_collected_amount) END AS Drop_Total, SUM(gts_copy_dealer_validated_amount) AS Tickets, SUM(gts_tips) AS Propinas, SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) AS Fichas, SUM(gts_collected_amount) AS Efectivo, SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) + SUM(gts_collected_amount) AS Balance_General
+
+
+FROM ${ref("VW_GAMING_TABLES_SESSIONS_GLD")}   GamingTableSessions
+    LEFT JOIN  ${ref("VW_CASHIER_SESSIONS_GLD")}  CashierSessions 
+	ON CashierSessions.cs_session_id = gts_cashier_session_id AND CashierSessions.Sala = GamingTableSessions.Sala 
+    LEFT JOIN  ${ref("VW_GUI_USERS_GLD")}  GuiUsers 
+	ON gu_user_id = cs_user_id AND GuiUsers.Sala = CashierSessions.Sala
+    LEFT JOIN  ${ref("VW_GAMING_TABLES_GLD")} GamingTables 
+	ON gt_gaming_table_id = gts_gaming_table_id AND GamingTables.Sala = GamingTableSessions.Sala
+    LEFT JOIN  ${ref("VW_GAMING_TABLES_TYPES_GLD")} GamingTableTypes 
+	ON gtt_gaming_table_type_id = gt_type_id AND GamingTableTypes.Sala = GamingTables.Sala
+    LEFT JOIN  ${ref("VW_AREAS_GLD")}  Areas
+	ON gt_area_id = ar_area_id AND GamingTables.sala = Areas.Sala
+    LEFT JOIN  ${ref("VW_BANKS_GLD")}  Banks 
+	ON gt_bank_id = bk_bank_id AND GamingTables.sala = Banks.Sala
+    --LEFT JOIN CashierTerminals -- se quita este join ya que no se usa
+	--ON gt_cashier_id = ct_cashier_id AND GamingTables.AI = CashierTerminals.Sala
+WHERE gt_type_id IN (1, 2, 3, 4, 5, 6)
+${when(incremental(), `AND cs_gaming_day >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+GROUP BY gts_cashier_session_id, cs_name, cs_status, gt_name, gtt_name, gt_has_integrated_cashier,
+ gu_username, cs_opening_date, cs_closing_date, gts_client_visits, ar_name, bk_name, gts_gaming_table_session_id, gts_own_sales_amount, gts_external_sales_amount, gts_collected_amount, 
+ GamingTableSessions.Sala,
+ GamingTableSessions.ID_Sala,
+ GameDay,
+Year

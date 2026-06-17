@@ -1,0 +1,44 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_BOCA",
+  name: "VW_MB_MOVEMENTS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    mbm_movement_id: "🆔 ID interno del movimiento MB (Mobile Bank). Clave primaria del registro en el modelo analítico.",
+    mbm_type: "🔄 Tipo de movimiento MB (Mobile Bank), (carga, descarga, transferencia, ajuste, etc.). Define la naturaleza operativa de la transacción.",
+    mbm_datetime: "📅 Fecha y hora exacta del movimiento MB. Permite trazabilidad temporal y conciliación.",
+    mbm_cashier_session_id: "🧑‍💼 ID de la sesión de caja asociada al movimiento MB (Mobile Bank). Relaciona la transacción con un turno específico.",
+    mbm_mb_id: "💳 ID interno de la cuenta MB (Mobile Bank). Identifica el instrumento financiero utilizado.",
+    mbm_terminal_id: "🖥 ID del terminal donde se originó el movimiento MB (Mobile Bank).",
+    mbm_terminal_name: "🏷 Nombre descriptivo del terminal asociado al movimiento.",
+    mbm_player_acct_id: "👤 ID de la cuenta del jugador asociada al movimiento MB (Mobile Bank). Permite vincular la transacción al cliente.",
+    mbm_player_trackdata: "🧾 Información de track data de la tarjeta del jugador. Usado para identificación automática en dispositivos.",
+    mbm_wcp_sequence_id: "🔢 ID de secuencia en el sistema WCP. Permite trazabilidad técnica en el sistema transaccional fuente.",
+    mbm_wcp_transaction_id: "🔗 ID de transacción en el sistema WCP. Identificador técnico único del movimiento en el sistema fuente.",
+    mbm_acct_movement_id: "🔄 ID del movimiento contable relacionado en la cuenta principal. Permite reconciliación entre billetera y cuenta base.",
+    mbm_cashier_id: "🧑‍💼 ID del cajero que gestionó el movimiento MB (Mobile Bank).",
+    mbm_cashier_name: "🏷 Nombre del cajero que ejecutó la transacción MB (Mobile Bank).",
+    mbm_initial_balance: "💰 Saldo inicial de la cuenta MB (Mobile Bank) antes del movimiento.",
+    mbm_add_amount: "➕ Monto acreditado en el movimiento MB (Mobile Bank). Representa incremento de saldo.",
+    mbm_sub_amount: "➖ Monto debitado en el movimiento MB (Mobile Bank). Representa disminución de saldo.",
+    mbm_final_balance: "💰 Saldo final de la cuenta MB (Mobile Bank) después del movimiento. Permite validación contable.",
+    mbm_operation_id: "🔗 ID de operación asociada al movimiento. Permite relacionar la transacción con procesos mayores (handpay, operación de caja, etc.).",
+    mbm_amount_01: "💵 Monto auxiliar 01 asociado al movimiento. Puede representar valor alterno o componente adicional de la transacción.",
+    mbm_amount_02: "💵 Monto auxiliar 02 asociado al movimiento. Segundo componente monetario adicional si aplica.",
+    mbm_undo_status: "↩️ Indicador de reverso/anulación del movimiento MB (Mobile Bank). Permite identificar transacciones invalidadas o revertidas.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_MB_MOVEMENTS_STG") + `
+`).join("\n UNION ALL \n")}

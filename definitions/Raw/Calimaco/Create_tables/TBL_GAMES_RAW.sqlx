@@ -1,0 +1,23 @@
+config {
+    type: "operations",
+    schema: "RAW_CALIMACO",
+    name: "TBL_GAMES_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_GAMES_RAW
+(
+ 	db int NOT NULL,
+	company STRING NOT NULL,
+	user bigint NOT NULL,
+	provider STRING NOT NULL,
+	machine bigint NOT NULL,
+	game STRING NOT NULL,
+	wager bigint ,
+	winning bigint ,
+	status STRING ,
+	account STRING ,
+	created_date DATETIME ,
+	updated_date DATETIME 
+)

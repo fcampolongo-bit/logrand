@@ -1,0 +1,30 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "VW_GT_SEATS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    gts_seat_id: "🆔 Identificador único del asiento en la mesa de juego.",
+    gts_gaming_table_id: "🎲 Identificador de la mesa a la que pertenece el asiento.",
+    gts_enabled: "✅ Indica si el asiento está habilitado para uso.",
+    gts_terminal_id: "🎰 Identificador del terminal vinculado al asiento (si aplica).",
+    gts_account_id: "👤 Identificador de la cuenta del jugador actualmente asignado al asiento.",
+    gts_enabled_date: "📅 Fecha en la que el asiento fue habilitado.",
+    gts_disabled_date: "📅 Fecha en la que el asiento fue deshabilitado.",
+    gts_position: "📍 Posición física o número del asiento dentro de la mesa.",
+    gts_current_play_session_id: "🎮 Identificador de la sesión de juego activa asociada al asiento.",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_GT_SEATS_STG") + `
+`).join("\n UNION ALL \n")}

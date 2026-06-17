@@ -1,0 +1,45 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_BOCA",
+  name: "VW_CASHIER_SESSIONS_GLD",
+  description: "Vista consolidada escalable. Actualmente: Jubilee.",
+  columns: {
+    cs_session_id: "🆔 ID interno de la sesión de caja. Clave primaria del registro en el modelo analítico. Identifica de forma única cada turno o sesión operativa del cajero.",
+    cs_name: "🏷 Nombre descriptivo de la sesión de caja. Puede representar el turno, código interno o referencia operativa.",
+    cs_cashier_id: "🧑‍💼 ID del cajero asignado a la sesión. Permite identificar al operador responsable del turno.",
+    cs_user_id: "👤 ID del usuario del sistema que abrió o gestionó la sesión. Permite trazabilidad administrativa.",
+    cs_opening_date: "📅 Fecha y hora de apertura de la sesión de caja. Marca el inicio operativo del turno.",
+    cs_closing_date: "⏹ Fecha y hora de cierre de la sesión. Indica el fin operativo del turno y es clave para conciliación diaria.",
+    cs_status: "📌 Estado de la sesión (abierta, cerrada, suspendida, anulada, etc.). Permite control operativo y seguimiento.",
+    cs_balance: "💰 Saldo principal de la sesión al momento de cierre o consulta. Usado para conciliación y control financiero.",
+    cs_other_balance_1: "💵 Saldo alterno 1. Puede representar una bolsa adicional (ej. fichas, divisa secundaria u otro instrumento monetario).",
+    cs_other_balance_2: "💵 Saldo alterno 2. Representa una segunda bolsa o categoría monetaria adicional en la sesión.",
+    cs_tax_a_pct: "📊 Porcentaje de impuesto A aplicado durante la sesión. Campo paramétrico para cálculo fiscal.",
+    cs_tax_b_pct: "📊 Porcentaje de impuesto B aplicado durante la sesión. Utilizado en escenarios de doble carga tributaria.",
+    cs_collected_amount: "💵 Monto total recaudado durante la sesión. Representa ingresos gestionados en el turno.",
+    cs_sales_limit: "💳 Límite máximo autorizado de ventas para la sesión en modalidad estándar.",
+    cs_total_sold: "💰 Total vendido durante la sesión en modalidad estándar. Permite medir desempeño operativo.",
+    cs_mb_sales_limit: "📱💳 Límite de ventas autorizado en modalidad MB (mobile/billetera).",
+    cs_mb_total_sold: "📱💰 Total vendido en modalidad MB durante la sesión.",
+    cs_session_by_terminal: "🖥 Indicador de sesión asociada a terminal específica. Define si el turno está restringido a un punto operativo determinado.",
+    cs_history: "📜 Historial estructurado de la sesión. Puede contener eventos relevantes ocurridos durante el turno.",
+    cs_gaming_day: "🎲 Día operativo de juego asociado a la sesión. Puede diferir del día calendario y es clave para cierres contables.",
+    cs_short_over_history: "⚖️ Historial de diferencias (faltantes o sobrantes) detectadas en la conciliación de caja.",
+    cs_has_pinpad_operations: "💳 Indicador de operaciones con pinpad. Define si durante la sesión se realizaron transacciones electrónicas con datáfono.",
+    cs_venue_id: "🏢 ID del venue/sala en el sistema fuente. Permite identificar la unidad operativa donde se desarrolló la sesión.",
+    updated_at: "🔄 Última actualización del registro (epoch/numérico).",
+    ingestion_ts: "📥 Timestamp de ingesta.",
+    sala: "🏷🏢 Nombre descriptivo de la sala.",
+    id_sala: "🆔🏢 ID interno de sala (homologado)."
+  }
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_CASHIER_SESSIONS_STG") + `
+`).join("\n UNION ALL \n")}

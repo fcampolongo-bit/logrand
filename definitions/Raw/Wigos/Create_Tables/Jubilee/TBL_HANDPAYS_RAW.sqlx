@@ -1,0 +1,57 @@
+config {
+    type: "operations",
+    schema: "RAW_WIGOS_JUBILEE",
+    name: "TBL_HANDPAYS_RAW",
+    database: (databases.raw),
+    hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_JUBILEE.TBL_HANDPAYS_RAW
+(
+  hp_terminal_id                        INT64,
+  hp_game_base_name                     STRING,
+  hp_datetime                           DATETIME   NOT NULL,
+  hp_previous_meters                    DATETIME,
+  hp_amount                             NUMERIC    NOT NULL,
+  hp_te_name                            STRING,
+  hp_te_provider_id                     STRING,
+  hp_movement_id                        INT64,
+  hp_type                               INT64      NOT NULL,
+  hp_play_session_id                    INT64,
+  hp_site_jackpot_index                 INT64,
+  hp_site_jackpot_name                  STRING,
+  hp_site_jackpot_awarded_on_terminal_id INT64,
+  hp_site_jackpot_awarded_to_account_id INT64,
+  hp_status                             INT64,
+  hp_site_jackpot_notified              BOOL       NOT NULL,
+  hp_ticket_id                          INT64,
+  hp_transaction_id                     INT64,
+  hp_candidate_play_session_id          INT64,
+  hp_candidate_prev_play_session_id     INT64,
+  hp_long_poll_1b_data                  STRING,
+  hp_id                                 INT64      NOT NULL,
+  hp_progressive_id                     INT64,
+  hp_level                              INT64,
+  hp_status_changed                     DATETIME,
+  hp_tax_base_amount                    NUMERIC,
+  hp_tax_amount                         NUMERIC,
+  hp_tax_pct                            NUMERIC,
+  HP_TIMESTAMP                          STRING  NOT NULL,
+  hp_payment_mode                       INT64      NOT NULL,
+  hp_status_calculated                  INT64,
+  hp_operation_id                       INT64,
+  hp_amt0                               NUMERIC,
+  hp_cur0                               STRING,
+  hp_amt1                               NUMERIC,
+  hp_cur1                               STRING,
+  hp_tax_apply_type                     INT64,
+  hp_void_comments                      STRING,
+  hp_account_id                         INT64,
+  hp_operation_id_authorization         INT64,
+  hp_original_amount                    NUMERIC,
+  hp_previous_status                    INT64,
+  hp_in_candidate_ps                    BOOL,
+  updated_at                            INT64
+)
+PARTITION BY DATE(hp_datetime)
+CLUSTER BY hp_terminal_id, hp_play_session_id, hp_account_id, hp_status;
