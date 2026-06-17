@@ -1,0 +1,56 @@
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_SESIONES_JUEGO_MESAS_TOP_CLIENTES_GLD",
+  uniqueKey: ["GameDay", "Sala"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+
+
+WITH ranking_clientes AS (
+    SELECT
+        GameDay,
+        ID_SALA,
+        Sala,
+        Cuenta_Numero as numero ,
+        Cuenta_Titular as titular,
+        SUM(Fichas_Tickets)     AS Drop ,
+        ROW_NUMBER() OVER (
+            PARTITION BY ID_SALA ,  GameDay 
+            ORDER BY SUM(Fichas_Tickets) DESC
+        ) AS Ranking
+    FROM  ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+    
+    ${when(incremental(), `WHERE GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
+
+  
+    GROUP BY GameDay, ID_SALA, Sala, Numero, Titular 
+)
+SELECT
+    GameDay,
+    a.ID_SALA,
+    a.Sala,
+    Ranking,
+    Numero,
+    Titular,
+    CASE 
+        WHEN ac_holder_level = 1 THEN 'Classic'
+        WHEN ac_holder_level = 2 THEN 'Gold'
+        WHEN ac_holder_level = 3 THEN 'Platinum'
+        WHEN ac_holder_level = 4 THEN 'Diamond'
+        WHEN ac_holder_level = 5 THEN 'Black'
+        WHEN ac_holder_level = 6 THEN 'The One'
+        ELSE NULL 
+        END AS Nivel,
+    Drop 
+FROM ranking_clientes a
+INNER JOIN `logrand-storage-golden-dev.GLD_COMERCIAL_Y_GESTION_DE_CLIENTES.VW_ACCOUNTS_GLD` b
+ON a.numero = b.ac_account_id
+AND a.Id_sala = b.Id_sala
+WHERE a.Ranking <= 10

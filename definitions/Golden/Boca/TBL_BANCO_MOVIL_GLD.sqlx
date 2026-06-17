@@ -1,0 +1,105 @@
+config {
+    type: "incremental",
+    database: databases.golden,
+    schema: "GLD_BOCA",
+    name: "TBL_BANCO_MOVIL_GLD",
+    uniqueKey: ["GameDay", "Sala", "mbm_operation_id"],
+    bigquery: {
+        partitionBy: "GameDay",
+        clusterBy: ["Sala"]
+    },
+    tags: ["carga_incremental_diaria_golden"]
+}
+
+SELECT
+    a.Sala,
+    a.GameDay,
+    a.cs_name                                                                   AS Sesion,
+    a.mbm_datetime                                                              AS Fecha,
+    c.mb_holder_name                                                            AS Banco_Movil,
+    a.Tipodemovimiento,
+    CASE 
+        WHEN a.mbm_undo_status = 2 THEN -ABS(a.mbm_amount_01)
+        WHEN a.mbm_type = 1        THEN a.mbm_amount_01
+        ELSE 0 
+    END                                                                         AS A,
+    CASE 
+        WHEN a.mbm_undo_status = 2 THEN -ABS(a.mbm_amount_02)
+        WHEN a.mbm_type = 1        THEN a.mbm_amount_02
+        ELSE 0 
+    END                                                                         AS B,
+    CASE 
+        WHEN a.mbm_undo_status = 2 THEN -ABS(a.mbm_sub_amount)
+        WHEN a.mbm_type = 1        THEN a.mbm_sub_amount
+        ELSE 0 
+    END                                                                         AS Recarga,
+    CASE WHEN a.mbm_type = 1 AND a.mbm_undo_status IS DISTINCT FROM 2 
+         THEN a.mbm_terminal_name ELSE NULL END                                 AS Terminal,
+    CASE WHEN a.mbm_type = 1 AND a.mbm_undo_status IS DISTINCT FROM 2 
+         THEN CAST(a.mbm_player_acct_id AS STRING) ELSE NULL END                AS Cuenta,
+    CASE WHEN a.mbm_type = 1 AND a.mbm_undo_status IS DISTINCT FROM 2 
+         THEN b.ac_holder_name ELSE NULL END                                    AS Titular,
+    a.mbm_operation_id                                                          AS Operacion_id
+
+FROM (
+    SELECT
+        mov.mbm_cashier_session_id,
+        mov.mbm_mb_id,
+        mov.mbm_datetime,
+        mov.mbm_terminal_id,
+        mov.mbm_terminal_name,
+        mov.mbm_player_acct_id,
+        mov.mbm_add_amount,
+        mov.mbm_sub_amount,
+        mov.mbm_amount_01,
+        mov.mbm_amount_02,
+        mov.mbm_final_balance,
+        mov.mbm_type,
+        mov.mbm_undo_status,
+        mov.mbm_operation_id,
+        mov.Sala,
+        mov.GameDay,
+        cs.cs_name,
+        CASE 
+            WHEN mov.mbm_undo_status = 2 THEN '(Anulacion) Recarga' 
+            ELSE 'Recarga' 
+        END                                                                     AS Tipodemovimiento
+
+    FROM (
+        SELECT
+            mm.mbm_cashier_session_id,
+            mm.mbm_mb_id,
+            mm.mbm_datetime,
+            mm.mbm_terminal_id,
+            mm.mbm_terminal_name,
+            mm.mbm_player_acct_id,
+            mm.mbm_add_amount,
+            mm.mbm_sub_amount,
+            mm.mbm_amount_01,
+            mm.mbm_amount_02,
+            mm.mbm_final_balance,
+            mm.mbm_type,
+            mm.mbm_undo_status,
+            mm.mbm_operation_id,
+            mm.sala                                                             AS Sala,
+            DATE(DATETIME_SUB(CAST(mm.mbm_datetime AS DATETIME), INTERVAL (
+                CASE WHEN mm.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END
+            ) HOUR))                                                            AS GameDay
+        FROM ${ref("VW_MB_MOVEMENTS_GLD")} mm
+        INNER JOIN ${ref("VW_MOBILE_BANKS_GLD")} mb
+            ON  mm.mbm_mb_id          = mb.mb_account_id
+            AND mm.sala               = mb.sala
+            AND mb.mb_account_type    NOT IN (2, 3)
+        WHERE mm.mbm_type IN (1, 2, 3, 9, 11, 8)
+          AND mm.mbm_sub_amount <> 0
+        ${when(incremental(), `AND mm.mbm_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+    ) AS mov
+
+    LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs
+        ON  mov.mbm_cashier_session_id = cs.cs_session_id
+        AND mov.Sala                   = cs.sala
+        AND mov.GameDay                = DATE(cs.cs_gaming_day)
+
+) AS a
+LEFT JOIN ${ref("VW_ACCOUNTS_GLD")}     b ON a.mbm_player_acct_id = b.ac_account_id AND a.Sala = b.Sala
+LEFT JOIN ${ref("VW_MOBILE_BANKS_GLD")} c ON a.mbm_mb_id           = c.mb_account_id AND a.Sala = c.Sala
