@@ -1,0 +1,46 @@
+config {
+    type: "incremental",
+    database: databases.golden,
+    schema: "GLD_BOCA",
+    name: "TBL_RECARGAS_APP_GLD",
+    uniqueKey: ["GameDay", "Sala", "cm_operation_id"],
+    bigquery: {
+        partitionBy: "GameDay",
+        clusterBy: ["Sala"]
+    },
+    tags: ["carga_incremental_diaria_golden"]
+}
+
+SELECT
+    a.Sala,
+    a.GameDay,
+    a.cm_account_id                                                             AS Num_Cliente,
+    a.cm_add_amount                                                             AS Recarga,
+    'App'                                                                       AS Tipo,
+    b.ac_holder_name                                                            AS Titular,
+    'Recarga'                                                                   AS Tipo1,
+    a.cm_date                                                                   AS Fecha,
+    a.cm_operation_id                                                           AS Operacion_id
+
+FROM (
+    SELECT
+        cm.cm_account_id,
+        cm.cm_add_amount,
+        cm.cm_date,
+        cm.cm_operation_id,
+        cm.cm_type,
+        cm.cm_user_name,
+        cm.sala                                                                 AS Sala,
+        DATE(DATETIME_SUB(CAST(cm.cm_date AS DATETIME), INTERVAL (
+            CASE WHEN cm.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END
+        ) HOUR))                                                                AS GameDay
+    FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")} cm
+    WHERE cm.cm_type    = 4
+      AND cm.cm_user_name LIKE 'SYS-%'
+      AND cm.cm_add_amount > 0
+      AND cm.cm_account_id > 0
+    ${when(incremental(), `AND cm.cm_date >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+) AS a
+LEFT JOIN ${ref("VW_ACCOUNTS_GLD")} b
+    ON  a.cm_account_id = b.ac_account_id
+    AND a.Sala          = b.Sala

@@ -19,13 +19,13 @@ SELECT
     a.cm_cashier_name                                                           AS Terminal,
     a.cm_user_name                                                              AS Usuario,
     CASE
-        WHEN a.cm_type = 28                                     THEN 'SustituciondeTarjeta'
-        WHEN a.cm_type = 4  AND a.cm_undo_status = 2           THEN 'AnulaciondeRecarga'
-        WHEN a.cm_type = 5                                      THEN 'Retiro'
-        WHEN a.cm_type = 3  AND a.cm_undo_status = 2           THEN '(Anulacion)RetirodeCaja-Total'
-        WHEN a.cm_type = 3  AND a.cm_cage_currency_type = 1001 THEN 'Retiro de Caja-Total-Fichasredimibles'
-        WHEN a.cm_type = 3  AND a.cm_undo_status <> 1          THEN 'RetirodeCajaTotal'
-        WHEN a.cm_type = 4  AND a.cm_undo_status <> 1          THEN 'Recarga'
+        WHEN a.cm_type = 28                                                     THEN 'SustituciondeTarjeta'
+        WHEN a.cm_type = 4  AND a.cm_undo_status = 2                           THEN 'AnulaciondeRecarga'
+        WHEN a.cm_type = 5                                                      THEN 'Retiro'
+        WHEN a.cm_type = 3  AND a.cm_undo_status = 2                           THEN '(Anulacion)RetirodeCaja-Total'
+        WHEN a.cm_type = 3  AND a.cm_cage_currency_type = 1001                 THEN 'Retiro de Caja-Total-Fichasredimibles'
+        WHEN a.cm_type = 3  AND a.cm_undo_status IS DISTINCT FROM 1            THEN 'RetirodeCajaTotal'
+        WHEN a.cm_type = 4  AND a.cm_undo_status IS DISTINCT FROM 1            THEN 'Recarga'
         ELSE 'SinClasificacion'
     END                                                                         AS Tipo,
     NULLIF(CAST(a.cm_account_id AS STRING), '0')                                AS Cuenta,
@@ -33,7 +33,10 @@ SELECT
     a.cm_undo_status                                                            AS Denominacion,
     a.cm_cage_currency_type                                                     AS Tipo_1,
     a.cm_aux_amount                                                             AS Cant,
-    a.cm_initial_balance                                                        AS Total,
+    CASE
+        WHEN a.cm_add_amount > 0 THEN a.cm_add_amount
+        ELSE a.cm_sub_amount
+    END                                                                         AS Total,
     a.cm_sub_amount                                                             AS Restado,
     a.cm_add_amount                                                             AS Aniadido,
     NULLIF(b.ac_holder_name, ' ')                                               AS Titular,
