@@ -3,7 +3,7 @@ config {
     database: databases.golden,
     schema: "GLD_BOCA",
     name: "TBL_RECARGAS_APP_GLD",
-    uniqueKey: ["GameDay", "Sala", "cm_operation_id"],
+    uniqueKey: ["GameDay", "Sala", "Operacion_id"],
     bigquery: {
         partitionBy: "GameDay",
         clusterBy: ["Sala"]

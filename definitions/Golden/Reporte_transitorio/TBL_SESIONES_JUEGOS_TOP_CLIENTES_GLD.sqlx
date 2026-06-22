@@ -8,7 +8,7 @@ config {
     partitionBy: "GameDay",
     clusterBy: ["Sala"]
   },
-  tags: ["carga_incremental_diaria_golden"]
+  tags: ["carga_incremental_diaria_bi"]
 }
 
 

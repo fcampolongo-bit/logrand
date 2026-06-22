@@ -35,6 +35,6 @@ LEFT JOIN ${ref("GLD_COMERCIAL_Y_GESTION_DE_CLIENTES", "VW_ACCOUNTS_GLD")} B
     ON B.ac_account_id = AccountMovements.am_account_id 
     AND B.Sala = AccountMovements.Sala
 
-WHERE 1=1
+WHERE am_type in (203,204)
 
 ${when(incremental(), `AND am_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
