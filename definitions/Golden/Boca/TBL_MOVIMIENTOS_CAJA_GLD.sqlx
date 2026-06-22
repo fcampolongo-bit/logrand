@@ -2,8 +2,8 @@ config {
     type: "incremental",
     database: databases.golden,
     schema: "GLD_BOCA",
-    name: "TBL_MOVIMIENTOS_CAJA_GLD",
-    uniqueKey: ["GameDay", "Sala", "cm_operation_id"],
+    name: "TBL_MOVIMIENTO_CAJA_GLD",
+    uniqueKey: ["GameDay", "Sala", "Operacion_id"],
     bigquery: {
         partitionBy: "GameDay",
         clusterBy: ["Sala"]

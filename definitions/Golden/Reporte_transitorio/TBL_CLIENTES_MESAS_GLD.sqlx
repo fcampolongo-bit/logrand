@@ -1,0 +1,74 @@
+config {
+    type: "incremental",
+    database: databases.golden,
+    schema: "GLD_REPORTE_TRANSITORIO",
+    name: "TBL_CLIENTES_MESAS_GLD",
+    uniqueKey: ["GameDay", "Sala", "Num_Cliente"],
+    bigquery: {
+        partitionBy: "GameDay",
+        clusterBy: ["Sala"]
+    },
+    tags: ["carga_incremental_diaria_bi"]
+}
+
+SELECT
+    m.Sala,
+    m.GameDay,
+    m.Numero                                                                    AS Num_Cliente,
+    COALESCE(s.Puntos_Asignados, 0)                                             AS Puntos_Asignados,
+    SUM(CASE WHEN m.Tipo = 'Compra fichas - Total' THEN m.Restado ELSE 0 END)  AS Drop,
+    SUM(CASE WHEN m.Tipo = 'Venta fichas - Total'  THEN m.Anadido ELSE 0 END)  AS Pagos,
+    SUM(CASE WHEN m.Tipo = 'Compra fichas - Total' THEN m.Restado ELSE 0 END) -
+    SUM(CASE WHEN m.Tipo = 'Venta fichas - Total'  THEN m.Anadido ELSE 0 END)  AS Win_Mesas,
+    CASE 
+        WHEN p.Drop_ppto IS NOT NULL AND p.Drop_ppto <> 0 
+        THEN SUM(CASE WHEN m.Tipo = 'Compra fichas - Total' THEN m.Restado ELSE 0 END) 
+             * (p.Win_mesas_ppto / p.Drop_ppto)
+        ELSE 0
+    END                                                                         AS Win_Teo_Mesas,
+    COALESCE(s.TiempoDeJuego, 0)                                                AS TiempoDeJuego,
+    COUNT(DISTINCT m.GameDay)                                                   AS Visitas
+
+FROM (
+    SELECT
+        Numero,
+        Sala,
+        gameday                                                                 AS GameDay,
+        Tipo,
+        Restado,
+        Anadido,
+        Fecha
+    FROM ${ref("TBL_MOVIMIENTOS_DE_CUENTA_MESAS_GLD")}
+    WHERE Tipo IN ('Compra fichas - Total', 'Venta fichas - Total')
+    ${when(incremental(), `AND Fecha >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+) AS m
+LEFT JOIN (
+    SELECT
+        gtps.gtps_account_id,
+        gtps.sala                                                               AS Sala,
+        DATE(DATETIME_SUB(CAST(gtps.gtps_started AS DATETIME), INTERVAL (
+            CASE WHEN gtps.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END
+        ) HOUR))                                                                AS GameDay,
+        SUM(gtps.gtps_points)                                                   AS Puntos_Asignados,
+        SUM(gtps.gtps_game_time)                                                AS TiempoDeJuego
+    FROM ${ref("VW_GT_PLAY_SESSIONS_GLD")} gtps
+    WHERE gtps.gtps_account_id IS NOT NULL
+      AND gtps.gtps_account_id > 0
+    ${when(incremental(), `AND gtps.gtps_started >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+    GROUP BY gtps.gtps_account_id, gtps.sala, GameDay
+) AS s
+    ON  m.Numero  = s.gtps_account_id
+    AND m.Sala    = s.Sala
+    AND m.GameDay = s.GameDay
+LEFT JOIN ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")} p
+    ON  m.Sala    = p.Sala
+    AND m.GameDay = p.Fecha
+
+GROUP BY
+    m.Sala,
+    m.GameDay,
+    m.Numero,
+    s.Puntos_Asignados,
+    s.TiempoDeJuego,
+    p.Drop_ppto,
+    p.Win_mesas_ppto
