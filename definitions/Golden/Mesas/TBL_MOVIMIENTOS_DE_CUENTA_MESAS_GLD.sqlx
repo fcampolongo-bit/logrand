@@ -12,6 +12,12 @@ config {
 }
 
 SELECT 
+AccountMovements.Sala,
+    AccountMovements.ID_Sala,
+ DATE(TIMESTAMP_SUB(am_datetime, INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)) AS GameDay, 
+     EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(am_datetime AS DATETIME), 
+      INTERVAL (CASE WHEN AccountMovements.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+    ))    as   Year         ,            
     am_account_id AS Numero, 
     B.ac_holder_name AS Titular, 
     am_datetime AS Fecha, 
@@ -27,13 +33,12 @@ SELECT
     am_initial_balance AS Inicial, 
     am_sub_amount AS Restado, 
     am_add_amount AS Anadido, 
-    am_final_balance AS Final, 
-    DATE(TIMESTAMP_SUB(am_datetime, INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)) AS gameday, 
-    AccountMovements.Sala
+    am_final_balance AS Final
+
 FROM ${ref("GLD_BOCA", "VW_ACCOUNT_MOVEMENTS_GLD")} AccountMovements
 LEFT JOIN ${ref("GLD_COMERCIAL_Y_GESTION_DE_CLIENTES", "VW_ACCOUNTS_GLD")} B 
     ON B.ac_account_id = AccountMovements.am_account_id 
-    AND B.Sala = AccountMovements.Sala
+    AND B.ID_Sala = AccountMovements.ID_Sala
 
 WHERE am_type in (203,204)
 
