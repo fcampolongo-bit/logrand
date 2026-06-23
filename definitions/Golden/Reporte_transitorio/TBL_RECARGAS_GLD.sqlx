@@ -1,0 +1,45 @@
+
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_RECARGAS_GLD",
+  uniqueKey: ["GameDay", "Sala" , "Cuenta","Tipo","Fecha"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala"]
+  },
+  tags: ["carga_incremental_diaria_bi"]
+}
+
+
+
+with recargas as  (SELECT SALA , GameDay,cast(cuenta as int) AS Cuenta ,Recarga, 'Banco Movil' as Tipo ,Titular, Tipodemovimiento as Tipo1 ,Fecha, Operacion_id 
+FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_BANCO_MOVIL_GLD` 
+where Tipodemovimiento='Recarga'
+${when(incremental(), `
+    and GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+
+union all 
+
+SELECT SALA , GameDay,cast(cuenta as int) AS  Cuenta,Total as Recarga ,'Caja' as Tipo,Titular, tipo as Tipo1, Fecha, Operacion_id
+ FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_MOVIMIENTO_CAJA_GLD`  
+--AND CAST(cuenta AS INT) =1993099 
+where tipo='Recarga'
+${when(incremental(), `
+    and GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+
+union all
+
+SELECT SALA , GameDay,Num_Cliente AS Cuenta, Recarga, 'App' as Tipo ,Titular, Tipo1,Fecha, Operacion_id
+ FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_RECARGAS_APP_GLD` 
+where Tipo1='Recarga'
+${when(incremental(), `
+    and GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+
+)
+ select * from recargas
+ where Operacion_id is not null 
