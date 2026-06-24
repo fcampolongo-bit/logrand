@@ -3,7 +3,7 @@ config {
     database: databases.golden,
     schema: "GLD_BOCA",
     name: "TBL_MOVIMIENTO_CAJA_GLD",
-    uniqueKey: ["GameDay", "Sala", "Operacion_id"],
+    uniqueKey: ["GameDay", "Sala","cuenta", "Operacion_id","cm_movement_id"],
     bigquery: {
         partitionBy: "GameDay",
         clusterBy: ["Sala"]
@@ -40,10 +40,12 @@ SELECT
     a.cm_sub_amount                                                             AS Restado,
     a.cm_add_amount                                                             AS Aniadido,
     NULLIF(b.ac_holder_name, ' ')                                               AS Titular,
-    a.cm_operation_id                                                           AS Operacion_id
+    a.cm_operation_id                                                           AS Operacion_id,
+    cm_movement_id
 
 FROM (
     SELECT
+    mov.cm_movement_id,
         mov.cm_session_id,
         mov.cm_date,
         mov.cm_cashier_id,
@@ -69,6 +71,7 @@ FROM (
 
     FROM (
         SELECT
+            cm.cm_movement_id,
             cm.cm_session_id,
             cm.cm_date,
             cm.cm_cashier_id,

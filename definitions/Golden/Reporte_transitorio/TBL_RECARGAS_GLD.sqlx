@@ -42,4 +42,4 @@ ${when(incremental(), `
 
 )
  select * from recargas
- where Operacion_id is not null 
+ where Operacion_id is not null or cuenta is not null
