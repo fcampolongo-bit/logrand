@@ -1,9 +1,5 @@
-// 1. Capturamos el proyecto por defecto base del repositorio
-const defaultProj = dataform.projectConfig.defaultProject || "";
-
-// 2. Lógica Inversa: Si dice explícitamente "-dev", es entorno de desarrollo.
-// Si viene vacío o cambia debido a Airflow/Producción, asume "prod" como entorno seguro.
-const environment = defaultProj.includes("-dev") ? "dev" : "prod";
+// 1. Buscamos primero si viene la variable env en las anulaciones (vars) o usamos "dev" por defecto
+const environment = dataform.projectConfig.vars.env || "dev";
 
 module.exports = {
     // Apunta a logrand-storage-raw-dev o logrand-storage-raw-prod según el entorno
