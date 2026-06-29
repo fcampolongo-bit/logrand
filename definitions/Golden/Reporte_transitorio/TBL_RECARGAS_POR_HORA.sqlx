@@ -1,0 +1,26 @@
+
+
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_RECARGAS_POR_HORA_GLD",
+  uniqueKey: ["GameDay", "Sala" , "Num_Cliente","Tipo","Hora"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala"]
+  },
+  tags: ["carga_incremental_diaria_bi"]
+}
+
+
+ select GameDay, Sala,
+ Cuenta as Num_Cliente,
+ Tipo, 
+ extract(hour from Fecha) as Hora, 
+ SUM(Recarga) as Recargas, count(*) as Cantidad_Recargas  
+ from ${ref("TBL_RECARGAS_GLD")}
+ ${when(incremental(), `
+    where GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+ group by GameDay, Sala,Cuenta,Tipo,extract(hour from Fecha)
