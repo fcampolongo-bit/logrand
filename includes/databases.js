@@ -1,8 +1,9 @@
-// 1. Buscamos de manera ultra-segura el nombre del proyecto en todas las variables nativas del compilador
-const currentProject = dataform.projectConfig.defaultProject || dataform.projectConfig.warehouse || "";
+// 1. Capturamos el proyecto por defecto base del repositorio
+const defaultProj = dataform.projectConfig.defaultProject || "";
 
-// 2. Si el proyecto contiene "-prod", usamos producción. De lo contrario, por defecto es dev.
-const environment = currentProject.includes("-prod") ? "prod" : "dev";
+// 2. Lógica Inversa: Si dice explícitamente "-dev", es entorno de desarrollo.
+// Si viene vacío o cambia debido a Airflow/Producción, asume "prod" como entorno seguro.
+const environment = defaultProj.includes("-dev") ? "dev" : "prod";
 
 module.exports = {
     // Apunta a logrand-storage-raw-dev o logrand-storage-raw-prod según el entorno
