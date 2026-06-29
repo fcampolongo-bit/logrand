@@ -1,8 +1,9 @@
-// 1. Detectamos el entorno automáticamente leyendo el ID del proyecto por defecto de BigQuery
-const currentProject = dataform.projectConfig.defaultProject || "";
+// 1. Buscamos de manera ultra-segura el nombre del proyecto en todas las variables nativas del compilador
+const currentProject = dataform.projectConfig.defaultProject || dataform.projectConfig.warehouse || "";
+
+// 2. Si el proyecto contiene "-prod", usamos producción. De lo contrario, por defecto es dev.
 const environment = currentProject.includes("-prod") ? "prod" : "dev";
 
-// 2. Exportamos el objeto con los nombres de los proyectos modificados dinámicamente
 module.exports = {
     // Apunta a logrand-storage-raw-dev o logrand-storage-raw-prod según el entorno
     raw: `logrand-storage-raw-${environment}`,  
