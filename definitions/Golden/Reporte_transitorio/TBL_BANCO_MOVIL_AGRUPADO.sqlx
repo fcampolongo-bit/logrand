@@ -1,0 +1,24 @@
+
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_BANCO_MOVIL_AGRUPADO_GLD",
+  uniqueKey: ["GameDay", "Sala" , "Hora","Banco_Movil"],
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala"]
+  },
+  tags: ["carga_incremental_diaria_bi"]
+}
+
+
+
+
+
+  SELECT Sala , GameDay,extract(hour from Fecha) as Hora,Banco_Movil ,sum(Recarga)as BM_Recarga, COUNT(OPERACION_ID) as BM_Recargas ,count( DISTINCT cuenta) AS BM_Clientes
+FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_BANCO_MOVIL_GLD` 
+${when(incremental(), `
+    where GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+group by  SALA , GameDay,extract(hour from Fecha),Banco_Movil

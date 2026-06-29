@@ -1,0 +1,80 @@
+
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_INDICADORES_LB_GLD",
+  uniqueKey: ["GameDay", "Sala" , "Num_Cliente"], 
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala"]
+  },
+  tags: ["carga_incremental_diaria_bi"]
+}
+
+
+
+with recargas as ( 
+  SELECT 
+    sum(recarga) as Recargas,
+    Sala,
+    Gameday,
+    Cuenta, 
+    count(GameDay) as Cantidad_Recargas 
+  FROM ${ref("TBL_RECARGAS_GLD")} a
+  ${when(incremental(), `
+    WHERE GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+  group by sala, gameday, cuenta
+)
+
+SELECT  
+ 
+  coalesce(A.gameday, B.gameday, C.gameday) as GameDay,
+  A.Year, 
+  coalesce(A.id_sala, B.id_sala) as Id_Sala,
+  coalesce(A.sala, B.sala, C.sala) as Sala,
+  coalesce(A.numero, B.Num_Cliente, C.cuenta) as Num_Cliente,
+  coalesce(coin_in, 0) as Coin_In,
+  coalesce(Coin_In_Redimible, 0) as Coin_In_Redimible,
+  coalesce(Coin_In_No_Redimible, 0) as Coin_In_No_Redimible,
+  coalesce(Netwin, 0) as Netwin, 
+  coalesce(Netwin_Redimible, 0) as Netwin_Redimible, 
+  coalesce(Win_Teo, 0) as Win_Teo,  
+  coalesce(Win_Teo_Red, 0) as Win_Teo_Red,  
+  coalesce(Jugadas, 0) as Jugadas,  
+  coalesce(Apuesta_Media, 0) as Apuesta_Media,
+  coalesce(A.Puntos_Asignados, 0) as Puntos_Asignados_Maquinas,
+  coalesce(Duracion, 0) as Duracion, 
+  coalesce(A.visitas, 0) as Visitas_Maquinas,
+  
+  -- Datos de Mesas
+  coalesce(Drop, 0) as Drop,
+  coalesce(Pagos, 0) as Pagos,
+  coalesce(Win_Mesas, 0) as Win_Mesas,
+  coalesce(Win_Teo_Mesas, 0) as Win_Teo_Mesas,
+  coalesce(B.Puntos_Asignados, 0) as Puntos_Asignados_Mesas,
+  coalesce(TiempoDeJuego, 0) as TiempoDeJuego,
+  coalesce(B.Visitas, 0) as Visitas_Mesas,
+  
+  -- Datos de Recargas
+  coalesce(Recargas, 0) as Recargas,
+  coalesce(Cantidad_Recargas, 0) as Cantidad_Recargas,
+  a.Visitas
+
+FROM ${ref("TBL_CLIENTES_MAQUINAS_GLD")}  A
+
+FULL JOIN  ${ref("TBL_CLIENTES_MESAS_GLD")}  B
+  ON A.numero = B.Num_Cliente
+  AND A.GAMEDAY = B.GAMEDAY
+  AND A.ID_SALA = B.ID_SALA
+
+--
+FULL JOIN recargas C 
+  ON coalesce(A.numero, B.Num_Cliente) = C.cuenta
+  AND coalesce(A.GAMEDAY, B.GAMEDAY) = C.GAMEDAY
+  AND coalesce(A.SALA, B.SALA) = C.SALA
+
+ ${when(incremental(), `
+    WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
