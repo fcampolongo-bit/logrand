@@ -16,7 +16,7 @@ config {
 
 SELECT A.Sala, Id_Sala,GameDay,
 Year ,
-Numero, sum (total_jugado) as coin_in ,
+Numero, sum (total_jugado) as Coin_in ,
 sum(Jugado_Redimible) as Coin_In_Redimible, 
 sum(Jugado_NoRedimible) as Coin_In_No_Redimible ,
  sum(Total_Netwin) as Netwin , sum(Netwin_Redimible) as Netwin_Redimible,
