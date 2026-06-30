@@ -1,5 +1,15 @@
-// 1. Buscamos primero si viene la variable env en las anulaciones (vars) o usamos "dev" por defecto
-const environment = dataform.projectConfig.vars.env || "dev";
+// 1. Validamos de manera segura el proyecto según Airflow (defaultProject) o el entorno actual de Dataform
+const projectFromConfig = dataform.projectConfig.defaultProject || "";
+
+// 2. DETECCIÓN INTELIGENTE:
+// Si Airflow nos manda 'prod' en las variables, es PROD.
+// Si estamos parados en la interfaz web de PROD (logrand-computo-prod), también es PROD.
+// En cualquier otro caso (como Airflow en dev o interfaz web de dev), asume 'dev'.
+let environment = "dev";
+
+if (dataform.projectConfig.vars.env === "prod" || projectFromConfig.includes("-prod")) {
+    environment = "prod";
+}
 
 module.exports = {
     // Apunta a logrand-storage-raw-dev o logrand-storage-raw-prod según el entorno
