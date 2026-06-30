@@ -1,10 +1,8 @@
-// 1. Validamos de manera segura el proyecto según Airflow (defaultProject) o el entorno actual de Dataform
-const projectFromConfig = dataform.projectConfig.defaultProject || "";
+// 1. Validamos de manera segura el proyecto según Airflow o el compilador web de BigQuery (warehouse)
+const projectFromConfig = dataform.projectConfig.defaultProject || dataform.projectConfig.warehouse || "";
 
 // 2. DETECCIÓN INTELIGENTE:
-// Si Airflow nos manda 'prod' en las variables, es PROD.
-// Si estamos parados en la interfaz web de PROD (logrand-computo-prod), también es PROD.
-// En cualquier otro caso (como Airflow en dev o interfaz web de dev), asume 'dev'.
+// Si Airflow nos manda 'prod' en las variables o el proyecto contiene "-prod", es PROD.
 let environment = "dev";
 
 if (dataform.projectConfig.vars.env === "prod" || projectFromConfig.includes("-prod")) {
