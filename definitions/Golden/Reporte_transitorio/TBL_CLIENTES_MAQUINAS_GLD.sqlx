@@ -31,8 +31,7 @@ else 0 end as Win_Teo_Red,
  sum(Duracion) as Duracion,
   Count (distinct GameDay) as Visitas
   FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}  a
-
-INNER JOIN ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")} B
+LEFT JOIN ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")} B
 
 ON A.GAMEDAY=B.Fecha
 AND A.SALA=B.SALA
