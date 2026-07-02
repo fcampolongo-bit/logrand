@@ -58,7 +58,7 @@ full join movimientos_unicos b
   ON A.Cuenta_Numero = B.numero
   AND A.ID_SALA = B.ID_SALA
   AND A.GAMEDAY = B.GAMEDAY
-inner join ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")}  C  
+left join ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")}  C  
   ON coalesce(A.GAMEDAY, B.gameday) = C.Fecha
   AND coalesce(A.SALA, B.sala) = C.SALA
 

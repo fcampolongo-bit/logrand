@@ -347,7 +347,7 @@ COALESCE(B.venta, 0)
   I.Clientes_Acumulados_Mesas,
   J.Clientes_Acumulados
 
-FROM `logrand-storage-golden-dev.GLD_BOCA.TBL_SESIONES_CAJA_GLD`   AS A
+FROM  ${ref("TBL_SESIONES_CAJA_GLD")}  AS A
 LEFT JOIN compra_venta_fichas           AS B
   ON A.GameDay = B.gameday
   AND A.id_sala = B.id_sala
