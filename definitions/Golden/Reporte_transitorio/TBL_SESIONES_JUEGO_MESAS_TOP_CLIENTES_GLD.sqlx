@@ -50,7 +50,7 @@ SELECT
         END AS Nivel,
     Drop 
 FROM ranking_clientes a
-INNER JOIN `logrand-storage-golden-dev.GLD_COMERCIAL_Y_GESTION_DE_CLIENTES.VW_ACCOUNTS_GLD` b
+INNER JOIN ${ref("VW_ACCOUNTS_GLD")} b
 ON a.numero = b.ac_account_id
 AND a.Id_sala = b.Id_sala
 WHERE a.Ranking <= 10

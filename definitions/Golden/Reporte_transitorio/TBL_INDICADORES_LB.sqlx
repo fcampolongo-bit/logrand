@@ -31,8 +31,8 @@ with recargas as (
 SELECT  
  
   coalesce(A.gameday, B.gameday, C.gameday) as GameDay,
-  A.Year, 
-  coalesce(A.id_sala, B.id_sala) as Id_Sala,
+  coalesce(extract(year from A.gameday), extract(year from b.gameday), extract(year from c.gameday)) as Year,
+  coalesce(A.id_sala, B.id_sala,D.id_sala) as Id_Sala,
   coalesce(A.sala, B.sala, C.sala) as Sala,
   coalesce(A.numero, B.Num_Cliente, C.cuenta) as Num_Cliente,
   coalesce(coin_in, 0) as Coin_In,
@@ -60,7 +60,7 @@ SELECT
   -- Datos de Recargas
   coalesce(Recargas, 0) as Recargas,
   coalesce(Cantidad_Recargas, 0) as Cantidad_Recargas,
-  a.Visitas
+  coalesce(a.Visitas, B.Visitas, 1) as Visitas
 
 FROM ${ref("TBL_CLIENTES_MAQUINAS_GLD")}  A
 
@@ -74,6 +74,9 @@ FULL JOIN recargas C
   ON coalesce(A.numero, B.Num_Cliente) = C.cuenta
   AND coalesce(A.GAMEDAY, B.GAMEDAY) = C.GAMEDAY
   AND coalesce(A.SALA, B.SALA) = C.SALA
+
+  FULL join  ${ref("TBL_CATALOGO_SALA_GLD")}  D
+  ON C.SALA=D.Sala_Carga
 
  ${when(incremental(), `
     WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
