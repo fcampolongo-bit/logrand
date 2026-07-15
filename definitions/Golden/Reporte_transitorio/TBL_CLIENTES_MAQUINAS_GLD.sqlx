@@ -3,7 +3,7 @@ config {
   database: databases.golden, 
   schema: "GLD_REPORTE_TRANSITORIO",
   name: "TBL_CLIENTES_MAQUINAS_GLD",
-  uniqueKey: ["GameDay", "Sala" , "numero"], 
+  uniqueKey: ["GameDay", "Sala", "numero"], 
   bigquery: {
     partitionBy: "GameDay",
     clusterBy: ["Sala"]
@@ -11,30 +11,25 @@ config {
   tags: ["carga_incremental_diaria_bi"]
 }
 
-
-
-
-SELECT A.Sala, Id_Sala,GameDay,
-Year ,
-Numero, sum (total_jugado) as Coin_in ,
-sum(Jugado_Redimible) as Coin_In_Redimible, 
-sum(Jugado_NoRedimible) as Coin_In_No_Redimible ,
- sum(Total_Netwin) as Netwin , sum(Netwin_Redimible) as Netwin_Redimible,
-case when sum (total_jugado) <> 0 then  sum (total_jugado) * ( Netwin_ppto/Coin_in_ppto )
-else 0 end as Win_Teo,
-case when sum (Jugado_Redimible) <> 0 then  sum (Jugado_Redimible) * ( Netwin_ppto/Coin_in_ppto )
-else 0 end as Win_Teo_Red,
---sum(Jugado_Redimible) * ( Netwin_ppto/Coin_in_ppto ) as Win_Teo_Red,
- sum(Jugadas)AS Jugadas, 
- COALESCE(case when sum(Jugadas) <> 0 then sum(total_jugado) / sum(Jugadas) else 0 end,0) as Apuesta_Media, 
- sum(Puntos_Asignados) as Puntos_Asignados, 
- sum(Duracion) as Duracion,
-  Count (distinct GameDay) as Visitas
-  FROM ${ref("TBL_SESIONES_JUEGOS_GLD")}  a
+SELECT A.Sala, Id_Sala, GameDay, Year, Numero,
+  sum(total_jugado) as Coin_in,
+  sum(Jugado_Redimible) as Coin_In_Redimible,
+  sum(Jugado_NoRedimible) as Coin_In_No_Redimible,
+  sum(Total_Netwin) as Netwin,
+  sum(Netwin_Redimible) as Netwin_Redimible,
+  case when sum(total_jugado) <> 0 then sum(total_jugado) * (Netwin_ppto/Coin_in_ppto) else 0 end as Win_Teo,
+  case when sum(Jugado_Redimible) <> 0 then sum(Jugado_Redimible) * (Netwin_ppto/Coin_in_ppto) else 0 end as Win_Teo_Red,
+  sum(Jugadas) AS Jugadas,
+  COALESCE(case when sum(Jugadas) <> 0 then sum(total_jugado) / sum(Jugadas) else 0 end, 0) as Apuesta_Media,
+  sum(Puntos_Asignados) as Puntos_Asignados,
+  sum(Duracion) as Duracion,
+  Count(distinct GameDay) as Visitas
+FROM ${ref("TBL_SESIONES_JUEGOS_GLD")} a
 LEFT JOIN ${ref("TBL_PRESUPUESTOS_DIARIO_GLD")} B
-
-ON A.GAMEDAY=B.Fecha
-AND A.SALA=B.SALA
---WHERE GameDay = "2025-01-01" and A.sala='CONSTITUCION'
---AND NUMERO=1066099
-group by A.Sala, Id_Sala,GameDay, Year ,Numero , Netwin_ppto,Coin_in_ppto
+  ON A.GAMEDAY = B.Fecha
+  AND A.SALA = B.SALA
+WHERE Estado != 'Reserva por progresivo'
+  ${when(incremental(), `
+    AND A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
+  `)}
+group by A.Sala, Id_Sala, GameDay, Year, Numero, Netwin_ppto, Coin_in_ppto

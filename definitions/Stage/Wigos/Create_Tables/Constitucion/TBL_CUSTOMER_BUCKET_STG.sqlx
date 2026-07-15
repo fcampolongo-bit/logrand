@@ -1,0 +1,24 @@
+config {
+  type: "table",
+  database: databases.stage, 
+  schema: "STG_WIGOS_CONSTITUCION",
+  name: "TBL_CUSTOMER_BUCKET_STG",
+  bigquery: {
+    clusterBy: ["cbu_customer_id"]
+  },
+ tags: ["carga_full_diaria_stg_constitucion"],
+  assertions: {
+    uniqueKey: ["cbu_customer_id", "cbu_bucket_id"] 
+  }
+}
+
+SELECT
+  cbu_customer_id,
+  cbu_bucket_id,
+  cbu_value,
+  cbu_updated,
+  cbu_timestamp,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_CUSTOMER_BUCKET_RAW")}
