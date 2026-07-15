@@ -1,0 +1,18 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_VIVENTO",
+  name: "TBL_CUSTOMER_BUCKET_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVENTO.TBL_CUSTOMER_BUCKET_RAW
+(
+  cbu_customer_id       INT64     NOT NULL,
+  cbu_bucket_id INT64 NOT NULL,
+	cbu_value NUMERIC ,
+	cbu_updated datetime NOT NULL,
+	cbu_timestamp STRING ,
+	updated_at INT64 
+)
+CLUSTER BY cbu_customer_id;
