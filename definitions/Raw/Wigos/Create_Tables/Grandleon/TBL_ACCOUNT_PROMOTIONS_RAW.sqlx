@@ -1,12 +1,12 @@
 config {
     type: "operations",
-    schema: "RAW_WIGOS_PARADISEISLAND",
+    schema: "RAW_WIGOS_GRANDLEON",
     name: "TBL_ACCOUNT_PROMOTIONS_RAW",
     database: (databases.raw),
     hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_ACCOUNT_PROMOTIONS_RAW
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_GRANDLEON.TBL_ACCOUNT_PROMOTIONS_RAW
 (
   acp_unique_id                    INT64      NOT NULL,
   acp_created                      DATETIME   NOT NULL,
