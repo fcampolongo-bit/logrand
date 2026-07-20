@@ -55,7 +55,6 @@ SELECT
   acp_promogame_return_price_pct,
   acp_ms_id,
   acp_ms_sequence_id,
-  updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_ACCOUNT_PROMOTIONS_RAW")}
