@@ -1,0 +1,15 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_GERENCIA_Y_GESTION_DE_CLIENTES",
+  name: "VW_ACCOUNT_PROMOTIONS_GLD"
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_ACCOUNT_PROMOTIONS_STG") + `
+`).join("\n UNION ALL \n")}

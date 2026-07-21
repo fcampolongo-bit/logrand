@@ -50,8 +50,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_PARADISEISLAND.TBL_ACCOUNT
   acp_prize_tax5                   NUMERIC,
   acp_promogame_return_price_pct   NUMERIC,
   acp_ms_id                        INT64,
-  acp_ms_sequence_id               INT64,
-  updated_at                       INT64
+  acp_ms_sequence_id               INT64
 )
 PARTITION BY DATE(acp_created)
 CLUSTER BY acp_promo_id, acp_status, acp_account_id, acp_operation_id;
