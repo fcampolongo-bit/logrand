@@ -8,7 +8,7 @@ config {
 
 CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_SANMARCOS.TBL_DRAW_TICKETS_RAW
 (
-  IdControlIntegraciones  INT64 NOT NULL,
+ -- IdControlIntegraciones  INT64 NOT NULL,
   dt_id                   INT64 NOT NULL,
   dt_created              DATETIME NOT NULL,
   dt_draw_id              INT64 NOT NULL,

@@ -5,7 +5,7 @@ config {
   name: "TBL_DRAW_TICKETS_STG",
   partitionBy: "DATE(dt_created)",
   clusterBy: ["dt_account_id", "dt_draw_id"],
-  tags: ["carga_full_diaria_stg_guasave"]
+  tags: ["carga_full_diaria_stg_guasave_lote2"]
 }
 
 SELECT
@@ -19,7 +19,7 @@ SELECT
   dt_voucher_id,
   dt_per_points,
   dt_awarded_day,
-  dt_auto_print_status,
+  null as dt_auto_print_status,
   updated_at,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM

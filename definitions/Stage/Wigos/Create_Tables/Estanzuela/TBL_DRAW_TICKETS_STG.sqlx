@@ -5,7 +5,7 @@ config {
   name: "TBL_DRAW_TICKETS_STG",
   partitionBy: "DATE(dt_created)",
   clusterBy: ["dt_account_id", "dt_draw_id"],
-  tags: ["carga_full_diaria_stg_estanzuela"]
+  tags: ["carga_full_diaria_stg_estanzuela_lote2"]
 }
 
 SELECT
