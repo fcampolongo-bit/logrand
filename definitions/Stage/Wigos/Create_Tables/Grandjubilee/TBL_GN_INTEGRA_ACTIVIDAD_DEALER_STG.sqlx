@@ -5,7 +5,7 @@ config {
   name: "TBL_GN_INTEGRA_ACTIVIDAD_DEALER_STG",
   partitionBy: "DATE(GTDS_STARTED)",
   clusterBy: ["GU_USER_ID", "GT_GAMING_TABLE_ID"],
-  tags: ["carga_full_diaria_stg_grandjubilee_lote2"]
+  tags: ["carga_full_diaria_stg_grandjubilee_lote3"]
 }
 
 SELECT
