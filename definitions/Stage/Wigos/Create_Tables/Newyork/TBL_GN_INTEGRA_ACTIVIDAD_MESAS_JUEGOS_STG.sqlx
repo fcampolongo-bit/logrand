@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_WIGOS_NEWYORK",
+  name: "TBL_GN_INTEGRA_ACTIVIDAD_MESAS_JUEGOS_STG",
+  partitionBy: "DATE(OPEN_HOUR)",
+  clusterBy: ["TABLE_IDENTIFIER", "TABLE_NAME"],
+  tags: ["carga_full_diaria_stg_newyork_lote3"]
+}
+
+SELECT
+  TABLE_IDENTIFIER,
+  TABLE_NAME,
+  BUY_IN,
+  CHIPS_IN,
+  CHIPS_OUT,
+  GAMES_PLAYED,
+  NETWIN,
+  THEORIC_HOLD,
+  ISO_CODE,
+  OPEN_HOUR,
+  CLOSE_HOUR,
+  SESSION_HOURS,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_NEWYORK", "TBL_GN_INTEGRA_ACTIVIDAD_MESAS_JUEGOS_RAW")}
