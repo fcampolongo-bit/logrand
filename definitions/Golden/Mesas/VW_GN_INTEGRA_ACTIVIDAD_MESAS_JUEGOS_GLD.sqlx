@@ -1,0 +1,29 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "VW_GN_INTEGRA_ACTIVIDAD_MESAS_JUEGOS_GLD"
+}
+
+${salas.lista_salas
+  .filter(s =>
+    [
+      "STG_WIGOS_JUBILEE",
+      "STG_WIGOS_ESTANZUELA",
+      "STG_WIGOS_GOLDENISLAND",
+      "STG_WIGOS_DUBAI",
+      "STG_WIGOS_VIVENTO",
+      "STG_WIGOS_VIVENTO4RIOS",
+      "STG_WIGOS_ZAPOPAN",
+      "STG_WIGOS_GRANDLEON",
+      "STG_WIGOS_GRANDJUBILEE"
+    ].includes(s.esquema)
+  )
+  .map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_GN_INTEGRA_ACTIVIDAD_MESAS_JUEGOS_STG") + `
+`).join("\nUNION ALL\n")}
