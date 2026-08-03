@@ -71,7 +71,7 @@ reales_agrupados AS (
     SELECT 
         gameday, SALA, coinin as coin_in, DropMesas, EntradaMaquinas, EntradaMesas, CajaMaquinas, CajaMesas,
         (CajaMaquinas + CajaMesas) AS netwin_real
-    FROM `logrand-storage-golden-dev.GLD_REPORTE_TRANSITORIO.TBL_FLASH_SALA_GLD`
+    FROM  ${ref("TBL_FLASH_SALA_GLD")} 
     WHERE gameday >= DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH), MONTH)
       AND gameday <= LAST_DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH))
 ),
@@ -133,7 +133,7 @@ presupuesto_mes_actual AS (
     SELECT 
         SALA, Ppto_coin_in, Ppto_netwin,Ppto_win_mesas, Ppto_drop, Ppto_entrada_maquinas, Ppto_entrada_mesas, Ppto_resultado_maquinas, Ppto_resultado_mesas,
         (Ppto_netwin / NULLIF(Ppto_coin_in, 0)) AS hold_mensual_fijo
-    FROM `logrand-storage-golden-dev.GLD_FINANZAS.TBL_PRESUPUESTO_ANUAL_GLD`
+    FROM  ${ref("TBL_PRESUPUESTO_ANUAL_GLD")} 
     WHERE MONTH = EXTRACT(MONTH FROM CURRENT_DATE) AND YEAR = EXTRACT(YEAR FROM CURRENT_DATE)
 ),
 calendario_marzo AS (

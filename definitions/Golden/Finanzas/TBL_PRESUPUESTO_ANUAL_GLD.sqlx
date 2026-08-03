@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+ database: databases.golden,
+  schema: "GLD_FINANZAS",
+  name: "TBL_PRESUPUESTO_ANUAL_GLD"
+}
