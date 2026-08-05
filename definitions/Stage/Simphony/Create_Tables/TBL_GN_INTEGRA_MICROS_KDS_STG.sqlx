@@ -1,0 +1,36 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_SIMPHONY",
+  name: "TBL_GN_INTEGRA_MICROS_KDS_STG",
+  uniqueKey: ["rvc_num", "chk_seq", "D_dtl_seq", "business_date"],
+  partitionBy: "DATE(business_date)",
+  clusterBy: ["rvc_num", "chk_num"],
+  updatePartitionFilter: "business_date >= current_datetime() - interval 12 day",
+  tags: ["carga_incremental_diaria_stg_simphony"]
+}
+
+SELECT
+  SalaNombre,
+  business_date,
+  rvc_num,
+  rvc_name,
+  emp_num,
+  emp_name1,
+  chk_seq,
+  chk_num,
+  chk_open_date_time,
+  chk_clsd_date_time,
+  start_date_tm,
+  end_date_tm,
+  prep_time,
+  tiempoPreparacion,
+  D_dtl_seq,
+  D_dtl_PLU,
+  D_dtl_name,
+  rangoPreparacion,
+  diaSemana,
+  diferencia_inicio_fin_comanda,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_SIMPHONY", "TBL_GN_INTEGRA_MICROS_KDS_RAW")}
