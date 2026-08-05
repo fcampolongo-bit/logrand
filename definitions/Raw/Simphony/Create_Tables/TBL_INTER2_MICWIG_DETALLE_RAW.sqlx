@@ -1,0 +1,23 @@
+config {
+  type: "operations",
+  schema: "RAW_SIMPHONY",
+  name: "TBL_INTER2_MICWIG_DETALLE_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_SIMPHONY.TBL_INTER2_MICWIG_DETALLE_RAW
+(
+  iNumDetalle       INT64 NOT NULL,
+  iNumHeader        INT64 NOT NULL,
+  acSitio           STRING NOT NULL,
+  acTipoItem        STRING,
+  iPLUCodigo        INT64 NOT NULL,
+  acNombreItem      STRING,
+  iCantidadItem     INT64 NOT NULL,
+  dSubtotalD        NUMERIC(21,4) NOT NULL,
+  dIvaD             NUMERIC(21,4) NOT NULL,
+  dTotalD           NUMERIC(21,4) NOT NULL,
+  iOtrosDescuentos  INT64 NOT NULL
+)
+CLUSTER BY acSitio, iNumHeader

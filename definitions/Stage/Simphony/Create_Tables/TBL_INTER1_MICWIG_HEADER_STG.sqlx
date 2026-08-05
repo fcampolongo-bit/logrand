@@ -1,0 +1,33 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_SIMPHONY",
+  name: "TBL_INTER1_MICWIG_HEADER_STG",
+  uniqueKey: ["iNumHeader", "CheckID", "acSitio", "acCentroConsumo", "acFechaApertura"],
+  partitionBy: "DATE(FechaNegocio)",
+  clusterBy: ["acSitio", "acCentroConsumo"],
+  updatePartitionFilter: "FechaNegocio>= current_datetime() - interval 12 day",
+  tags: ["carga_incremental_diaria_stg_simphony"]
+}
+
+SELECT
+  iNumHeader,
+  CheckID,
+  acSitio,
+  acCentroConsumo,
+  iNumCheque,
+  acEstacionPos,
+  iNumeroEmp,
+  acNombreEmp,
+  iNumPersonas,
+  acFechaApertura,
+  acFechaCierre,
+  dSubTotal,
+  dDescuento,
+  dIva,
+  dPropinas,
+  dTotal,
+  FechaNegocio,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_SIMPHONY", "TBL_INTER1_MICWIG_HEADER_RAW")}
