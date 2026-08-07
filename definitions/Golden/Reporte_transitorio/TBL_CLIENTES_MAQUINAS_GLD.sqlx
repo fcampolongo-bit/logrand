@@ -3,7 +3,7 @@ config {
   database: databases.golden, 
   schema: "GLD_REPORTE_TRANSITORIO",
   name: "TBL_CLIENTES_MAQUINAS_GLD",
-  uniqueKey: ["GameDay", "Sala", "numero"], 
+  uniqueKey: ["GameDay", "Sala", "Num_Cliente"], 
   bigquery: {
     partitionBy: "GameDay",
     clusterBy: ["Sala"]
@@ -11,7 +11,7 @@ config {
   tags: ["carga_incremental_diaria_bi"]
 }
 
-SELECT A.Sala, Id_Sala, GameDay, Year, Numero,
+SELECT A.Sala, Id_Sala, GameDay, Year, Numero as Num_Cliente,
   sum(total_jugado) as Coin_in,
   sum(Jugado_Redimible) as Coin_In_Redimible,
   sum(Jugado_NoRedimible) as Coin_In_No_Redimible,

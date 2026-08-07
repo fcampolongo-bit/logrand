@@ -15,7 +15,7 @@ config {
 
 
  select GameDay, Sala,
- Cuenta as Num_Cliente,
+ Num_Cliente as Num_Cliente,
  Tipo, 
  extract(hour from Fecha) as Hora, 
  SUM(Recarga) as Recargas, count(*) as Cantidad_Recargas  
@@ -23,4 +23,4 @@ config {
  ${when(incremental(), `
     where GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
   `)}
- group by GameDay, Sala,Cuenta,Tipo,extract(hour from Fecha)
+ group by GameDay, Sala,Num_Cliente,Tipo,extract(hour from Fecha)
