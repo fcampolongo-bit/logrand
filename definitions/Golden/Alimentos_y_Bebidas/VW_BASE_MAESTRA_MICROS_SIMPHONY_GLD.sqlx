@@ -1,0 +1,21 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_ALIMENTOS_Y_BEBIDAS",
+  name: "VW_BASE_MAESTRA_MICROS_SIMPHONY_GLD"
+}
+
+SELECT
+  `PLU-Micros`,
+  `Nombre Micros`,
+  `GM-Micros`,
+  `GM-Micros Nombre`,
+  `PLU-Simpho`,
+  `Nombre Simpho`,
+  `GM-Simpho`,
+  `GM-Simpho Nombre`,
+  `FM-Simpho`,
+  `FM-Simpho Nombre`,
+  ingestion_ts
+FROM
+  ${ref("STG_SIMPHONY", "TBL_BASE_MAESTRA_MICROS_SIMPHONY_STG")}
