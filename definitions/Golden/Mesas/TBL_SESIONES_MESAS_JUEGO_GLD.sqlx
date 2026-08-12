@@ -12,7 +12,7 @@ config {
 }
 
 
-SELECT 
+SELECT DISTINCT 
  GamingTableSessions.Sala,
   GamingTableSessions.ID_Sala as Id_Sala,
   DATE(DATETIME_SUB(CAST(cs_gaming_day AS DATETIME), 
@@ -32,9 +32,18 @@ gt_name AS Nombre, gtt_name AS Tipo,
    SUM(gts_fills_chips_amount) AS Fill, 
    SUM(gts_credits_chips_amount) AS Credit, 
    SUM(gts_final_chips_amount) AS Final,
-    CASE WHEN gt_has_integrated_cashier = TRUE THEN SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) ELSE SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) + SUM(gts_collected_amount) END AS Drop_Total, SUM(gts_copy_dealer_validated_amount) AS Tickets, SUM(gts_tips) AS Propinas, SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) AS Fichas, SUM(gts_collected_amount) AS Efectivo, SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) + SUM(gts_collected_amount) AS Balance_General
-
-
+    CASE WHEN gt_has_integrated_cashier = TRUE THEN SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) ELSE SUM(gts_own_sales_amount) + SUM(gts_external_sales_amount) + SUM(gts_collected_amount) END AS Drop_Total, 
+    SUM(gts_copy_dealer_validated_amount) AS Tickets, 
+    SUM(gts_tips) AS Propinas, 
+    SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) AS Fichas, 
+    SUM(gts_collected_amount) AS Efectivo, SUM(gts_final_chips_amount) - SUM(gts_initial_chips_amount) - SUM(gts_fills_chips_amount) + SUM(gts_credits_chips_amount) + SUM(gts_collected_amount) AS Balance_General
+,
+-- se agrega esto a pedido de andres 12/08/2026
+SUM(gts_final_chips_amount) 
+  - SUM(gts_initial_chips_amount) 
+  + SUM(gts_copy_dealer_validated_amount) 
+  + SUM(gts_credits_chips_amount) 
+  - SUM(gts_fills_chips_amount) AS WinMesas
 FROM ${ref("VW_GAMING_TABLES_SESSIONS_GLD")}   GamingTableSessions
     LEFT JOIN  ${ref("VW_CASHIER_SESSIONS_GLD")}  CashierSessions 
 	ON CashierSessions.cs_session_id = gts_cashier_session_id AND CashierSessions.Sala = GamingTableSessions.Sala 
