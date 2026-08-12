@@ -1,0 +1,67 @@
+  config {
+    type: "table",
+    database: databases.golden, 
+    schema: "GLD_REPORTE_TRANSITORIO",
+    name: "TBL_ACCOUNTS_CLIENTE_UNICO_GLD",
+    bigquery: {
+      partitionBy: "DATE(Fecha_Alta)",
+      clusterBy: ["ID_Alta"]
+    },
+    tags: ["carga_full_diaria_bi"]
+  }
+
+with sala_origen as (SELECT distinct ac_account_id ,case when RIGHT(CAST(ac_account_id AS STRING), 3)='205' then '095'
+ else   RIGHT(CAST(ac_account_id AS STRING), 3)end as sala_origen 
+ FROM ${ref("VW_ACCOUNTS_GLD")}
+where ac_holder_gender is not null
+
+)
+
+select a.ac_account_id as Num_Cliente,
+
+ac_holder_name as Titular,
+case when ac_holder_email_01 like '%@CORREO%' 
+or ac_holder_email_01 like '%NOTIENE%'
+or ac_holder_email_01 like '%REGIN@GMAIL.COM%' 
+or ac_holder_email_01 like '%SINCORREO%' 
+ THEN 'NOTIENE@CORREO.COM'ELSE ac_holder_email_01 END as Correo,
+ac_holder_phone_number_01 as Telefono1	,
+ac_holder_phone_number_02 as  Telefono2,
+case when ac_holder_gender =1 then 'Hombre' 
+when ac_holder_gender =2 then 'Mujer' else 'No Informado'end as Genero,
+ac_holder_birth_date as Fecha_Nacimiento,
+ac_holder_name1 as  Apellido1,
+ac_holder_name2 as Apellido2,
+ac_holder_name3 as Nombre,
+case when RIGHT(CAST(b.ac_account_id AS STRING), 3)='205' then 'PROVIDENS'ELSE c.sala_carga END AS Sala_Alta ,
+cast (RIGHT(CAST(b.ac_account_id AS STRING), 3) as int)as ID_Alta,
+concat(RIGHT(CAST(b.ac_account_id AS STRING), 3) , '-',case when RIGHT(CAST(b.ac_account_id AS STRING), 3)='205' then 'PROVIDENS'ELSE c.sala_carga END )as Codigo,
+--codigo (id + sala),
+ac_created as Fecha_Alta,
+  CASE 
+        WHEN ac_holder_level = 1 THEN 'Classic'
+        WHEN ac_holder_level = 2 THEN 'Gold'
+        WHEN ac_holder_level = 3 THEN 'Platinum'
+        WHEN ac_holder_level = 4 THEN 'Diamond'
+        WHEN ac_holder_level = 5 THEN 'Black'
+        WHEN ac_holder_level = 6 THEN 'The One'
+        ELSE NULL 
+        END AS Nivel,
+DATE_DIFF(CURRENT_DATE(), EXTRACT(DATE FROM ac_holder_birth_date), YEAR) 
+    - IF(
+        EXTRACT(MONTH FROM CURRENT_DATE()) < EXTRACT(MONTH FROM ac_holder_birth_date) 
+        OR (
+          EXTRACT(MONTH FROM CURRENT_DATE()) = EXTRACT(MONTH FROM ac_holder_birth_date) 
+          AND EXTRACT(DAY FROM CURRENT_DATE()) < EXTRACT(DAY FROM ac_holder_birth_date)
+        ), 1, 0
+      ) AS Edad
+
+FROM  ${ref("VW_ACCOUNTS_GLD")} a
+
+join sala_origen b
+on a.ac_account_id=b.ac_account_id
+and a.id_sala=cast(b.sala_origen as int)
+join  ${ref("TBL_CATALOGO_SALA_GLD")} C
+ON cast(b.sala_origen as int)=c.id_sala
+
+where ac_holder_gender is not null
