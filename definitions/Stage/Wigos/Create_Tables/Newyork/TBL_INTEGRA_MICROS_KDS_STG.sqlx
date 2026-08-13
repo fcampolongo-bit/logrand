@@ -1,0 +1,39 @@
+config {
+  type: "incremental",
+  database: databases.stage,
+  schema: "STG_WIGOS_NEWYORK",
+  name: "TBL_INTEGRA_MICROS_KDS_STG",
+  -- TODO: definir uniqueKey (no se detectó PRIMARY KEY en el DDL)
+  -- TODO: definir partitionBy si corresponde (candidatos detectados: business_date, chk_open_date_time, chk_clsd_date_time, start_date_tm, end_date_tm, diaSemana, diferencia_inicio_fin_comanda)
+  partitionBy: "DATE(<columna>)",
+  -- TODO: definir clusterBy si corresponde (no se detectaron columnas *_id)
+  clusterBy: [<columnas>],
+  -- TODO: reemplazar <columna> por la misma columna usada en partitionBy
+  updatePartitionFilter: "<columna> >= current_datetime() - interval 12 day",
+  tags: ["carga_incremental_diaria_stg_newyork_lote2"]
+}
+
+SELECT
+  SalaNombre,
+  business_date,
+  rvc_num,
+  rvc_name,
+  emp_num,
+  emp_name1,
+  chk_seq,
+  chk_num,
+  chk_open_date_time,
+  chk_clsd_date_time,
+  start_date_tm,
+  end_date_tm,
+  prep_time,
+  TiempoPreparacion,
+  D_dtl_seq,
+  D_dtl_PLU,
+  D_dtl_name,
+  rangoPreparacion,
+  diaSemana,
+  diferencia_inicio_fin_comanda,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_NEWYORK", "TBL_INTEGRA_MICROS_KDS_RAW")}
