@@ -25,10 +25,10 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_SIMPHONY.TBL_GN_INTEGRA_MICROS_K
   D_dtl_seq                     INT64,
   D_dtl_PLU                     INT64,
   D_dtl_name                    STRING,
-  rangoPreparacion              STRING NOT NULL,
-  diaSemana                     STRING,
-  diferencia_inicio_fin_comanda INT64
+  rangoPreparacion               TIME,
+  diaSemana                      DATETIME,
+  diferencia_inicio_fin_comanda  DATETIME
 )
 
-PARTITION BY DATE(business_date)
+PARTITION BY DATE(SalaNombre, business_date, rvc_num, chk_num)
 CLUSTER BY rvc_num, chk_num, business_date
