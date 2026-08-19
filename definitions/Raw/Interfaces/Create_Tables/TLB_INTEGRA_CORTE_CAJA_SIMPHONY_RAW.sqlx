@@ -1,0 +1,16 @@
+config {
+  type: "operations",
+  schema: "RAW_INTERFACES",
+  name: "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_JUBILEE.TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW
+(
+  FechaProceso   DATETIME NOT NULL,
+  Sala           STRING NOT NULL,
+  CentroConsumo  STRING NOT NULL,
+  Forma_Pago     STRING NOT NULL,
+  Monto          NUMERIC
+)
