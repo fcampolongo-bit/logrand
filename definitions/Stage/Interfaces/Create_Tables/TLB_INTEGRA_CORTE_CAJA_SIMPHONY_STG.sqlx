@@ -14,4 +14,4 @@ SELECT
   Monto,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "STG_INTERFACES", "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW")}
+  ${ref(databases.raw, "RAW_INTERFACES", "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW")}
