@@ -28,4 +28,4 @@ SELECT
   diferencia_inicio_fin_comanda,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_SIMPHONY", "TBL_GN_INTEGRA_MICROS_KDS_RAW")}
+  ${ref("STG_SIMPHONY", "TBL_GN_INTEGRA_MICROS_KDS_STG")}

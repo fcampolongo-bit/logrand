@@ -1,0 +1,16 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_ALIMENTOS_Y_BEBIDAS",
+  name: "VW_INTEGRA_CORTE_CAJA_SIMPHONY_GLD"
+}
+
+SELECT
+  FechaProceso,
+  Sala,
+  CentroConsumo,
+  Forma_Pago,
+  Monto,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref("STG_INTERFACES", "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_STG")}
