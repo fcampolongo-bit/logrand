@@ -1,0 +1,20 @@
+config {
+  type: "operations",
+  schema:  "RAW_INTERFACES",
+  name: "TBL_VENTA_X_DIA_CENTRO_CONSUMO_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_INTERFACES.TBL_VENTA_X_DIA_CENTRO_CONSUMO_RAW
+(
+  K_VENTA_X_DIA_CENTRO_CONSUMO  NUMERIC(9,0) NOT NULL,
+  F_FECHA                       DATETIME,
+  D_LOCALIZACION                STRING,
+  D_CENTRO_CONSUMO              STRING,
+  M_VENTAS_NETAS                NUMERIC,
+  N_DESCUENTOS                  NUMERIC(9,2),
+  N_SERVICE_CHARGE              NUMERIC(9,2),
+  N_IMPUESTOS                   NUMERIC(9,2),
+  F_MODIFICACION                DATETIME
+)
