@@ -18,7 +18,7 @@ WITH puntos AS (
     id_sala, 
     Sala,
     SUM(Puntos_Asignados_Maquinas) + SUM(Puntos_Asignados_Mesas) AS puntos_sum
-  FROM `logrand-storage-golden-dev.GLD_REPORTE_TRANSITORIO.TBL_INDICADORES_LB_GLD` 
+  FROM ${ref("TBL_INDICADORES_LB_GLD")} 
 
   GROUP BY num_cliente, id_sala, Sala
 ),
@@ -43,6 +43,7 @@ WHERE ranking = 1
 
 )
 
-select a.Num_Cliente, Titular ,b.sala as Sala_Max,cast('0.0'as numeric) as Puntos_a_la_fecha ,Nivel as Nivel_Wigos  from logrand-storage-golden-dev.GLD_REPORTE_TRANSITORIO.TBL_ACCOUNTS_CLIENTE_UNICO_GLD A
+select a.Num_Cliente, Titular ,b.sala as Sala_Max,cast('0.0'as numeric) as Puntos_a_la_fecha ,Nivel as Nivel_Wigos 
+ from ${ref("TBL_ACCOUNTS_CLIENTE_UNICO_GLD")}  A
 join max_puntos b
 on a.Num_Cliente=b.Num_Cliente

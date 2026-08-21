@@ -19,13 +19,13 @@ with recargas as (
     sum(recarga) as Recargas,
     Sala,
     Gameday,
-    Cuenta, 
+    Num_Cliente, 
     count(GameDay) as Cantidad_Recargas 
   FROM ${ref("TBL_RECARGAS_GLD")} a
   ${when(incremental(), `
     WHERE GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)
   `)}
-  group by sala, gameday, cuenta
+  group by sala, gameday, Num_Cliente
 )
 
 SELECT  
@@ -34,7 +34,7 @@ SELECT
   coalesce(extract(year from A.gameday), extract(year from b.gameday), extract(year from c.gameday)) as Year,
   coalesce(A.id_sala, B.id_sala,D.id_sala) as Id_Sala,
   coalesce(A.sala, B.sala, C.sala) as Sala,
-  coalesce(A.numero, B.Num_Cliente, C.cuenta) as Num_Cliente,
+  coalesce(A.Num_Cliente, B.Num_Cliente, C.Num_Cliente) as Num_Cliente,
   coalesce(coin_in, 0) as Coin_In,
   coalesce(Coin_In_Redimible, 0) as Coin_In_Redimible,
   coalesce(Coin_In_No_Redimible, 0) as Coin_In_No_Redimible,
@@ -65,13 +65,13 @@ SELECT
 FROM ${ref("TBL_CLIENTES_MAQUINAS_GLD")}  A
 
 FULL JOIN  ${ref("TBL_CLIENTES_MESAS_GLD")}  B
-  ON A.numero = B.Num_Cliente
+  ON A.Num_Cliente = B.Num_Cliente
   AND A.GAMEDAY = B.GAMEDAY
   AND A.ID_SALA = B.ID_SALA
 
 --
 FULL JOIN recargas C 
-  ON coalesce(A.numero, B.Num_Cliente) = C.cuenta
+  ON coalesce(A.Num_Cliente, B.Num_Cliente) = C.Num_Cliente
   AND coalesce(A.GAMEDAY, B.GAMEDAY) = C.GAMEDAY
   AND coalesce(A.SALA, B.SALA) = C.SALA
 
