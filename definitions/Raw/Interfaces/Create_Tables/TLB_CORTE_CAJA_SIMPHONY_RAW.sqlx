@@ -1,12 +1,12 @@
 config {
   type: "operations",
   schema: "RAW_INTERFACES",
-  name: "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW",
+  name: "TBL_CORTE_CAJA_SIMPHONY_RAW",
   database: (databases.raw),
   hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_INTERFACES.TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_INTERFACES.TBL_CORTE_CAJA_SIMPHONY_RAW
 (
   FechaProceso   DATETIME NOT NULL,
   Sala           STRING NOT NULL,

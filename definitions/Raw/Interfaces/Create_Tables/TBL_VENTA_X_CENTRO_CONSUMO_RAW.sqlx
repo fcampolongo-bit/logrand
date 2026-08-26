@@ -1,12 +1,12 @@
 config {
   type: "operations",
   schema:  "RAW_INTERFACES",
-  name: "TBL_VENTA_X_DIA_CENTRO_CONSUMO_RAW",
+  name: "TBL_VENTA_X_CENTRO_CONSUMO_RAW",
   database: (databases.raw),
   hasOutput: true
 }
 
-CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_INTERFACES.TBL_VENTA_X_DIA_CENTRO_CONSUMO_RAW
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_INTERFACES.TBL_VENTA_X_CENTRO_CONSUMO_RAW
 (
   
   D_SALA                        STRING,

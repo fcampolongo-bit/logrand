@@ -2,7 +2,7 @@ config {
   type: "table",
   database: databases.stage,
   schema: "STG_INTERFACES",
-  name: "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_STG",
+  name: "TBL_CORTE_CAJA_SIMPHONY_STG",
   tags: ["carga_full_diaria_stg_interfaces"]
 }
 
@@ -14,4 +14,4 @@ SELECT
   Monto,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_INTERFACES", "TBL_INTEGRA_CORTE_CAJA_SIMPHONY_RAW")}
+  ${ref(databases.raw, "RAW_INTERFACES", "TBL_CORTE_CAJA_SIMPHONY_RAW")}

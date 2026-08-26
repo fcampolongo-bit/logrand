@@ -2,7 +2,7 @@ config {
   type: "table",
   database: databases.stage,
   schema: "STG_INTERFACES",
-  name: "TBL_VENTA_X_DIA_CENTRO_CONSUMO_STG",
+  name: "TBL_VENTA_X_CENTRO_CONSUMO_STG",
   tags: ["carga_full_diaria_stg_interfaces"]
 }
 
@@ -14,5 +14,5 @@ SELECT
   CONTEO ,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref(databases.raw, "RAW_INTERFACES", "TBL_VENTA_X_DIA_CENTRO_CONSUMO_RAW")}
+  ${ref(databases.raw, "RAW_INTERFACES", "TBL_VENTA_X_CENTRO_CONSUMO_RAW")}
 

@@ -2,7 +2,7 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_ALIMENTOS_Y_BEBIDAS",
-  name: "VW_VENTA_X_DIA_CENTRO_CONSUMO_GLD"
+  name: "VW_VENTA_X_CENTRO_CONSUMO_GLD"
 }
 
 SELECT
@@ -13,4 +13,4 @@ SELECT
   CONTEO ,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
-  ${ref("STG_INTERFACES", "TBL_VENTA_X_DIA_CENTRO_CONSUMO_STG")}
+  ${ref("STG_INTERFACES", "TBL_VENTA_X_CENTRO_CONSUMO_STG")}
