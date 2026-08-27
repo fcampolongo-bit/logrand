@@ -1,0 +1,41 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_WIGOS_CONSTITUCION",
+  name: "TBL_VW_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_STG",
+  partitionBy: "DATE(Ticket_Date)",
+  clusterBy: ["GameDay_ID", "Shift_ID", "Transaction_ID", "Type_ID"],
+  tags: ["carga_full_diaria_stg_wigos_constitucion"]
+}
+
+SELECT
+  GameDay_ID,
+  GameDay_Date,
+  Shift_ID,
+  Transaction_ID,
+  Ticket_Date,
+  Transaction_Description,
+  MoneyIn,
+  MoneyOut,
+  ReturnAmount,
+  Comision,
+  Win,
+  Type_ID,
+  Client_ID,
+  FullName,
+  CreditCardNumber,
+  CreditCardType_ID,
+  Description,
+  TypeofPayment,
+  PayType,
+  MovementTypeGroup,
+  PaymentProvider,
+  CodeBTOBET,
+  FullNameBTOBET,
+  NickNameBTOBET,
+  CodePaymentProvider,
+  FullNamePaymentProvider,
+  NickNamePaymentProvider,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_CONSTITUCION", "TBL_VW_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_RAW")}

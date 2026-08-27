@@ -1,0 +1,40 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_DUBAI",
+  name: "TBL_VW_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_DUBAI.TBL_VW_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_RAW
+(
+  GameDay_ID               INT64,
+  GameDay_Date             DATETIME,
+  Shift_ID                 INT64,
+  Transaction_ID           INT64,
+  Ticket_Date              DATETIME,
+  Transaction_Description  STRING,
+  MoneyIn                  NUMERIC,
+  MoneyOut                 NUMERIC,
+  ReturnAmount             NUMERIC,
+  Comision                 NUMERIC,
+  Win                      NUMERIC,
+  Type_ID                  INT64,
+  Client_ID                INT64,
+  FullName                 STRING,
+  CreditCardNumber         INT64,
+  CreditCardType_ID        INT64,
+  Description              STRING,
+  TypeofPayment            INT64,
+  PayType                  STRING,
+  MovementTypeGroup        STRING,
+  PaymentProvider          STRING,
+  CodeBTOBET               INT64,
+  FullNameBTOBET           STRING,
+  NickNameBTOBET           STRING,
+  CodePaymentProvider      STRING,
+  FullNamePaymentProvider  STRING,
+  NickNamePaymentProvider  STRING
+)
+PARTITION BY DATE(Ticket_Date)
+CLUSTER BY GameDay_ID, Shift_ID, Transaction_ID, Type_ID;
