@@ -1,0 +1,31 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_WIGOS_PARADISEISLAND",
+  name: "TBL_GIFT_INSTANCES_STG",
+  partitionBy: "DATE(gin_requested)",
+  clusterBy: ["gin_account_id", "gin_gift_id"],
+  tags: ["carga_full_diaria_stg_paradiseisland"]
+}
+
+SELECT
+  gin_gift_instance_id,
+  gin_oper_request_id,
+  gin_oper_delivery_id,
+  gin_account_id,
+  gin_gift_id,
+  gin_gift_name,
+  gin_gift_type,
+  gin_points,
+  gin_conversion_to_nrc,
+  gin_spent_points,
+  gin_requested,
+  gin_delivered,
+  gin_expiration,
+  gin_request_status,
+  gin_num_items,
+  gin_data_01,
+  updated_at,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_PARADISEISLAND", "TBL_GIFT_INSTANCES_RAW")}
