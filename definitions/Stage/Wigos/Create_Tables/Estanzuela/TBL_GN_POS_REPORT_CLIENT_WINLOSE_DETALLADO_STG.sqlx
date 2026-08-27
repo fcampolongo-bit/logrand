@@ -5,7 +5,7 @@ config {
   name: "TBL_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_STG",
   partitionBy: "DATE(Ticket_Date)",
   clusterBy: ["GameDay_ID", "Shift_ID", "Transaction_ID", "Type_ID"],
-  tags: ["carga_full_diaria_stg_wigos_estanzuela"]
+  tags: ["carga_full_diaria_stg_estanzuela_lote4"]
 }
 
 SELECT
