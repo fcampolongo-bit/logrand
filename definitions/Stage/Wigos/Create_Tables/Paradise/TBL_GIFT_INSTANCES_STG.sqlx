@@ -5,7 +5,7 @@ config {
   name: "TBL_GIFT_INSTANCES_STG",
   partitionBy: "DATE(gin_requested)",
   clusterBy: ["gin_account_id", "gin_gift_id"],
-  tags: ["carga_full_diaria_stg_paradise"]
+  tags: ["carga_full_diaria_stg_paradise_lote2"]
 }
 
 SELECT
