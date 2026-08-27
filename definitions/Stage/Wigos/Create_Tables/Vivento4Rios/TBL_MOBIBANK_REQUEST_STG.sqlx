@@ -1,0 +1,29 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_WIGOS_VIVENTO4RIOS",
+  name: "TBL_MOBIBANK_REQUEST_STG",
+  partitionBy: "DATE(mbr_time_request)",
+  clusterBy: ["mbr_terminal_id", "mbr_account_id", "mbr_status_id"],
+  tags: ["carga_full_diaria_stg_vivento4rios_lote4"]
+}
+
+SELECT
+  mbr_id,
+  mbr_terminal_id,
+  mbr_account_id,
+  mbr_time_request,
+  mbr_elapsed_time_request,
+  mbr_area_id,
+  mbr_bank_id,
+  mbr_status_id,
+  mbr_amount,
+  mbr_user_id_in_progress,
+  mbr_reason,
+  mbr_finished_time_request,
+  mbr_bank_transaction_type,
+  mbr_void_time_request,
+  mbr_user_id_void,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO4RIOS", "TBL_MOBIBANK_REQUEST_RAW")}

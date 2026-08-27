@@ -1,0 +1,28 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_NEWYORK",
+  name: "TBL_MOBIBANK_REQUEST_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_NEWYORK.TBL_MOBIBANK_REQUEST_RAW
+(
+  mbr_id                     INT64 NOT NULL,
+  mbr_terminal_id            INT64 NOT NULL,
+  mbr_account_id             INT64 NOT NULL,
+  mbr_time_request           DATETIME,
+  mbr_elapsed_time_request   DATETIME,
+  mbr_area_id                INT64,
+  mbr_bank_id                INT64,
+  mbr_status_id              INT64,
+  mbr_amount                 NUMERIC,
+  mbr_user_id_in_progress    INT64,
+  mbr_reason                 INT64,
+  mbr_finished_time_request  DATETIME,
+  mbr_bank_transaction_type  INT64,
+  mbr_void_time_request      DATETIME,
+  mbr_user_id_void           INT64
+)
+PARTITION BY DATE(mbr_time_request)
+CLUSTER BY mbr_terminal_id, mbr_account_id, mbr_status_id;
