@@ -2,7 +2,7 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_ALIMENTOS_Y_BEBIDAS",
-  name: "VW_CORTE_CAJA_SIMPHONY_GLD"
+  name: "VW_GN_CORTE_CAJA_SIMPHONY_GLD"
 }
 
 SELECT

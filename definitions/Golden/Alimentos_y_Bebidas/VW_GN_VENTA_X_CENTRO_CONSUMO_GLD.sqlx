@@ -2,7 +2,7 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_ALIMENTOS_Y_BEBIDAS",
-  name: "VW_VENTA_X_CENTRO_CONSUMO_GLD"
+  name: "VW_GN_VENTA_X_CENTRO_CONSUMO_GLD"
 }
 
 SELECT
