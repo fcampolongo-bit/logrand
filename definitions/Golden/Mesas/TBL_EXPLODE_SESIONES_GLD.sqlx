@@ -1,0 +1,109 @@
+config {
+  type: "incremental",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "TBL_EXPLODE_SESIONES_GLD",
+  uniqueKey: ["GameDay", "hora", "Sala", "Mesa_Nombre", "Mesa_Asiento", "Cuenta_Numero"],
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "Mesa_Nombre", "Cuenta_Numero"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+WITH sessions AS (
+  SELECT
+    Sala,
+    Mesa_Nombre,
+    Mesa_Asiento,
+    Cuenta_Numero,
+    Sesion_Llegada,
+    Sesion_Salida
+  FROM
+    ${ref("TBL_SESIONES_JUEGO_MESAS_GLD")}
+  WHERE
+    1 = 1
+    ${when(incremental(),
+      `AND GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)`,
+      `AND GameDay >= DATE("2018-11-21")`
+    )}
+),
+
+horas_explode AS (
+  SELECT
+    s.Sala,
+    s.Mesa_Nombre,
+    s.Mesa_Asiento,
+    s.Cuenta_Numero,
+    s.Sesion_Llegada,
+    s.Sesion_Salida,
+    hora_inicio
+  FROM
+    sessions AS s,
+    UNNEST(
+      GENERATE_TIMESTAMP_ARRAY(
+        TIMESTAMP_TRUNC(TIMESTAMP(s.Sesion_Llegada), HOUR),
+        TIMESTAMP_TRUNC(TIMESTAMP(s.Sesion_Salida), HOUR),
+        INTERVAL 1 HOUR
+      )
+    ) AS hora_inicio
+),
+
+sesiones_franjas AS (
+  SELECT
+    Sala,
+    Mesa_Nombre,
+    Mesa_Asiento,
+    Cuenta_Numero,
+
+    CASE
+      WHEN hora_inicio < TIMESTAMP(Sesion_Llegada)
+        THEN TIMESTAMP(Sesion_Llegada)
+      ELSE hora_inicio
+    END AS hora_inicio,
+
+    CASE
+      WHEN EXTRACT(HOUR FROM hora_inicio) < 7
+        THEN DATE_SUB(DATE(hora_inicio), INTERVAL 1 DAY)
+      ELSE DATE(hora_inicio)
+    END AS GameDay,
+
+    EXTRACT(HOUR FROM hora_inicio) AS hora,
+
+    TIMESTAMP_DIFF(
+      LEAST(
+        TIMESTAMP(Sesion_Salida),
+        TIMESTAMP_ADD(hora_inicio, INTERVAL 1 HOUR)
+      ),
+      GREATEST(
+        TIMESTAMP(Sesion_Llegada),
+        hora_inicio
+      ),
+      SECOND
+    ) / 3600.0 AS duracion_horas
+
+  FROM
+    horas_explode
+)
+
+SELECT
+  GameDay,
+  hora,
+  Sala,
+  Mesa_Nombre,
+  Mesa_Asiento,
+  Cuenta_Numero,
+  SUM(duracion_horas) AS duracion_horas,
+  LEAST(SUM(duracion_horas), 1.0) AS duracion_ajustada
+
+FROM
+  sesiones_franjas
+WHERE
+  duracion_horas > 0
+GROUP BY
+  GameDay,
+  hora,
+  Sala,
+  Mesa_Nombre,
+  Mesa_Asiento,
+  Cuenta_Numero
