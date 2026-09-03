@@ -24,8 +24,7 @@ WITH sessions AS (
   WHERE
     1 = 1
     ${when(incremental(),
-      `AND GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)`,
-      `AND GameDay >= DATE("2018-11-21")`
+      `AND GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)`
     )}
 ),
 
