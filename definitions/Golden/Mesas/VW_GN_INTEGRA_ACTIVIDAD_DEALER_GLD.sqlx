@@ -5,6 +5,8 @@ config {
   name: "VW_GN_INTEGRA_ACTIVIDAD_DEALER_GLD"
 }
 
+WITH actividad AS (
+
 ${salas.lista_salas
   .filter(s =>
     [
@@ -27,3 +29,20 @@ ${salas.lista_salas
   FROM
     ` + ref(s.esquema, "TBL_GN_INTEGRA_ACTIVIDAD_DEALER_STG") + `
 `).join("\nUNION ALL\n")}
+
+)
+
+SELECT
+  *,
+  DATE(
+    DATETIME_SUB(
+      IFNULL(GTDS_FINISHED, GTDS_STARTED),
+      INTERVAL IF(
+        EXTRACT(HOUR FROM IFNULL(GTDS_FINISHED, GTDS_STARTED))
+          < IF(sala IN ("SANMARCOS", "LEON"), 8, 7),
+        1,
+        0
+      ) DAY
+    )
+  ) AS GameDay
+FROM actividad

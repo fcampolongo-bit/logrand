@@ -1,0 +1,106 @@
+config {
+  type: "incremental",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "TBL_EXPLODE_DEALERS_GLD",
+  uniqueKey: ["GameDay", "hora", "Sala", "GT_NAME", "GU_FULL_NAME"],
+  bigquery: {
+    partitionBy: "GameDay",
+    clusterBy: ["Sala", "GT_NAME", "GU_FULL_NAME"]
+  },
+  tags: ["carga_incremental_diaria_golden"]
+}
+
+WITH sessions AS (
+  SELECT
+    Sala,
+    GT_NAME,
+    GU_FULL_NAME,
+    GTDS_STARTED,
+    GTDS_FINISHED,
+    GameDay
+  FROM
+    ${ref("VW_GN_INTEGRA_ACTIVIDAD_DEALER_GLD")}
+  WHERE
+    1 = 1
+    ${when(incremental(),
+      `AND GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 10 DAY)`
+    )}
+),
+
+horas_explode AS (
+  SELECT
+    s.Sala,
+    s.GT_NAME,
+    s.GU_FULL_NAME,
+    s.GTDS_STARTED,
+    s.GTDS_FINISHED,
+    hora_inicio
+  FROM
+    sessions AS s,
+    UNNEST(
+      GENERATE_TIMESTAMP_ARRAY(
+        TIMESTAMP_TRUNC(TIMESTAMP(s.GTDS_STARTED), HOUR),
+        TIMESTAMP_TRUNC(TIMESTAMP(s.GTDS_FINISHED), HOUR),
+        INTERVAL 1 HOUR
+      )
+    ) AS hora_inicio
+),
+
+sesiones_franjas AS (
+  SELECT
+    Sala,
+    GT_NAME,
+    GU_FULL_NAME,
+
+    CASE
+      WHEN hora_inicio < TIMESTAMP(GTDS_STARTED)
+        THEN TIMESTAMP(GTDS_STARTED)
+      ELSE hora_inicio
+    END AS hora_inicio,
+
+    CASE
+      WHEN EXTRACT(HOUR FROM hora_inicio) < 7
+        THEN DATE_SUB(DATE(hora_inicio), INTERVAL 1 DAY)
+      ELSE DATE(hora_inicio)
+    END AS GameDay,
+
+    EXTRACT(HOUR FROM hora_inicio) AS hora,
+
+    TIMESTAMP_DIFF(
+      LEAST(
+        TIMESTAMP(GTDS_FINISHED),
+        TIMESTAMP_ADD(hora_inicio, INTERVAL 1 HOUR)
+      ),
+      GREATEST(
+        TIMESTAMP(GTDS_STARTED),
+        hora_inicio
+      ),
+      SECOND
+    ) / 3600.0 AS duracion_horas
+
+  FROM
+    horas_explode
+)
+
+SELECT
+  GameDay,
+  hora,
+  Sala,
+  GT_NAME,
+  GU_FULL_NAME,
+  SUM(duracion_horas) AS duracion_horas,
+  LEAST(SUM(duracion_horas), 1.0) AS duracion_ajustada
+
+FROM
+  sesiones_franjas
+
+WHERE
+  duracion_horas > 0
+
+GROUP BY
+  GameDay,
+  hora,
+  Sala,
+  GT_NAME,
+  GU_FULL_NAME
