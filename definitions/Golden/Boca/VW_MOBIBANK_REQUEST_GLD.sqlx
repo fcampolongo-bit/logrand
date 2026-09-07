@@ -1,29 +1,29 @@
 config {
   type: "view",
   database: databases.golden,
-  schema: "GLD_MESAS",
-  name: "VW_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_GLD",
+  schema: "GLD_BOCA",
+  name: "VW_MOBIBANK_REQUEST_GLD",
   tags: ["carga_incremental_diaria_golden_lote4"]
 }
 
 ${salas.lista_salas
   .filter(s =>
     [
+      "STG_WIGOS_JUBILEE",
       "STG_WIGOS_CONSTITUCION",
-      "STG_WIGOS_DUBAI",
-      "STG_WIGOS_ESTANZUELA",
       "STG_WIGOS_GOLDENISLAND",
       "STG_WIGOS_GRANDJUBILEE",
+      "STG_WIGOS_DUBAI",
+      "STG_WIGOS_ESTANZUELA",
       "STG_WIGOS_GRANDLEON",
       "STG_WIGOS_GUASAVE",
-      "STG_WIGOS_JUBILEE",
-      "STG_WIGOS_NEWYORK",
       "STG_WIGOS_PARADISE",
+      "STG_WIGOS_NEWYORK",
       "STG_WIGOS_TAJMAHAL",
       "STG_WIGOS_VIVAMEXICO",
       "STG_WIGOS_VIVENTO",
       "STG_WIGOS_VIVENTO4RIOS",
-      "STG_WIGOS_ZAPOPAN"
+      "STG_WIGOS_ZAPOPAN",
     ].includes(s.esquema)
   )
   .map(s => `
@@ -32,5 +32,5 @@ ${salas.lista_salas
     '${s.nombre}' AS sala,
     ${s.id} AS id_sala
   FROM
-    ` + ref(s.esquema, "TBL_GN_POS_REPORT_CLIENT_WINLOSE_DETALLADO_STG") + `
+    ` + ref(s.esquema, "TBL_MOBIBANK_REQUEST_STG") + `
 `).join("\nUNION ALL\n")}
