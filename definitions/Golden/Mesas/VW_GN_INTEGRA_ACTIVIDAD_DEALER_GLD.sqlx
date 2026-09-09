@@ -2,7 +2,8 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_MESAS",
-  name: "VW_GN_INTEGRA_ACTIVIDAD_DEALER_GLD"
+  name: "VW_GN_INTEGRA_ACTIVIDAD_DEALER_GLD",
+  tags: ["carga_incremental_diaria_golden_lote3"]
 }
 
 WITH actividad AS (

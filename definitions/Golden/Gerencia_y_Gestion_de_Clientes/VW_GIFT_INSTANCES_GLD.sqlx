@@ -2,7 +2,8 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_GERENCIA_Y_GESTION_DE_CLIENTES",
-  name: "VW_GIFT_INSTANCES_GLD"
+  name: "VW_GIFT_INSTANCES_GLD",
+  tags: ["carga_incremental_diaria_golden_lote2"]
 }
 
 ${salas.lista_salas.map(s => `

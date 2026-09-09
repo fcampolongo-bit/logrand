@@ -2,7 +2,8 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_OPERACION_EN_SALAS",
-  name: "VW_DRAW_TICKETS_GLD"
+  name: "VW_DRAW_TICKETS_GLD",
+  tags: ["carga_incremental_diaria_golden_lote2"]
 }
 
 ${salas.lista_salas.map(s => `
