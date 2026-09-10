@@ -2,7 +2,8 @@ config {
   type: "view",
   database: databases.golden,
   schema: "GLD_ALIMENTOS_Y_BEBIDAS",
-  name: "VW_BASE_MAESTRA_MICROS_SIMPHONY_GLD"
+  name: "VW_BASE_MAESTRA_MICROS_SIMPHONY_GLD",
+  tags: ["carga_diaria_gld_simphony"]
 }
 
 SELECT
