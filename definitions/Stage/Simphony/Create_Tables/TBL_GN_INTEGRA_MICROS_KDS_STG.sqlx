@@ -3,9 +3,9 @@ config {
   database: databases.stage,
   schema: "STG_SIMPHONY",
   name: "TBL_GN_INTEGRA_MICROS_KDS_STG",
-  uniqueKey: ["rvc_num", "chk_seq", "D_dtl_seq", "business_date"],
+  uniqueKey: ["business_date", "rvc_num", "chk_seq", "chk_num","D_dtl_seq","D_dtl_PLU"],
   partitionBy: "DATE(business_date)",
-  clusterBy: ["rvc_num", "chk_num"],
+  clusterBy: ["rvc_num", "chk_seq"],
   updatePartitionFilter: "business_date >= current_datetime() - interval 12 day",
   tags: ["carga_incremental_diaria_stg_simphony"]
 }
