@@ -1,4 +1,3 @@
-
 config {
   type: "incremental",
   database: databases.golden, 
@@ -10,11 +9,6 @@ config {
   },
   tags: ["carga_incremental_mensual_golden"]
 }
-
-
-
-
-
 WITH Params AS (
     -- 1. Datos del mes actual
     SELECT 
@@ -70,7 +64,8 @@ reales_agrupados AS (
     -- 6. Origen FLASH_SALA
     SELECT 
         gameday, SALA, coinin as coin_in, DropMesas, EntradaMaquinas, EntradaMesas, CajaMaquinas, CajaMesas,
-        (CajaMaquinas + CajaMesas) AS netwin_real
+        (CajaMaquinas + CajaMesas) AS netwin_real,
+        VentaAyb_EfvoTarjeta AS ayb_real -- A&B
     FROM  ${ref("TBL_FLASH_SALA_GLD")} 
     WHERE gameday >= DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH), MONTH)
       AND gameday <= LAST_DAY(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH))
@@ -79,9 +74,9 @@ calendario_base AS (
     -- 7. Unión de historial y calendario
     SELECT 
         A.align_key, R_SALA.SALA, A.M3_day,
-        R3.coin_in AS ci_m3, R3.netwin_real AS nw_m3, R3.DropMesas AS dp_m3, R3.EntradaMaquinas AS enq_m3, R3.EntradaMesas AS ens_m3, R3.CajaMaquinas AS cmq_m3, R3.CajaMesas AS cms_m3,
-        R2.coin_in AS ci_m2, R2.netwin_real AS nw_m2, R2.DropMesas AS dp_m2, R2.EntradaMaquinas AS enq_m2, R2.EntradaMesas AS ens_m2, R2.CajaMaquinas AS cmq_m2, R2.CajaMesas AS cms_m2,
-        R1.coin_in AS ci_m1, R1.netwin_real AS nw_m1, R1.DropMesas AS dp_m1, R1.EntradaMaquinas AS enq_m1, R1.EntradaMesas AS ens_m1, R1.CajaMaquinas AS cmq_m1, R1.CajaMesas AS cms_m1
+        R3.coin_in AS ci_m3, R3.netwin_real AS nw_m3, R3.DropMesas AS dp_m3, R3.EntradaMaquinas AS enq_m3, R3.EntradaMesas AS ens_m3, R3.CajaMaquinas AS cmq_m3, R3.CajaMesas AS cms_m3, R3.ayb_real AS ayb_m3,
+        R2.coin_in AS ci_m2, R2.netwin_real AS nw_m2, R2.DropMesas AS dp_m2, R2.EntradaMaquinas AS enq_m2, R2.EntradaMesas AS ens_m2, R2.CajaMaquinas AS cmq_m2, R2.CajaMesas AS cms_m2, R2.ayb_real AS ayb_m2,
+        R1.coin_in AS ci_m1, R1.netwin_real AS nw_m1, R1.DropMesas AS dp_m1, R1.EntradaMaquinas AS enq_m1, R1.EntradaMesas AS ens_m1, R1.CajaMaquinas AS cmq_m1, R1.CajaMesas AS cms_m1, R1.ayb_real AS ayb_m1
     FROM CALCULO_DIAS_PRESUPUESTO_NEW A
     CROSS JOIN (SELECT DISTINCT SALA FROM reales_agrupados) R_SALA 
     LEFT JOIN reales_agrupados R3 ON A.M3_date = R3.gameday AND R_SALA.SALA = R3.SALA
@@ -99,6 +94,7 @@ calculos_finales AS (
         COALESCE(ens_m3, AVG(ens_m3) OVER(PARTITION BY SALA, M3_day)) AS ENS_M3,
         COALESCE(cmq_m3, AVG(cmq_m3) OVER(PARTITION BY SALA, M3_day)) AS CMQ_M3,
         COALESCE(cms_m3, AVG(cms_m3) OVER(PARTITION BY SALA, M3_day)) AS CMS_M3,
+        COALESCE(ayb_m3, AVG(ayb_m3) OVER(PARTITION BY SALA, M3_day)) AS AYB_M3, -- A&B
         COALESCE(ci_m2, AVG(ci_m2) OVER(PARTITION BY SALA, M3_day)) AS CI_M2,
         COALESCE(nw_m2, AVG(nw_m2) OVER(PARTITION BY SALA, M3_day)) AS NW_M2,
         COALESCE(dp_m2, AVG(dp_m2) OVER(PARTITION BY SALA, M3_day)) AS DP_M2,
@@ -106,13 +102,15 @@ calculos_finales AS (
         COALESCE(ens_m2, AVG(ens_m2) OVER(PARTITION BY SALA, M3_day)) AS ENS_M2,
         COALESCE(cmq_m2, AVG(cmq_m2) OVER(PARTITION BY SALA, M3_day)) AS CMQ_M2,
         COALESCE(cms_m2, AVG(cms_m2) OVER(PARTITION BY SALA, M3_day)) AS CMS_M2,
+        COALESCE(ayb_m2, AVG(ayb_m2) OVER(PARTITION BY SALA, M3_day)) AS AYB_M2, -- A&B
         COALESCE(ci_m1, AVG(ci_m1) OVER(PARTITION BY SALA, M3_day)) AS CI_M1,
         COALESCE(nw_m1, AVG(nw_m1) OVER(PARTITION BY SALA, M3_day)) AS NW_M1,
         COALESCE(dp_m1, AVG(dp_m1) OVER(PARTITION BY SALA, M3_day)) AS DP_M1,
         COALESCE(enq_m1, AVG(enq_m1) OVER(PARTITION BY SALA, M3_day)) AS ENQ_M1,
         COALESCE(ens_m1, AVG(ens_m1) OVER(PARTITION BY SALA, M3_day)) AS ENS_M1,
         COALESCE(cmq_m1, AVG(cmq_m1) OVER(PARTITION BY SALA, M3_day)) AS CMQ_M1,
-        COALESCE(cms_m1, AVG(cms_m1) OVER(PARTITION BY SALA, M3_day)) AS CMS_M1
+        COALESCE(cms_m1, AVG(cms_m1) OVER(PARTITION BY SALA, M3_day)) AS CMS_M1,
+        COALESCE(ayb_m1, AVG(ayb_m1) OVER(PARTITION BY SALA, M3_day)) AS AYB_M1 -- A&B
     FROM calendario_base
 ),
 porcentajes_participacion AS (
@@ -125,13 +123,19 @@ porcentajes_participacion AS (
         ( (ENQ_M3 / NULLIF(SUM(ENQ_M3) OVER(PARTITION BY SALA), 0)) + (ENQ_M2 / NULLIF(SUM(ENQ_M2) OVER(PARTITION BY SALA), 0)) + (ENQ_M1 / NULLIF(SUM(ENQ_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_enq,
         ( (ENS_M3 / NULLIF(SUM(ENS_M3) OVER(PARTITION BY SALA), 0)) + (ENS_M2 / NULLIF(SUM(ENS_M2) OVER(PARTITION BY SALA), 0)) + (ENS_M1 / NULLIF(SUM(ENS_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_ens,
         ( (CMQ_M3 / NULLIF(SUM(CMQ_M3) OVER(PARTITION BY SALA), 0)) + (CMQ_M2 / NULLIF(SUM(CMQ_M2) OVER(PARTITION BY SALA), 0)) + (CMQ_M1 / NULLIF(SUM(CMQ_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_cmq,
-        ( (CMS_M3 / NULLIF(SUM(CMS_M3) OVER(PARTITION BY SALA), 0)) + (CMS_M2 / NULLIF(SUM(CMS_M2) OVER(PARTITION BY SALA), 0)) + (CMS_M1 / NULLIF(SUM(CMS_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_cms
+        ( (CMS_M3 / NULLIF(SUM(CMS_M3) OVER(PARTITION BY SALA), 0)) + (CMS_M2 / NULLIF(SUM(CMS_M2) OVER(PARTITION BY SALA), 0)) + (CMS_M1 / NULLIF(SUM(CMS_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_cms,
+        ( (AYB_M3 / NULLIF(SUM(AYB_M3) OVER(PARTITION BY SALA), 0)) + (AYB_M2 / NULLIF(SUM(AYB_M2) OVER(PARTITION BY SALA), 0)) + (AYB_M1 / NULLIF(SUM(AYB_M1) OVER(PARTITION BY SALA), 0)) ) / 3 AS pct_ayb -- A&B
     FROM calculos_finales
 ),
 presupuesto_mes_actual AS (
     -- 10. Datos de Ppto
     SELECT 
         SALA, Ppto_coin_in, Ppto_netwin,Ppto_win_mesas, Ppto_drop, Ppto_entrada_maquinas, Ppto_entrada_mesas, Ppto_resultado_maquinas, Ppto_resultado_mesas,
+        -- A&B: Ppto_ayb viene como STRING (ej. ' 1.037.915.00 '), se limpia y se convierte a número
+        COALESCE(
+            SAFE_CAST(TRIM(Ppto_ayb) AS FLOAT64),
+            SAFE_CAST(REGEXP_REPLACE(TRIM(Ppto_ayb), r'\.(\d{3})', r'\1') AS FLOAT64)
+        ) AS Ppto_ayb_num,
         (Ppto_netwin / NULLIF(Ppto_coin_in, 0)) AS hold_mensual_fijo
     FROM  ${ref("TBL_PRESUPUESTO_ANUAL_GLD")} 
     WHERE MONTH = EXTRACT(MONTH FROM CURRENT_DATE) AND YEAR = EXTRACT(YEAR FROM CURRENT_DATE)
@@ -150,6 +154,7 @@ calculo_diario AS (
         c.fecha, a.SALA, c.es_ultimo_dia,
         a.pct_ci, -- Agregamos el porcentaje aquí para pasarlo al final
         b.Ppto_coin_in, b.Ppto_netwin,b.Ppto_win_mesas, b.Ppto_drop, b.Ppto_entrada_maquinas, b.Ppto_entrada_mesas, b.Ppto_resultado_maquinas, b.Ppto_resultado_mesas,
+        b.Ppto_ayb_num, -- A&B
         (b.Ppto_coin_in * a.pct_ci) AS ci_raw,
         (b.Ppto_netwin * a.pct_nw) AS nw_raw, 
         ((b.Ppto_coin_in * a.pct_ci) * b.hold_mensual_fijo) AS nw_old_raw, 
@@ -157,7 +162,8 @@ calculo_diario AS (
         (b.Ppto_entrada_maquinas * a.pct_enq) AS enq_raw,
         (b.Ppto_entrada_mesas * a.pct_ens) AS ens_raw,
         (b.Ppto_resultado_maquinas * a.pct_cmq) AS cmq_raw,
-        (b.Ppto_resultado_mesas * a.pct_cms) AS cms_raw
+        (b.Ppto_resultado_mesas * a.pct_cms) AS cms_raw,
+        (b.Ppto_ayb_num * a.pct_ayb) AS ayb_raw -- A&B
     FROM porcentajes_participacion a
     JOIN presupuesto_mes_actual b ON UPPER(a.SALA) = UPPER(b.SALA)
     JOIN calendario_marzo c ON a.align_key = c.align_key
@@ -173,6 +179,7 @@ ajuste_final AS (
         Ppto_entrada_mesas - SUM(ens_raw) OVER(PARTITION BY SALA) AS dif_ens,
         Ppto_resultado_maquinas - SUM(cmq_raw) OVER(PARTITION BY SALA) AS dif_cmq,
         Ppto_resultado_mesas - SUM(cms_raw) OVER(PARTITION BY SALA) AS dif_cms,
+        Ppto_ayb_num - SUM(ayb_raw) OVER(PARTITION BY SALA) AS dif_ayb, -- A&B
         Ppto_netwin as ppto_netwin_2,
         Ppto_win_mesas as Ppto_win_mesas_2
     
@@ -194,7 +201,7 @@ SELECT
     ROUND(IF(es_ultimo_dia, ens_raw + dif_ens, ens_raw), 2) AS Entrada_mesas_ppto,
     ROUND(IF(es_ultimo_dia, cmq_raw + dif_cmq, cmq_raw), 2) AS Resultado_maquinas_ppto,
     ROUND(IF(es_ultimo_dia, cms_raw + dif_cms, cms_raw), 2) AS Resultado_mesas_ppto,
-    NULL AS Ayb_ppto,
+    ROUND(IF(es_ultimo_dia, ayb_raw + dif_ayb, ayb_raw), 2) AS Ayb_ppto, -- A&B
     NULL AS Tfp_ayb_ppto,
 NULL AS GGR_OTC_ppto,
 NULL AS GGR_Plataforma_Afiliados_ppto, 

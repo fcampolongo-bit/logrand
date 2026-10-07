@@ -278,6 +278,38 @@ acum_total AS (
     )
     GROUP BY primer_gameday, id_sala
   )
+),
+
+
+-- A&B 
+
+mapeo_salas_ayb AS (
+  SELECT 'HW Constitucion' AS sala_simphony, 'CONSTITUCION' AS sala_flash
+  UNION ALL SELECT 'Jubilee 093',     'DUBAI'
+  UNION ALL SELECT 'HW Valle Alto',   'ESTANZUELA'
+  UNION ALL SELECT 'Golden Island',   'GOLDENISLAND'
+  UNION ALL SELECT 'Jubilee',         'JUBILEE'
+  UNION ALL SELECT 'Jubilee 288',     'JUBILEEGRANDCASINO'
+  UNION ALL SELECT 'Grand Leon',      'LEON'
+  UNION ALL SELECT 'New York',        'NEWYORK'
+  UNION ALL SELECT 'Paradise',        'PARADISE'
+  UNION ALL SELECT 'Taj Mahal',       'TAJMAHAL'
+  UNION ALL SELECT 'Viva Mexico',     'VIVAMEXICO'
+  UNION ALL SELECT 'Vivento 4 Rios',  'VIVENTO4RIOS'
+  UNION ALL SELECT 'Vivento Apodaca', 'VIVENTOAPODACA'
+  UNION ALL SELECT 'Vivento 072',     'VIVENTOZAPOPAN'
+),
+
+ayb AS (
+  SELECT
+    DATE(S.FechaProceso) AS GameDay,
+    M.sala_flash         AS Sala,
+    ROUND(SUM(S.Monto) / 1.16, 2) AS VentaAyb_EfvoTarjeta
+  FROM ${ref("GLD_ALIMENTOS_Y_BEBIDAS", "VW_GN_CORTE_CAJA_SIMPHONY_GLD")} AS S
+  INNER JOIN mapeo_salas_ayb AS M
+    ON S.Sala = M.sala_simphony
+  WHERE S.Forma_Pago IN ('Efectivo', 'Tarjeta Credito', 'Tarjeta Debito')
+  GROUP BY 1, 2
 )
 
 SELECT
@@ -334,12 +366,13 @@ COALESCE(B.venta, 0)
   E.Total_Netwin                              AS Netwin,
   E.Coin_In_Redimible,
   E.Netwin_Redimible,
-  E.Jugadas,--campo agregado 17/04
-  E.Total_Maquinas,--campo agregado 17/04,
+  E.Jugadas,
+  E.Total_Maquinas,
   M.Proyectado_Played_Mensual AS CoinIn_Proyectado_Mensual,
   M.Proyectado_Netwin_Mensual AS NetWinMaq_Proyectado_Mensual,
   N. Proyectado_Drop_Mensual AS DropMesas_Proyectado_Mensual,
   N.Proyectado_Win_Mensual  AS WinMesas_Proyectado_Mensual ,
+  O.VentaAyb_EfvoTarjeta,
   G.Visitas_Mesas,
   F.Visitas_Maquinas,
   K.Visitas,
@@ -384,5 +417,8 @@ ON A.GameDay = M.GameDay
 LEFT JOIN proyectado_mensual_mesas AS N
 ON A.GameDay = N.GameDay
   AND A.id_sala = N.id_sala
+LEFT JOIN ayb                           AS O
+  ON A.GameDay = O.GameDay
+  AND A.Sala = O.Sala
 
 ${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
