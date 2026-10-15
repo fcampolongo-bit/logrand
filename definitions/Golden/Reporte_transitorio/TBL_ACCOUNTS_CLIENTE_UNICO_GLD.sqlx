@@ -1,14 +1,20 @@
-  config {
-    type: "table",
-    database: databases.golden, 
-    schema: "GLD_REPORTE_TRANSITORIO",
-    name: "TBL_ACCOUNTS_CLIENTE_UNICO_GLD",
-    bigquery: {
-      partitionBy: "DATE(Fecha_Alta)",
-      clusterBy: ["ID_Alta"]
-    },
-    tags: ["carga_full_diaria_bi"]
-  }
+config {
+  type: "incremental",
+  database: databases.golden, 
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_ACCOUNTS_CLIENTE_UNICO_GLD",
+  bigquery: {
+    partitionBy: "DATE(Fecha_Alta)",
+    clusterBy: ["ID_Alta"]
+  },
+  tags: ["carga_full_diaria_bi"],
+  protected: true
+}
+
+-- Trunca la tabla antes de insertar la carga diaria completa
+pre_operations {
+  TRUNCATE TABLE ${self()}
+}
 
 with sala_origen as (SELECT distinct ac_account_id ,case when RIGHT(CAST(ac_account_id AS STRING), 3)='205' then '095'
  else   RIGHT(CAST(ac_account_id AS STRING), 3)end as sala_origen 
