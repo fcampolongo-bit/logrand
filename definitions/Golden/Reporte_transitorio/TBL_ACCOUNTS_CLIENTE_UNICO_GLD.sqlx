@@ -4,56 +4,74 @@ config {
   schema: "GLD_REPORTE_TRANSITORIO",
   name: "TBL_ACCOUNTS_CLIENTE_UNICO_GLD",
   bigquery: {
-    partitionBy: "DATE(Fecha_Alta)",
+    partitionBy: "DATETIME_TRUNC(Fecha_Alta, MONTH)",
     clusterBy: ["ID_Alta"]
   },
   tags: ["carga_full_diaria_bi"],
   protected: true
 }
 
--- Trunca la tabla antes de insertar la carga diaria completa
+-- Limpia los datos sin eliminar la tabla física para preservar el ID interno y mantener activa la Vista Materializada
 pre_operations {
-  TRUNCATE TABLE ${self()}
+  DELETE FROM ${self()} WHERE TRUE
 }
 
-with sala_origen as (SELECT distinct ac_account_id ,case when RIGHT(CAST(ac_account_id AS STRING), 3)='205' then '095'
- else   RIGHT(CAST(ac_account_id AS STRING), 3)end as sala_origen 
- FROM ${ref("VW_ACCOUNTS_GLD")}
-where ac_holder_gender is not null
-
+WITH sala_origen AS (
+  SELECT DISTINCT 
+    ac_account_id,
+    CASE 
+      WHEN RIGHT(CAST(ac_account_id AS STRING), 3) = '205' THEN '095'
+      ELSE RIGHT(CAST(ac_account_id AS STRING), 3)
+    END AS sala_origen 
+  FROM ${ref("VW_ACCOUNTS_GLD")}
+  WHERE ac_holder_gender IS NOT NULL
 )
 
-select a.ac_account_id as Num_Cliente,
-
-ac_holder_name as Titular,
-case when ac_holder_email_01 like '%@CORREO%' 
-or ac_holder_email_01 like '%NOTIENE%'
-or ac_holder_email_01 like '%REGIN@GMAIL.COM%' 
-or ac_holder_email_01 like '%SINCORREO%' 
- THEN 'NOTIENE@CORREO.COM'ELSE ac_holder_email_01 END as Correo,
-ac_holder_phone_number_01 as Telefono1	,
-ac_holder_phone_number_02 as  Telefono2,
-case when ac_holder_gender =1 then 'Hombre' 
-when ac_holder_gender =2 then 'Mujer' else 'No Informado'end as Genero,
-ac_holder_birth_date as Fecha_Nacimiento,
-ac_holder_name1 as  Apellido1,
-ac_holder_name2 as Apellido2,
-ac_holder_name3 as Nombre,
-case when RIGHT(CAST(b.ac_account_id AS STRING), 3)='205' then 'PROVIDENS'ELSE c.sala_carga END AS Sala_Alta ,
-cast (RIGHT(CAST(b.ac_account_id AS STRING), 3) as int)as ID_Alta,
-concat(RIGHT(CAST(b.ac_account_id AS STRING), 3) , '-',case when RIGHT(CAST(b.ac_account_id AS STRING), 3)='205' then 'PROVIDENS'ELSE c.sala_carga END )as Codigo,
---codigo (id + sala),
-ac_created as Fecha_Alta,
+SELECT 
+  a.ac_account_id AS Num_Cliente,
+  ac_holder_name AS Titular,
   CASE 
-        WHEN ac_holder_level = 1 THEN 'Classic'
-        WHEN ac_holder_level = 2 THEN 'Gold'
-        WHEN ac_holder_level = 3 THEN 'Platinum'
-        WHEN ac_holder_level = 4 THEN 'Diamond'
-        WHEN ac_holder_level = 5 THEN 'Black'
-        WHEN ac_holder_level = 6 THEN 'The One'
-        ELSE NULL 
-        END AS Nivel,
-DATE_DIFF(CURRENT_DATE(), EXTRACT(DATE FROM ac_holder_birth_date), YEAR) 
+    WHEN ac_holder_email_01 LIKE '%@CORREO%' 
+      OR ac_holder_email_01 LIKE '%NOTIENE%'
+      OR ac_holder_email_01 LIKE '%REGIN@GMAIL.COM%' 
+      OR ac_holder_email_01 LIKE '%SINCORREO%' THEN 'NOTIENE@CORREO.COM'
+    ELSE ac_holder_email_01 
+  END AS Correo,
+  ac_holder_phone_number_01 AS Telefono1,
+  ac_holder_phone_number_02 AS Telefono2,
+  CASE 
+    WHEN ac_holder_gender = 1 THEN 'Hombre' 
+    WHEN ac_holder_gender = 2 THEN 'Mujer' 
+    ELSE 'No Informado'
+  END AS Genero,
+  ac_holder_birth_date AS Fecha_Nacimiento,
+  ac_holder_name1 AS Apellido1,
+  ac_holder_name2 AS Apellido2,
+  ac_holder_name3 AS Nombre,
+  CASE 
+    WHEN RIGHT(CAST(b.ac_account_id AS STRING), 3) = '205' THEN 'PROVIDENS'
+    ELSE c.sala_carga 
+  END AS Sala_Alta,
+  CAST(RIGHT(CAST(b.ac_account_id AS STRING), 3) AS INT) AS ID_Alta,
+  CONCAT(
+    RIGHT(CAST(b.ac_account_id AS STRING), 3), 
+    '-',
+    CASE 
+      WHEN RIGHT(CAST(b.ac_account_id AS STRING), 3) = '205' THEN 'PROVIDENS'
+      ELSE c.sala_carga 
+    END
+  ) AS Codigo,
+  ac_created AS Fecha_Alta,
+  CASE 
+    WHEN ac_holder_level = 1 THEN 'Classic'
+    WHEN ac_holder_level = 2 THEN 'Gold'
+    WHEN ac_holder_level = 3 THEN 'Platinum'
+    WHEN ac_holder_level = 4 THEN 'Diamond'
+    WHEN ac_holder_level = 5 THEN 'Black'
+    WHEN ac_holder_level = 6 THEN 'The One'
+    ELSE NULL 
+  END AS Nivel,
+  DATE_DIFF(CURRENT_DATE(), EXTRACT(DATE FROM ac_holder_birth_date), YEAR) 
     - IF(
         EXTRACT(MONTH FROM CURRENT_DATE()) < EXTRACT(MONTH FROM ac_holder_birth_date) 
         OR (
@@ -62,12 +80,13 @@ DATE_DIFF(CURRENT_DATE(), EXTRACT(DATE FROM ac_holder_birth_date), YEAR)
         ), 1, 0
       ) AS Edad
 
-FROM  ${ref("VW_ACCOUNTS_GLD")} a
+FROM ${ref("VW_ACCOUNTS_GLD")} a
+JOIN sala_origen b
+  ON a.ac_account_id = b.ac_account_id
+  AND a.id_sala = CAST(b.sala_origen AS INT)
+JOIN ${ref("TBL_CATALOGO_SALA_GLD")} c
+  ON CAST(b.sala_origen AS INT) = c.id_sala
 
-join sala_origen b
-on a.ac_account_id=b.ac_account_id
-and a.id_sala=cast(b.sala_origen as int)
-join  ${ref("TBL_CATALOGO_SALA_GLD")} C
-ON cast(b.sala_origen as int)=c.id_sala
-
-where ac_holder_gender is not null
+WHERE ac_holder_gender IS NOT NULL
+  AND a.ac_created IS NOT NULL
+  AND DATE(a.ac_created) >= '2015-01-01'
