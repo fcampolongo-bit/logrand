@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_COMERCIAL_Y_GESTION_DE_CLIENTES",
+  name: "TBL_CARTERAS_MAQUINAS_GLD",
+  bigquery: {
+    clusterBy: ["NUM_CLIENTE", "YEAR"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_GESTION_CLIENTES", "TBL_CARTERAS_MAQUINAS_STG")}

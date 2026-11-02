@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_GESTION_CLIENTES",
+  name: "TBL_CARTERAS_MESAS_STG",
+  bigquery: {
+    clusterBy: ["NUM_CLIENTE", "YEAR"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS YEAR,
+  SAFE_CAST(Mes AS INT64) AS MES,
+  SAFE_CAST(Sala AS STRING) AS SALA,
+  SAFE_CAST(Num_cliente AS INT64) AS NUM_CLIENTE,
+  SAFE_CAST(Executive_Host_Mesas AS STRING) AS EXECUTIVE_HOST_MESAS,
+  SAFE_CAST(Meta_Drop AS NUMERIC) AS META_DROP,
+  SAFE_CAST(Bandera_Mesas AS INT64) AS BANDERA_MESAS,
+  SAFE_CAST(Main_Mesas AS INT64) AS MAIN_MESAS,
+  SAFE_CAST(Nivel_TO_Mesas AS STRING) AS NIVEL_TO_MESAS,
+  SAFE_CAST(Jefe_Implementacion_Mesas AS FLOAT64) AS JEFE_IMPLEMENTACION_MESAS,
+  SAFE_CAST(Meta_Visitas_Mesas AS NUMERIC) AS META_VISITAS_MESAS,
+  SAFE_CAST(Tipo_Cartera_Mesas AS STRING) AS TIPO_CARTERA_MESAS,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_CARTERAS_MESAS_RAW`
