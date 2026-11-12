@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_PRODUCTO_MESAS_HORAS_STG",
+  bigquery: {
+    clusterBy: ["ANO", "MES"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Ano AS INT64) AS ANO,
+  SAFE_CAST(MES AS INT64) AS MES,
+  SAFE_CAST(Sala AS STRING) AS SALA,
+  ROUND(SAFE_CAST(MESAS AS NUMERIC), 2) AS MESAS,
+  ROUND(SAFE_CAST(HORAS AS NUMERIC), 4) AS HORAS,
+  ROUND(SAFE_CAST(DIAS AS NUMERIC), 2) AS DIAS,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_PRODUCTO_MESAS_HORAS_RAW`

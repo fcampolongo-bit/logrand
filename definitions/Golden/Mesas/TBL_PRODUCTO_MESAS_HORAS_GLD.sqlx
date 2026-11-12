@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_MESAS",
+  name: "TBL_PRODUCTO_MESAS_HORAS_GLD",
+  bigquery: {
+    clusterBy: ["ANO", "MES"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_PRODUCTO_MESAS_HORAS_STG")}

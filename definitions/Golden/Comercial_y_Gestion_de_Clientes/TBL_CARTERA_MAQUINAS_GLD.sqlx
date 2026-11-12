@@ -10,4 +10,4 @@ config {
 }
 
 SELECT *
-FROM ${ref(databases.stage, "STG_GESTION_CLIENTES", "TBL_CARTERAS_MAQUINAS_STG")}
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_CARTERAS_MAQUINAS_STG")}

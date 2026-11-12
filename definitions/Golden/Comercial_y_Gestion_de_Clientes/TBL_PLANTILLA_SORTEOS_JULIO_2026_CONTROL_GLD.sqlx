@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_COMERCIAL_Y_GESTION_DE_CLIENTES",
+  name: "TBL_PLANTILLA_SORTEOS_JULIO_2026_CONTROL_GLD",
+  bigquery: {
+    clusterBy: ["CONTROL"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_PLANTILLA_SORTEOS_JULIO_2026_CONTROL_STG")}

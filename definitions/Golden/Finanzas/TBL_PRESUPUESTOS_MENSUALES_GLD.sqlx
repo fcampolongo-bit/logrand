@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_FINANZAS",
+  name: "TBL_PRESUPUESTOS_MENSUALES_GLD",
+  bigquery: {
+    clusterBy: ["YEAR", "MONTH"]
+  },
+  tags: ["carga_full_anual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_PRESUPUESTOS_MENSUALES_STG")}

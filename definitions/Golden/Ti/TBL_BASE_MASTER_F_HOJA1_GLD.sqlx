@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_TI",
+  name: "TBL_BASE_MASTER_F_HOJA1_GLD",
+  bigquery: {
+    clusterBy: ["YEAR", "SALAS"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_BASE_MASTER_F_HOJA1_STG")}

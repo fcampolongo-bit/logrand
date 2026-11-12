@@ -1,7 +1,7 @@
 config {
   type: "table",
   database: databases.stage,
-  schema: "STG_EXPERIENCIA_CLIENTE_OMNICANALIDAD",
+  schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_AFORO_PM_STG",
   bigquery: {
     clusterBy: ["ENTIDAD", "ANO"]
