@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_RIESGOS",
+  name: "TBL_MODIFICACIONES_SISTEMA_WIGOS_SALA_GLD",
+  bigquery: {
+    clusterBy: ["FECHA", "CASINO"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_MODIFICACIONES_SISTEMA_WIGOS_SALA_STG")}

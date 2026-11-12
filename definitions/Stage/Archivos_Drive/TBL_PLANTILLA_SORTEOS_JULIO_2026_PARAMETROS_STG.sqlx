@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_PLANTILLA_SORTEOS_JULIO_2026_PARAMETROS_STG",
+  bigquery: {
+    clusterBy: ["PARAMETRO"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Parametro AS STRING) AS PARAMETRO,
+  SAFE_CAST(Valor AS STRING) AS VALOR,
+  SAFE_CAST(Nota AS STRING) AS NOTA,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_PLANTILLA_SORTEOS_JULIO_2026_PARAMETROS_RAW`

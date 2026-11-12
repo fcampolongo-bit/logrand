@@ -1,7 +1,7 @@
 config {
   type: "table",
   database: databases.stage,
-  schema: "STG_GESTION_CLIENTES",
+  schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_CARTERAS_MAQUINAS_STG",
   bigquery: {
     clusterBy: ["NUM_CLIENTE", "YEAR"]

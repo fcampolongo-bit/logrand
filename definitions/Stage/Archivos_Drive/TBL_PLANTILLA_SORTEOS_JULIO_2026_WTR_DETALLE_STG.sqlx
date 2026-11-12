@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_PLANTILLA_SORTEOS_JULIO_2026_WTR_DETALLE_STG",
+  bigquery: {
+    clusterBy: ["UDN", "CLIENTE"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(UDN AS STRING) AS UDN,
+  SAFE_CAST(Etiqueta_de_Folio AS STRING) AS ETIQUETA_DE_FOLIO,
+  DATE(Inicio_Vigencia) AS INICIO_VIGENCIA,
+  DATE(Fin_Vigencia) AS FIN_VIGENCIA,
+  SAFE_CAST(Nivel AS STRING) AS NIVEL,
+  SAFE_CAST(Cliente AS INT64) AS CLIENTE,
+  ROUND(SAFE_CAST(WTR_Actual AS NUMERIC), 4) AS WTR_ACTUAL,
+  DATE(Inicio_Previo) AS INICIO_PREVIO,
+  DATE(Fin_Previo) AS FIN_PREVIO,
+  ROUND(SAFE_CAST(WTR_Previo AS NUMERIC), 4) AS WTR_PREVIO,
+  SAFE_CAST(Origen_WTR_Previo AS STRING) AS ORIGEN_WTR_PREVIO,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_PLANTILLA_SORTEOS_JULIO_2026_WTR_DETALLE_RAW`

@@ -1,7 +1,7 @@
 config {
   type: "table",
   database: databases.stage,
-  schema: "STG_CADENA_DE_SUMINISTRO",
+  schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_BASE_MB51_2026_STG",
   bigquery: {
     clusterBy: ["CENTRO"]

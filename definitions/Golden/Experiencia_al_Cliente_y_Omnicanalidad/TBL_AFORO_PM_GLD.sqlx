@@ -10,4 +10,4 @@ config {
 }
 
 SELECT *
-FROM ${ref(databases.stage, "STG_EXPERIENCIA_CLIENTE_OMNICANALIDAD", "TBL_AFORO_PM_STG")}
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_AFORO_PM_STG")}

@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_MEDIOS_DIGITALES_RRSS_STG",
+  bigquery: {
+    clusterBy: ["YEAR", "MONTH"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS YEAR,
+  SAFE_CAST(Month AS INT64) AS MONTH,
+  SAFE_CAST(Sala AS STRING) AS SALA,
+  ROUND(SAFE_CAST(Inversion AS NUMERIC), 2) AS INVERSION,
+  ROUND(SAFE_CAST(Impresiones AS NUMERIC), 2) AS IMPRESIONES,
+  ROUND(SAFE_CAST(Alcance AS NUMERIC), 2) AS ALCANCE,
+  ROUND(SAFE_CAST(Clics AS NUMERIC), 2) AS CLICS,
+  ROUND(SAFE_CAST(Encuesta_vio_rrss AS NUMERIC), 4) AS ENCUESTA_VIO_RRSS,
+  ROUND(SAFE_CAST(Encuesta_influencia AS NUMERIC), 4) AS ENCUESTA_INFLUENCIA,
+  ROUND(SAFE_CAST(Presupuesto_Asig_ AS NUMERIC), 2) AS PRESUPUESTO_ASIG,
+  ROUND(SAFE_CAST(Ppto_Devengado AS NUMERIC), 2) AS PPTO_DEVENGADO,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_MEDIOS_DIGITALES_RRSS_RAW`

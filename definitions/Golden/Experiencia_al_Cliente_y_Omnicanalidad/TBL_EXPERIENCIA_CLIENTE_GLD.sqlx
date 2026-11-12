@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_EXPERIENCIA_CLIENTE_OMNICANALIDAD",
+  name: "TBL_EXPERIENCIA_CLIENTE_GLD",
+  bigquery: {
+    clusterBy: ["YEAR", "SALA"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_EXPERIENCIA_CLIENTE_STG")}

@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_ALIMENTOS_Y_BEBIDAS",
+  name: "TBL_AYB_KPI_GLD",
+  bigquery: {
+    clusterBy: ["YEAR", "SALA"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_AYB_KPI_STG")}

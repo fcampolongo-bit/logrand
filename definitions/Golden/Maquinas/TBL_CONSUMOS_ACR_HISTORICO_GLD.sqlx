@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_MAQUINAS",
+  name: "TBL_CONSUMOS_ACR_HISTORICO_GLD",
+  bigquery: {
+    clusterBy: ["CENTRO"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_CONSUMOS_ACR_HISTORICO_STG")}
