@@ -4,27 +4,27 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_BETTING_REPORT_STG",
   bigquery: {
-    clusterBy: ["USERNAME"]
+    clusterBy: ["Username"]
   },
   tags: ["carga_full_diaria_stg_archivos"]
 }
 
 SELECT
-  SAFE_CAST(Bet_Slip_ID AS STRING) AS BET_SLIP_ID,
-  SAFE_CAST(Status AS STRING) AS STATUS,
-  SAFE_CAST(UserID AS STRING) AS USERID,
-  SAFE_CAST(Username AS STRING) AS USERNAME,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Open_Bet_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS OPEN_BET_RM_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Settled_Bet_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS SETTLED_BET_RM_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Win_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS WIN_RM_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(RM_Refund, r'[^0-9.\-]', '') AS NUMERIC), 4) AS RM_REFUND,
+  SAFE_CAST(Bet_Slip_ID AS STRING) AS Bet_Slip_ID,
+  SAFE_CAST(Status AS STRING) AS Status,
+  SAFE_CAST(UserID AS STRING) AS UserID,
+  SAFE_CAST(Username AS STRING) AS Username,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Open_Bet_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Open_Bet_RM_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Settled_Bet_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Settled_Bet_RM_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Win_RM_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Win_RM_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(RM_Refund, r'[^0-9.\-]', '') AS NUMERIC), 4) AS RM_Refund,
   ROUND(SAFE_CAST(REGEXP_REPLACE(GGR_RM, r'[^0-9.\-]', '') AS NUMERIC), 4) AS GGR_RM,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Open_Bet_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS OPEN_BET_BONUS_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Settled_Bet_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS SETTLED_BET_BONUS_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Win_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS WIN_BONUS_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Bonus_Refund_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS BONUS_REFUND_AMOUNT,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(GGR_Bonus, r'[^0-9.\-]', '') AS NUMERIC), 4) AS GGR_BONUS,
-  ROUND(SAFE_CAST(REGEXP_REPLACE(Hold, r'[^0-9.\-]', '') AS NUMERIC), 4) AS HOLD_PCT,
-  SAFE_CAST(Actions AS STRING) AS ACTIONS,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Open_Bet_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Open_Bet_Bonus_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Settled_Bet_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Settled_Bet_Bonus_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Win_Bonus_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Win_Bonus_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Bonus_Refund_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Bonus_Refund_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(GGR_Bonus, r'[^0-9.\-]', '') AS NUMERIC), 4) AS GGR_Bonus,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Hold, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Hold_pct,
+  SAFE_CAST(Actions AS STRING) AS Actions,
   CURRENT_TIMESTAMP() AS INGESTION_TS
 FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BETTING_REPORT_RAW`

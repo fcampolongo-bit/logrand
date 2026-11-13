@@ -4,7 +4,7 @@ config {
   schema: "GLD_OPERACIONES_ONLINE",
   name: "TBL_ALL_TRANSACTIONS_REPORT_GLD",
   bigquery: {
-    clusterBy: ["TRANSACTION_TYPE", "USER_NAME"]
+    clusterBy: ["Transaction_Type", "User_Name"]
   },
   tags: ["carga_full_diaria_golden_archivos"]
 }

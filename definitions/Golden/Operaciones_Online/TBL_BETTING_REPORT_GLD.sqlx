@@ -4,7 +4,7 @@ config {
   schema: "GLD_OPERACIONES_ONLINE",
   name: "TBL_BETTING_REPORT_GLD",
   bigquery: {
-    clusterBy: ["USERNAME"]
+    clusterBy: ["Username"]
   },
   tags: ["carga_full_diaria_golden_archivos"]
 }
