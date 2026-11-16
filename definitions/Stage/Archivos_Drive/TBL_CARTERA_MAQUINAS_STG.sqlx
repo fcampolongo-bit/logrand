@@ -4,23 +4,23 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_CARTERAS_MAQUINAS_STG",
   bigquery: {
-    clusterBy: ["NUM_CLIENTE", "YEAR"]
+    clusterBy: ["Num_cliente", "Year"]
   },
   tags: ["carga_full_mensual_stg_archivos"]
 }
 
 SELECT
-  SAFE_CAST(Year AS INT64) AS YEAR,
-  SAFE_CAST(Mes AS INT64) AS MES,
-  SAFE_CAST(Sala AS STRING) AS SALA,
-  SAFE_CAST(Num_cliente AS INT64) AS NUM_CLIENTE,
-  SAFE_CAST(Executive_Host AS STRING) AS EXECUTIVE_HOST,
-  SAFE_CAST(Meta_WT AS NUMERIC) AS META_WT,
-  SAFE_CAST(Bandera AS INT64) AS BANDERA,
-  SAFE_CAST(Main AS INT64) AS MAIN,
-  SAFE_CAST(Nivel_TO AS STRING) AS NIVEL_TO,
-  SAFE_CAST(Jefe_Implementacion AS FLOAT64) AS JEFE_IMPLEMENTACION,
-  SAFE_CAST(Meta_Visitas AS NUMERIC) AS META_VISITAS,
-  SAFE_CAST(Tipo_Cartera AS STRING) AS TIPO_CARTERA,
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Mes AS INT64) AS Mes,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(Num_cliente AS INT64) AS Num_cliente,
+  SAFE_CAST(Executive_Host AS STRING) AS Executive_Host,
+  SAFE_CAST(Meta_WT AS NUMERIC) AS Meta_WT,
+  SAFE_CAST(Bandera AS INT64) AS Bandera,
+  SAFE_CAST(Main AS INT64) AS Main,
+  SAFE_CAST(Nivel_TO AS STRING) AS Nivel_TO,
+  SAFE_CAST(Jefe_Implementacion AS FLOAT64) AS Jefe_Implementacion,
+  SAFE_CAST(Meta_Visitas AS NUMERIC) AS Meta_Visitas,
+  SAFE_CAST(Tipo_Cartera AS STRING) AS Tipo_Cartera,
   CURRENT_TIMESTAMP() AS INGESTION_TS
 FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_CARTERAS_MAQUINAS_RAW`
