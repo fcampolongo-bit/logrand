@@ -4,7 +4,7 @@ config {
   schema: "GLD_TI",
   name: "TBL_BASE_MASTER_F_HOJA1_GLD",
   bigquery: {
-    clusterBy: ["YEAR", "Mes"]
+   clusterBy: ["YEAR", "SALAS"]
   },
   tags: ["carga_full_mensual_golden_archivos"]
 }

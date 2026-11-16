@@ -6,7 +6,7 @@ config {
   bigquery: {
     clusterBy: ["YEAR", "MONTH"]
   },
-  tags: ["carga_full_anual_golden_archivos"]
+  tags: ["carga_full_mensual_golden_archivos"]
 }
 
 SELECT *

@@ -4,7 +4,7 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_BASE_MASTER_F_HOJA1_STG",
   bigquery: {
-    clusterBy: ["YEAR", "Mes"]
+    clusterBy: ["YEAR", "SALAS"]
   },
   tags: ["carga_full_mensual_stg_archivos"]
 }
