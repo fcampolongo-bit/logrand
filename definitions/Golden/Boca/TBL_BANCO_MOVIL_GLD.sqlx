@@ -92,7 +92,8 @@ FROM (
             AND mb.mb_account_type    NOT IN (2, 3)
         WHERE mm.mbm_type IN (1, 2, 3, 9, 11, 8)
           AND mm.mbm_sub_amount <> 0
-        ${when(incremental(), `AND mm.mbm_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+      /*  ${when(incremental(), `AND mm.mbm_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}*/
+   ${when(incremental(), reproceso.filtroIncremental("mm.mbm_datetime", "mm.sala"))}
     ) AS mov
 
     LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs
