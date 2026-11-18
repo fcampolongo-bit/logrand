@@ -8,7 +8,7 @@ config {
         partitionBy: "GameDay",
         clusterBy: ["Sala"]
     },
-    tags: ["carga_incremental_diaria_golden"]
+    tags: ["carga_incremental_diaria_golden", "reproceso_cashier_movements_gld"]
 }
 
 SELECT
@@ -97,7 +97,7 @@ FROM (
             ) HOUR))                                                            AS GameDay
         FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")} cm
         WHERE cm.cm_type IN (3, 4, 5, 28, 543)
-        ${when(incremental(), `AND cm.cm_date >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+        ${when(incremental(), reproceso.filtroIncremental("cm.cm_date", "cm.sala"))}
     ) AS mov
 
     LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs
