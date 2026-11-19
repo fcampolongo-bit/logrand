@@ -45,7 +45,7 @@ SELECT
 
 FROM (
     SELECT
-    mov.cm_movement_id,
+        mov.cm_movement_id,
         mov.cm_session_id,
         mov.cm_date,
         mov.cm_cashier_id,
@@ -97,7 +97,10 @@ FROM (
             ) HOUR))                                                            AS GameDay
         FROM ${ref("VW_CASHIER_MOVEMENTS_GLD")} cm
         WHERE cm.cm_type IN (3, 4, 5, 28, 543)
-        ${when(incremental(), reproceso.filtroIncremental("cm.cm_date", "cm.sala"))}
+        ${when(incremental(), reproceso.filtroIncremental(
+            "DATE(DATETIME_SUB(CAST(cm.cm_date AS DATETIME), INTERVAL (CASE WHEN cm.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR))",
+            "cm.sala"
+        ))}
     ) AS mov
 
     LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs

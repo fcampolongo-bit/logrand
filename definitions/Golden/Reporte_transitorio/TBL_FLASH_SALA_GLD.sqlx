@@ -8,7 +8,7 @@ config {
     partitionBy: "GameDay",
     clusterBy: ["Sala"]
   },
-  tags: ["carga_incremental_diaria_golden"]
+  tags: ["carga_incremental_diaria_golden", "reproceso_cashier_movements_gld"]
 }
 
 WITH compra_venta_fichas AS (
@@ -324,20 +324,20 @@ COALESCE(B.venta, 0)
     AS EntradaMesas,
 
 (A.Entradas - A.Entradas_Tarjeta_Jugador)
-    - (A.Premios * 0.93)
-    - (A.Salidas_Depostio_en_Garantia + A.Salidas_Uso_Instalaciones_y_Terminales)
+- (A.Premios * 0.93)
+- (A.Salidas_Depostio_en_Garantia + A.Salidas_Uso_Instalaciones_y_Terminales)
     AS ResultadoCajaTotal,
 
 -- CAJA MAQUINAS: Ajustada para tratar nulos en B.venta, B.premio, B.compra y B.Redondeo
 (A.Entradas - A.Entradas_Tarjeta_Jugador - COALESCE(B.venta, 0))
-    - ((A.Premios * 0.93) - (COALESCE(B.premio, 0) * 0.93))
-    - (A.Salidas_Depostio_en_Garantia - ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0)) + A.Salidas_Uso_Instalaciones_y_Terminales)
+- ((A.Premios * 0.93) - (COALESCE(B.premio, 0) * 0.93))
+- (A.Salidas_Depostio_en_Garantia - ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0)) + A.Salidas_Uso_Instalaciones_y_Terminales)
     AS CajaMaquinas,
 
 -- CAJA MESAS: Ajustada íntegramente
 COALESCE(B.venta, 0) 
-    - (COALESCE(B.premio, 0) * 0.93) 
-    - ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0))
+- (COALESCE(B.premio, 0) * 0.93) 
+- ((COALESCE(B.compra, 0) + COALESCE(B.Redondeo_por_Decimales, 0)) - COALESCE(B.premio, 0))
     AS CajaMesas,
   C.playedamount                              AS CoinIn,
   C.Netwin                                    AS NetWinMaq,
@@ -421,4 +421,6 @@ LEFT JOIN ayb                           AS O
   ON A.GameDay = O.GameDay
   AND A.Sala = O.Sala
 
-${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)}
+WHERE 1=1
+/* ${when(incremental(), `WHERE A.GameDay >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)`)} */
+${when(incremental(), reproceso.filtroIncremental("A.GameDay", "A.Sala", "DATE"))}
