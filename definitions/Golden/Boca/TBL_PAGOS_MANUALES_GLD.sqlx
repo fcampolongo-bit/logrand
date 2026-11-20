@@ -8,7 +8,7 @@ config {
     partitionBy: "GameDay",
     clusterBy: ["Sala", "Proveedor"]
   },
-  tags: ["carga_incremental_diaria_golden"]
+  tags: ["carga_incremental_diaria_golden", "reproceso_account_movements_gld"]
 }
 
 with pago_manuales as (
@@ -86,7 +86,10 @@ WHERE
     OR (hp_type IN (1, 1001) AND hp_level = 64)
   )
 
-  ${when(incremental(), `AND CAST(hp_datetime AS DATETIME) >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+${when(incremental(), reproceso.filtroIncremental(
+    "DATE(DATETIME_SUB(CAST(hp_datetime AS DATETIME), INTERVAL (CASE WHEN HandPays.Sala IN ('LEON', 'SANMARCOS', 'Leon', 'San Marcos', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR))",
+    "HandPays.Sala"
+  ))}
 
   )
 
