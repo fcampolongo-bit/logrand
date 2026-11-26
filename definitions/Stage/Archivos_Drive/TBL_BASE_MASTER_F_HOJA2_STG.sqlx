@@ -41,4 +41,4 @@ SELECT
   SAFE_CAST(Fecha_del_Incidente AS TIMESTAMP) AS Fecha_del_Incidente,
   SAFE_CAST(ROUND(SAFE_CAST(Numero_de_Solicitud AS NUMERIC)) AS INT64) AS Numero_de_Solicitud,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BASE_MASTER_F_HOJA2_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_MASTER_F_HOJA2_RAW")}
