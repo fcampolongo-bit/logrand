@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_RIESGOS",
+  name: "TBL_BASE_DATOS_DIARIA_CASINOS_NETWIN_GLD",
+  bigquery: {
+    clusterBy: ["FACTURACION"]
+  },
+  tags: ["carga_full_mensual_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_BASE_DATOS_DIARIA_CASINOS_NETWIN_STG")}

@@ -1,0 +1,18 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_MAQUINAS_INSTALADAS_STG",
+  bigquery: {
+    clusterBy: ["YEAR", "MONTH"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS YEAR,
+  SAFE_CAST(Month AS INT64) AS MONTH,
+  SAFE_CAST(Sala AS STRING) AS SALA,
+  SAFE_CAST(Instaladas AS INT64) AS INSTALADAS,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_MAQUINAS_INSTALADAS_RAW`

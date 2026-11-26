@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_BASE_MASTER_F_HOJA1_STG",
+  bigquery: {
+    clusterBy: ["YEAR", "SALAS"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+    IF(
+    EXTRACT(DAY FROM DATE(YAERMES)) = 1,
+    DATE(YAERMES),
+    SAFE.DATE(EXTRACT(YEAR FROM DATE(YAERMES)), EXTRACT(DAY FROM DATE(YAERMES)), 1)
+  ) AS YAERMES,
+  SAFE_CAST(YEAR AS INT64) AS YEAR,
+  SAFE_CAST(Mes AS STRING) AS MES,
+  SAFE_CAST(`DAY` AS INT64) AS `DAY`,
+  SAFE_CAST(Salas AS STRING) AS SALAS,
+  SAFE_CAST(Maquinas_Instaladas AS INT64) AS MAQUINAS_INSTALADAS,
+  SAFE_CAST(Maquinas_Out_Mes AS INT64) AS MAQUINAS_OUT_MES,
+  ROUND(SAFE_CAST(Ordenes_realizadas AS NUMERIC), 2) AS ORDENES_REALIZADAS,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BASE_MASTER_F_HOJA1_RAW`

@@ -1,0 +1,19 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_GESTION_CLIENTES_MAIN_STG",
+  bigquery: {
+    clusterBy: ["YEAR", "MONTH"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS YEAR,
+  SAFE_CAST(Month AS INT64) AS MONTH,
+  SAFE_CAST(Sala AS STRING) AS SALA,
+  SAFE_CAST(Num_Cliente AS INT64) AS NUM_CLIENTE,
+  ROUND(SAFE_CAST(balance AS NUMERIC), 4) AS BALANCE,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_GESTION_CLIENTES_MAIN_RAW`

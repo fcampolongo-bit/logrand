@@ -1,0 +1,13 @@
+config {
+  type: "table",
+  database: databases.golden,
+  schema: "GLD_OPERACIONES_ONLINE",
+  name: "TBL_BETTING_REPORT_GLD",
+  bigquery: {
+    clusterBy: ["USERNAME"]
+  },
+  tags: ["carga_full_diaria_golden_archivos"]
+}
+
+SELECT *
+FROM ${ref(databases.stage, "STG_DATASET_ARCHIVOS", "TBL_BETTING_REPORT_STG")}
