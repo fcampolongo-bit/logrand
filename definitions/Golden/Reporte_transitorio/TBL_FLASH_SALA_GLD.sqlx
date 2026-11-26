@@ -288,26 +288,6 @@ mapeo_salas_ayb AS (
   UNION ALL SELECT 'Jubilee 093',     'DUBAI'
   UNION ALL SELECT 'HW Valle Alto',   'ESTANZUELA'
   UNION ALL SELECT 'Golden Island',   'GOLDENISLAND'
-<<<<<<< HEAD
-  UNION ALL SELECT 'El Dorado',       'GUASAVE'
-  UNION ALL SELECT 'Jubilee',         'JUBILEE'
-  UNION ALL SELECT 'Jubilee 288',     'JUBILEEGRANDCASINO'
-  UNION ALL SELECT 'Grand Leon',      'LEON'
-  UNION ALL SELECT 'New York',        'NEWYORK'
-  UNION ALL SELECT 'Paradise',        'PARADISE'
-  UNION ALL SELECT 'Taj Mahal',       'TAJMAHAL'
-  UNION ALL SELECT 'Viva Mexico',     'VIVAMEXICO'
-  UNION ALL SELECT 'Vivento 4 Rios',  'VIVENTO4RIOS'
-  UNION ALL SELECT 'Vivento Apodaca', 'VIVENTOAPODACA'
-  UNION ALL SELECT 'Vivento 072',     'VIVENTOZAPOPAN'
-),
-
-ayb AS (
-  SELECT
-    DATE(S.FechaProceso) AS GameDay,
-    M.sala_flash         AS Sala,
-    SUM(S.Monto)         AS VentaAyb_EfvoTarjeta
-=======
   UNION ALL SELECT 'Jubilee',         'JUBILEE'
   UNION ALL SELECT 'Jubilee 288',     'JUBILEEGRANDCASINO'
   UNION ALL SELECT 'Grand Leon',      'LEON'
@@ -325,7 +305,6 @@ ayb AS (
     DATE(S.FechaProceso) AS GameDay,
     M.sala_flash         AS Sala,
     ROUND(SUM(S.Monto) / 1.16, 2) AS VentaAyb_EfvoTarjeta
->>>>>>> refs/heads/dev
   FROM ${ref("GLD_ALIMENTOS_Y_BEBIDAS", "VW_GN_CORTE_CAJA_SIMPHONY_GLD")} AS S
   INNER JOIN mapeo_salas_ayb AS M
     ON S.Sala = M.sala_simphony
@@ -399,8 +378,7 @@ COALESCE(B.venta, 0)
   K.Visitas,
   H.Clientes_Acumulados_Maquinas,
   I.Clientes_Acumulados_Mesas,
-  J.Clientes_Acumulados,
-  O.VentaAyb_EfvoTarjeta
+  J.Clientes_Acumulados
 
 FROM  ${ref("TBL_SESIONES_CAJA_GLD")}  AS A
 LEFT JOIN compra_venta_fichas           AS B
