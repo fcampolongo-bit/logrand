@@ -1,0 +1,16 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_ALIMENTOS_Y_BEBIDAS",
+  name: "VW_GN_VENTA_X_CENTRO_CONSUMO_GLD"
+}
+
+SELECT
+  D_SALA ,
+  D_CENTRO_CONSUMO ,
+  f_fecha     ,
+  M_VENTAS_NETAS ,
+  CONTEO ,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref("STG_INTERFACES", "TBL_VENTA_X_CENTRO_CONSUMO_STG")}

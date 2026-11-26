@@ -1,0 +1,27 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_VIVAMEXICO",
+  name: "TBL_RESERVED_TERMINAL_TRANSACTION_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_RESERVED_TERMINAL_TRANSACTION_RAW
+(
+  rtt_transaction_id   INT64 NOT NULL,
+  rtt_account_id       INT64 NOT NULL,
+  rtt_terminal_id      INT64 NOT NULL,
+  rtt_start_reserved   DATETIME NOT NULL,
+  rtt_end_reserved     DATETIME,
+  rtt_start_utc        DATETIME NOT NULL,
+  rtt_end_utc          DATETIME,
+  rtt_max_minutes      INT64 NOT NULL,
+  rtt_total_minutes    INT64,
+  rtt_status           INT64 NOT NULL,
+  rtt_type             INT64,
+  rtt_minutes_reserve  INT64,
+  rtt_created          DATETIME,
+  RTT_EXPIRES          DATETIME
+)
+PARTITION BY DATE(rtt_start_reserved)
+CLUSTER BY rtt_terminal_id, rtt_account_id, rtt_status;

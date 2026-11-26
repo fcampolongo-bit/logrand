@@ -1,0 +1,30 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_VIVAMEXICO",
+  name: "TBL_GIFT_INSTANCES_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_VIVAMEXICO.TBL_GIFT_INSTANCES_RAW
+(
+  gin_gift_instance_id   INT64 NOT NULL,
+  gin_oper_request_id    INT64 NOT NULL,
+  gin_oper_delivery_id   INT64,
+  gin_account_id         INT64 NOT NULL,
+  gin_gift_id            INT64 NOT NULL,
+  gin_gift_name          STRING NOT NULL,
+  gin_gift_type          INT64 NOT NULL,
+  gin_points             NUMERIC NOT NULL,
+  gin_conversion_to_nrc  NUMERIC,
+  gin_spent_points       NUMERIC NOT NULL,
+  gin_requested          DATETIME NOT NULL,
+  gin_delivered          DATETIME,
+  gin_expiration         DATETIME NOT NULL,
+  gin_request_status     INT64 NOT NULL,
+  gin_num_items          INT64 NOT NULL,
+  gin_data_01            INT64,
+  updated_at             INT64
+)
+PARTITION BY DATE(gin_requested)
+CLUSTER BY gin_account_id, gin_gift_id;

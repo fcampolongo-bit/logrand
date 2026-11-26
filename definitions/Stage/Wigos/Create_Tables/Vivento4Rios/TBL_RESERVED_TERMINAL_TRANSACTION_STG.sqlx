@@ -1,0 +1,28 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_WIGOS_VIVENTO4RIOS",
+  name: "TBL_RESERVED_TERMINAL_TRANSACTION_STG",
+  partitionBy: "DATE(rtt_start_reserved)",
+  clusterBy: ["rtt_terminal_id", "rtt_account_id", "rtt_status"],
+  tags: ["carga_full_diaria_stg_vivento4rios_lote4"]
+}
+
+SELECT
+  rtt_transaction_id,
+  rtt_account_id,
+  rtt_terminal_id,
+  rtt_start_reserved,
+  rtt_end_reserved,
+  rtt_start_utc,
+  rtt_end_utc,
+  rtt_max_minutes,
+  rtt_total_minutes,
+  rtt_status,
+  rtt_type,
+  rtt_minutes_reserve,
+  rtt_created,
+  RTT_EXPIRES,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_WIGOS_VIVENTO4RIOS", "TBL_RESERVED_TERMINAL_TRANSACTION_RAW")}

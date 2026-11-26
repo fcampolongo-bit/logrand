@@ -1,11 +1,11 @@
-config {
+/*config {
   type: "table",
   database: databases.stage,
   schema: "STG_INTERFACES",
   name: "TBL_CORTE_CAJA_SIMPHONY_STG",
   tags: ["carga_full_diaria_stg_interfaces"]
 }
-
+ */
 SELECT
   FechaProceso,
   Sala,
@@ -15,3 +15,4 @@ SELECT
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
   ${ref(databases.raw, "RAW_INTERFACES", "TBL_CORTE_CAJA_SIMPHONY_RAW")}
+  

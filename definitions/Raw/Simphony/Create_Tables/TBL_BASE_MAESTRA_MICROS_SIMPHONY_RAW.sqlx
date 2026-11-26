@@ -1,0 +1,21 @@
+config {
+  type: "operations",
+  schema: "RAW_SIMPHONY",
+  name: "TBL_BASE_MAESTRA_MICROS_SIMPHONY_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_SIMPHONY.TBL_BASE_MAESTRA_MICROS_SIMPHONY_RAW
+(
+  `PLU-Micros`        INT64 NOT NULL,
+  `Nombre Micros`     STRING,
+  `GM-Micros`         INT64,
+  `GM-Micros Nombre`  STRING,
+  `PLU-Simpho`        INT64 NOT NULL,
+  `Nombre Simpho`     STRING,
+  `GM-Simpho`         INT64,
+  `GM-Simpho Nombre`  STRING,
+  `FM-Simpho`         INT64,
+  `FM-Simpho Nombre`  STRING
+)

@@ -1,0 +1,31 @@
+config {
+  type: "operations",
+  schema: "RAW_SIMPHONY",
+  name: "TBL_INTER1_MICWIG_HEADER_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_SIMPHONY.TBL_INTER1_MICWIG_HEADER_RAW
+(
+  iNumHeader       INT64 NOT NULL,
+  CheckID          INT64 NOT NULL,
+  acSitio          STRING NOT NULL,
+  acCentroConsumo  STRING NOT NULL,
+  iNumCheque       INT64 NOT NULL,
+  acEstacionPos    STRING,
+  iNumeroEmp       INT64 NOT NULL,
+  acNombreEmp      STRING,
+  iNumPersonas     INT64 NOT NULL,
+  acFechaApertura  STRING NOT NULL,
+  acFechaCierre    STRING,
+  dSubTotal        NUMERIC(21,4) NOT NULL,
+  dDescuento       NUMERIC(21,4) NOT NULL,
+  dIva             NUMERIC(21,4) NOT NULL,
+  dPropinas        NUMERIC(21,4) NOT NULL,
+  dTotal           NUMERIC(21,4) NOT NULL,
+  FechaNegocio     DATETIME
+)
+
+PARTITION BY DATE(FechaNegocio)
+CLUSTER BY acSitio, acCentroConsumo

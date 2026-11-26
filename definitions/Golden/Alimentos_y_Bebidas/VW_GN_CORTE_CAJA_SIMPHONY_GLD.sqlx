@@ -13,4 +13,8 @@ SELECT
   Monto,
   CURRENT_TIMESTAMP() AS ingestion_ts
 FROM
+<<<<<<< HEAD
   ${ref("STG_INTERFACES", "TBL_CORTE_CAJA_SIMPHONY_STG")}
+=======
+  ${ref("STG_INTERFACES", "TBL_CORTE_CAJA_SIMPHONY_STG")}
+>>>>>>> refs/heads/dev

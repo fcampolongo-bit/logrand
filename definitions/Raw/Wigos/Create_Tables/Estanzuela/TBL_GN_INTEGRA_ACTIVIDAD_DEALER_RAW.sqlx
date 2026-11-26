@@ -1,0 +1,32 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_ESTANZUELA",
+  name: "TBL_GN_INTEGRA_ACTIVIDAD_DEALER_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_GN_INTEGRA_ACTIVIDAD_DEALER_RAW
+(
+  GTDS_STARTED         DATETIME,
+  GTDS_FINISHED        DATETIME,
+  TIME                 INT64,
+  GU_USER_ID           INT64 NOT NULL,
+  GU_FULL_NAME         STRING,
+  SUPERVISOR           STRING,
+  GT_GAMING_TABLE_ID   INT64 NOT NULL,
+  GT_NAME              STRING NOT NULL,
+  OCCUPANCY            NUMERIC(18,2),
+  PLAYS                INT64 NOT NULL,
+  DROP_AMOUNT          NUMERIC NOT NULL,
+  BILL_DROP            NUMERIC NOT NULL,
+  BUY_IN               NUMERIC,
+  CHIPS_IN             NUMERIC,
+  CHIPS_OUT            NUMERIC,
+  FILLS                NUMERIC NOT NULL,
+  CREDITS              NUMERIC NOT NULL,
+  GTDSC_ISO_CODE       STRING
+)
+
+PARTITION BY DATE(GTDS_STARTED)
+CLUSTER BY GU_USER_ID, GT_GAMING_TABLE_ID;
