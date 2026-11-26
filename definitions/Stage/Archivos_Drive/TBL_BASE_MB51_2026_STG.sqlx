@@ -35,4 +35,4 @@ SELECT
   SAFE_CAST(Nombre_del_usuario AS STRING) AS Nombre_del_usuario,
   SAFE_CAST(Motivo_movimiento AS INT64) AS Motivo_movimiento,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BASE_MB51_2026_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_MB51_2026_RAW")}

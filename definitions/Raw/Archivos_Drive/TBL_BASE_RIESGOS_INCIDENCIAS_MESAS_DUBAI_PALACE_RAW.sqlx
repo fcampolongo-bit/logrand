@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  database: databases.raw,
+  schema: "DATASET_ARCHIVOS",
+  name: "TBL_BASE_RIESGOS_INCIDENCIAS_MESAS_DUBAI_PALACE_RAW"
+}

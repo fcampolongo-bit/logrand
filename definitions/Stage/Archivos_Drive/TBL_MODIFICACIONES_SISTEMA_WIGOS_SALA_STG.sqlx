@@ -18,4 +18,4 @@ SELECT
   SAFE_CAST(Numero_de_correcciones_estadisticas AS INT64) AS Numero_de_correcciones_estadisticas,
   SAFE_CAST(Numero_de_correcciones_sesiones AS INT64) AS Numero_de_correcciones_sesiones,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_MODIFICACIONES_SISTEMA_WIGOS_SALA_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_MODIFICACIONES_SISTEMA_WIGOS_SALA_RAW")}

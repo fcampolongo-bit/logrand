@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_CALIMACO.TBL_TRANSACTIONS_RAW
   company STRING NOT NULL,
   operation INT64 NOT NULL,
   user INT64,              
-  amount INT64,
+  amount NUMERIC,
   currency STRING,
   method STRING,
   method_account STRING,

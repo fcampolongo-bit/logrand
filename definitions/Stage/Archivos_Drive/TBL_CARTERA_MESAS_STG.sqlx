@@ -23,4 +23,4 @@ SELECT
   SAFE_CAST(Meta_Visitas_Mesas AS NUMERIC) AS Meta_Visitas_Mesas,
   SAFE_CAST(Tipo_Cartera_Mesas AS STRING) AS Tipo_Cartera_Mesas,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_CARTERAS_MESAS_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_CARTERAS_MESAS_RAW")}

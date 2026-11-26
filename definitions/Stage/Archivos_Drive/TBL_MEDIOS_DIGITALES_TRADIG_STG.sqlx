@@ -18,4 +18,4 @@ SELECT
   ROUND(SAFE_CAST(Total_Inversion_TraDig AS NUMERIC), 2) AS Total_Inversion_TraDig,
   ROUND(SAFE_CAST(__influencia_publicidad AS NUMERIC), 4) AS influencia_publicidad,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_MEDIOS_DIGITALES_TRADIG_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_MEDIOS_DIGITALES_TRADIG_RAW")}

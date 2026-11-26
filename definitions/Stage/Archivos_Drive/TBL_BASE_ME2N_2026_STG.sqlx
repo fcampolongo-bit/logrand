@@ -50,4 +50,4 @@ SELECT
   SAFE_CAST(Posicion AS INT64) AS Posicion,
   SAFE_CAST(Urgencia_necesidad AS INT64) AS Urgencia_necesidad,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BASE_ME2N_2026_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_ME2N_2026_RAW")}

@@ -23,4 +23,4 @@ SELECT
   SAFE_CAST(Maquinas_Out_Mes AS INT64) AS Maquinas_Out_Mes,
   ROUND(SAFE_CAST(Ordenes_realizadas AS NUMERIC), 4) AS Ordenes_realizadas,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_BASE_MASTER_F_HOJA1_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_MASTER_F_HOJA1_RAW")}
