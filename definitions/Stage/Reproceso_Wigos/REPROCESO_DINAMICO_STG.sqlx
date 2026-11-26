@@ -1,0 +1,66 @@
+config {
+  type: "operations",
+  tags: ["reproceso_on_demand_stg"]
+}
+
+js {
+  const v = dataform.projectConfig.vars;
+  const casinoUpper = (v.casino || "").toUpperCase();
+  const tablaRaw = v.tabla_raw || "";
+  const tablaStg = v.tabla_stg || "";
+  const colFecha = v.col_fecha || "";
+  const fechaInicio = v.fecha_inicio || "";
+  const fechaFin = v.fecha_fin || "";
+
+  const projectRaw = databases.raw;
+  const projectStg = databases.stage;
+  const datasetRaw = `RAW_WIGOS_${casinoUpper}`;
+  const datasetStg = `STG_WIGOS_${casinoUpper}`;
+}
+
+DECLARE cols_insert STRING;
+DECLARE cols_select STRING;
+
+-- 0. Guardrail de seguridad: aborta si algún parámetro obligatorio llega vacío
+IF '${casinoUpper}' = '' OR '${tablaRaw}' = '' OR '${tablaStg}' = '' OR '${colFecha}' = '' OR '${fechaInicio}' = '' OR '${fechaFin}' = '' THEN
+  RAISE USING MESSAGE = 'ERROR DE SEGURIDAD: Faltan parámetros obligatorios (casino, tabla_raw, tabla_stg, col_fecha, fecha_inicio, fecha_fin).';
+END IF;
+
+-- 1. Construimos dinámicamente las columnas comparando STG vs RAW (cubre excepciones con NULL casteado)
+SET (cols_insert, cols_select) = (
+  SELECT AS STRUCT
+    STRING_AGG(FORMAT('`%s`', stg.column_name), ', ' ORDER BY stg.ordinal_position),
+    STRING_AGG(
+      CASE
+        WHEN stg.column_name = 'ingestion_ts' THEN 'CURRENT_TIMESTAMP() AS ingestion_ts'
+        WHEN raw.column_name IS NOT NULL THEN FORMAT('CAST(`%s` AS %s)', stg.column_name, stg.data_type)
+        ELSE FORMAT('CAST(NULL AS %s) AS `%s`', stg.data_type, stg.column_name)
+      END,
+      ', ' ORDER BY stg.ordinal_position
+    )
+  FROM `${projectStg}.${datasetStg}.INFORMATION_SCHEMA.COLUMNS` stg
+  LEFT JOIN `${projectRaw}.${datasetRaw}.INFORMATION_SCHEMA.COLUMNS` raw
+    ON stg.column_name = raw.column_name
+    AND raw.table_name = '${tablaRaw}'
+  WHERE stg.table_name = '${tablaStg}'
+);
+
+IF cols_insert IS NULL OR cols_select IS NULL THEN
+  RAISE USING MESSAGE = FORMAT('ERROR: No se encontró el esquema para la tabla %s.%s.%s', '${projectStg}', '${datasetStg}', '${tablaStg}');
+END IF;
+
+-- 2. Borramos en STG únicamente el rango de fechas reprocesado (preservando todo el resto de la historia)
+EXECUTE IMMEDIATE FORMAT("""
+  DELETE FROM `%s.%s.%s`
+  WHERE %s >= DATETIME('%s 00:00:00')
+    AND %s <= DATETIME('%s 23:59:59')
+""", '${projectStg}', '${datasetStg}', '${tablaStg}', '${colFecha}', '${fechaInicio}', '${colFecha}', '${fechaFin}');
+
+-- 3. Insertamos los datos desde RAW rellenando con NULL casteado cualquier columna ausente por excepción
+EXECUTE IMMEDIATE FORMAT("""
+  INSERT INTO `%s.%s.%s` (%s)
+  SELECT %s
+  FROM `%s.%s.%s`
+  WHERE %s >= DATETIME('%s 00:00:00')
+    AND %s <= DATETIME('%s 23:59:59')
+""", '${projectStg}', '${datasetStg}', '${tablaStg}', cols_insert, cols_select, '${projectRaw}', '${datasetRaw}', '${tablaRaw}', '${colFecha}', '${fechaInicio}', '${colFecha}', '${fechaFin}');

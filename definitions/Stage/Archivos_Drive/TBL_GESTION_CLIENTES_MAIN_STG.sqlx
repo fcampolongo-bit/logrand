@@ -4,16 +4,16 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_GESTION_CLIENTES_MAIN_STG",
   bigquery: {
-    clusterBy: ["YEAR", "MONTH"]
+    clusterBy: ["Year", "Month"]
   },
   tags: ["carga_full_mensual_stg_archivos"]
 }
 
 SELECT
-  SAFE_CAST(Year AS INT64) AS YEAR,
-  SAFE_CAST(Month AS INT64) AS MONTH,
-  SAFE_CAST(Sala AS STRING) AS SALA,
-  SAFE_CAST(Num_Cliente AS INT64) AS NUM_CLIENTE,
-  ROUND(SAFE_CAST(balance AS NUMERIC), 4) AS BALANCE,
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Month AS INT64) AS Month,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(Num_Cliente AS INT64) AS Num_Cliente,
+  ROUND(SAFE_CAST(balance AS NUMERIC), 4) AS balance,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_GESTION_CLIENTES_MAIN_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_GESTION_CLIENTES_MAIN_RAW")}

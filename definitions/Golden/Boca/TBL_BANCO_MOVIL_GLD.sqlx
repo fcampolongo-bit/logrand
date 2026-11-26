@@ -8,7 +8,7 @@ config {
         partitionBy: "GameDay",
         clusterBy: ["Sala"]
     },
-    tags: ["carga_incremental_diaria_golden"]
+    tags: ["carga_incremental_diaria_golden", "reproceso_mb_movements_gld"]
 }
 
 SELECT
@@ -92,7 +92,10 @@ FROM (
             AND mb.mb_account_type    NOT IN (2, 3)
         WHERE mm.mbm_type IN (1, 2, 3, 9, 11, 8)
           AND mm.mbm_sub_amount <> 0
-        ${when(incremental(), `AND mm.mbm_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+          ${when(incremental(), reproceso.filtroIncremental(
+              "DATE(DATETIME_SUB(CAST(mm.mbm_datetime AS DATETIME), INTERVAL (CASE WHEN mm.sala IN ('Leon', 'San Marcos', 'LEON', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR))",
+              "mm.sala"
+          ))}
     ) AS mov
 
     LEFT JOIN ${ref("VW_CASHIER_SESSIONS_GLD")} cs

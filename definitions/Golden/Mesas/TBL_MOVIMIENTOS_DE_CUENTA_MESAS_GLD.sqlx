@@ -1,6 +1,6 @@
 config {
   type: "incremental",
- database: databases.golden, 
+  database: databases.golden, 
   schema: "GLD_MESAS",
   name: "TBL_MOVIMIENTOS_DE_CUENTA_MESAS_GLD",
   uniqueKey: ["Sala", "Fecha", "Numero"], 
@@ -8,15 +8,15 @@ config {
     partitionBy: "gameday", 
     clusterBy: ["Sala", "Numero", "Tipo"] 
   },
-  tags: ["carga_incremental_diaria_golden"]
+  tags: ["carga_incremental_diaria_golden", "reproceso_account_movements_gld"]
 }
 
 SELECT 
 AccountMovements.Sala,
     AccountMovements.ID_Sala,
- DATE(TIMESTAMP_SUB(am_datetime, INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS') THEN 8 ELSE 7 END) HOUR)) AS GameDay, 
+ DATE(TIMESTAMP_SUB(am_datetime, INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS', 'Leon', 'San Marcos', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR)) AS GameDay, 
      EXTRACT(YEAR FROM DATE(DATETIME_SUB(CAST(am_datetime AS DATETIME), 
-      INTERVAL (CASE WHEN AccountMovements.Sala IN ('Leon', 'San Marcos') THEN 8 ELSE 7 END) HOUR)
+      INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS', 'Leon', 'San Marcos', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR)
     ))    as   Year         ,            
     am_account_id AS Numero, 
     B.ac_holder_name AS Titular, 
@@ -42,4 +42,7 @@ LEFT JOIN ${ref("GLD_COMERCIAL_Y_GESTION_DE_CLIENTES", "VW_ACCOUNTS_GLD")} B
 
 WHERE am_type in (203,204)
 
-${when(incremental(), `AND am_datetime >= DATETIME_SUB(CURRENT_DATETIME(), INTERVAL 14 DAY)`)}
+${when(incremental(), reproceso.filtroIncremental(
+  "DATE(DATETIME_SUB(CAST(am_datetime AS DATETIME), INTERVAL (CASE WHEN AccountMovements.Sala IN ('LEON', 'SANMARCOS', 'Leon', 'San Marcos', 'SAN MARCOS') THEN 8 ELSE 7 END) HOUR))",
+  "AccountMovements.Sala"
+))}

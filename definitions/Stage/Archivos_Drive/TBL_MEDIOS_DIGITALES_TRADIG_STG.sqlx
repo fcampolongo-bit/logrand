@@ -4,18 +4,18 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_MEDIOS_DIGITALES_TRADIG_STG",
   bigquery: {
-    clusterBy: ["YEAR", "MONTH"]
+    clusterBy: ["Year", "Month"]
   },
   tags: ["carga_full_mensual_stg_archivos"]
 }
 
 SELECT
-  SAFE_CAST(Year AS STRING) AS YEAR,
-  SAFE_CAST(Month AS STRING) AS MONTH,
-  SAFE_CAST(Sala AS STRING) AS SALA,
-  ROUND(SAFE_CAST(Inversion_Tradicional AS NUMERIC), 2) AS INVERSION_TRADICIONAL,
-  ROUND(SAFE_CAST(Inversion_Digital AS NUMERIC), 2) AS INVERSION_DIGITAL,
-  ROUND(SAFE_CAST(Total_Inversion_TraDig AS NUMERIC), 2) AS TOTAL_INVERSION_TRADIG,
-  ROUND(SAFE_CAST(__influencia_publicidad AS NUMERIC), 4) AS INFLUENCIA_PUBLICIDAD,
+  SAFE_CAST(Year AS STRING) AS Year,
+  SAFE_CAST(Month AS STRING) AS Month,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  ROUND(SAFE_CAST(Inversion_Tradicional AS NUMERIC), 2) AS Inversion_Tradicional,
+  ROUND(SAFE_CAST(Inversion_Digital AS NUMERIC), 2) AS Inversion_Digital,
+  ROUND(SAFE_CAST(Total_Inversion_TraDig AS NUMERIC), 2) AS Total_Inversion_TraDig,
+  ROUND(SAFE_CAST(__influencia_publicidad AS NUMERIC), 4) AS influencia_publicidad,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_MEDIOS_DIGITALES_TRADIG_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_MEDIOS_DIGITALES_TRADIG_RAW")}

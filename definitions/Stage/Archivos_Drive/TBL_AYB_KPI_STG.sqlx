@@ -4,21 +4,21 @@ config {
   schema: "STG_DATASET_ARCHIVOS",
   name: "TBL_AYB_KPI_STG",
   bigquery: {
-    clusterBy: ["YEAR", "SALA"]
+    clusterBy: ["Year", "Sala"]
   },
   tags: ["carga_full_mensual_stg_archivos"]
 }
 
 SELECT
-  SAFE_CAST(Sala AS STRING) AS SALA,
-  SAFE_CAST(Year AS INT64) AS YEAR,
-  SAFE_CAST(Mes AS STRING) AS MES,
-  ROUND(SAFE_CAST(__Consumo_Percapita AS NUMERIC), 4) AS CONSUMO_PERCAPITA,
-  ROUND(SAFE_CAST(__Consumo_prom_ticket AS NUMERIC), 4) AS CONSUMO_PROM_TICKET,
-  ROUND(SAFE_CAST(__Costo_Financiero_Mensual AS NUMERIC), 4) AS COSTO_FINANCIERO_MENSUAL,
-  ROUND(SAFE_CAST(__Alimentos AS NUMERIC), 4) AS ALIMENTOS,
-  ROUND(SAFE_CAST(__Bebidas AS NUMERIC), 4) AS BEBIDAS,
-  ROUND(SAFE_CAST(__Cigarros AS NUMERIC), 4) AS CIGARROS,
-  ROUND(SAFE_CAST(__Comedor AS NUMERIC), 4) AS COMEDOR,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Mes AS STRING) AS Mes,
+  ROUND(SAFE_CAST(__Consumo_Percapita AS NUMERIC), 4) AS Consumo_Percapita,
+  ROUND(SAFE_CAST(__Consumo_prom_ticket AS NUMERIC), 4) AS Consumo_prom_ticket,
+  ROUND(SAFE_CAST(__Costo_Financiero_Mensual AS NUMERIC), 4) AS Costo_Financiero_Mensual,
+  ROUND(SAFE_CAST(__Alimentos AS NUMERIC), 4) AS Alimentos,
+  ROUND(SAFE_CAST(__Bebidas AS NUMERIC), 4) AS Bebidas,
+  ROUND(SAFE_CAST(__Cigarros AS NUMERIC), 4) AS Cigarros,
+  ROUND(SAFE_CAST(__Comedor AS NUMERIC), 4) AS Comedor,
   CURRENT_TIMESTAMP() AS INGESTION_TS
-FROM `logrand-storage-raw-dev.DATASET_ARCHIVOS.TBL_AYB_KPI_RAW`
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_AYB_KPI_RAW")}
