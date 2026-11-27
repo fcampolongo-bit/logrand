@@ -1,0 +1,26 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_CARTERAS_MESAS_STG",
+  bigquery: {
+    clusterBy: ["Num_cliente", "Year"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Mes AS INT64) AS Mes,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(Num_cliente AS INT64) AS Num_cliente,
+  SAFE_CAST(Executive_Host_Mesas AS STRING) AS Executive_Host_Mesas,
+  SAFE_CAST(Meta_Drop AS NUMERIC) AS Meta_Drop,
+  SAFE_CAST(Bandera_Mesas AS INT64) AS Bandera_Mesas,
+  SAFE_CAST(Main_Mesas AS INT64) AS Main_Mesas,
+  SAFE_CAST(Nivel_TO_Mesas AS STRING) AS Nivel_TO_Mesas,
+  SAFE_CAST(Jefe_Implementacion_Mesas AS FLOAT64) AS Jefe_Implementacion_Mesas,
+  SAFE_CAST(Meta_Visitas_Mesas AS NUMERIC) AS Meta_Visitas_Mesas,
+  SAFE_CAST(Tipo_Cartera_Mesas AS STRING) AS Tipo_Cartera_Mesas,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_CARTERAS_MESAS_RAW")}

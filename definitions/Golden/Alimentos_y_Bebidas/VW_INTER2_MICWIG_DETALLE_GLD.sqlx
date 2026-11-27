@@ -1,0 +1,23 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_ALIMENTOS_Y_BEBIDAS",
+  name: "VW_INTER2_MICWIG_DETALLE_GLD",
+  tags: ["carga_diaria_gld_simphony"]
+}
+
+SELECT
+  iNumDetalle,
+  iNumHeader,
+  acSitio,
+  acTipoItem,
+  iPLUCodigo,
+  acNombreItem,
+  iCantidadItem,
+  dSubtotalD,
+  dIvaD,
+  dTotalD,
+  iOtrosDescuentos,
+  ingestion_ts
+FROM
+  ${ref("STG_SIMPHONY", "TBL_INTER2_MICWIG_DETALLE_STG")}

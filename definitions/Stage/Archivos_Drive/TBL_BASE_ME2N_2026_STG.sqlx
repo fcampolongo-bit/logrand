@@ -1,0 +1,53 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_BASE_ME2N_2026_STG",
+  bigquery: {
+    clusterBy: ["concatenar"]
+  },
+  tags: ["carga_full_semanal_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(concatenar AS INT64) AS concatenar,
+  DATE_ADD(DATE '1899-12-30', INTERVAL SAFE_CAST(fecha_de_entrada AS INT64) DAY) AS fecha_de_entrada,
+  SAFE_CAST(Cl_documento_compras AS STRING) AS Cl_documento_compras,
+  SAFE_CAST(Tipo_doc_compras AS STRING) AS Tipo_doc_compras,
+  SAFE_CAST(ROUND(SAFE_CAST(Contrato_marco AS NUMERIC)) AS INT64) AS Contrato_marco,
+  SAFE_CAST(Pos_contrato_sup_ AS INT64) AS Pos_contrato_sup,
+  SAFE_CAST(ROUND(SAFE_CAST(REGEXP_REPLACE(Grupo_de_compras, r'[^0-9.\-]', '') AS NUMERIC)) AS INT64) AS Grupo_de_compras,
+  ROUND(SAFE_CAST(Por_entregar__cantidad_ AS NUMERIC), 3) AS Por_entregar_cantidad,
+  SAFE_CAST(Fecha_documento AS DATE) AS Fecha_documento,
+  SAFE_CAST(Proveedor_Centro_suministrador AS STRING) AS Proveedor_Centro_suministrador,
+  SAFE_CAST(ROUND(SAFE_CAST(Material AS NUMERIC)) AS INT64) AS Material,
+  SAFE_CAST(Texto_breve AS STRING) AS Texto_breve,
+  SAFE_CAST(Grupo_de_articulos AS STRING) AS Grupo_de_articulos,
+  SAFE_CAST(Indicador_de_borrado AS STRING) AS Indicador_de_borrado,
+  SAFE_CAST(Tipo_de_posicion AS STRING) AS Tipo_de_posicion,
+  SAFE_CAST(Tipo_de_imputacion AS STRING) AS Tipo_de_imputacion,
+  SAFE_CAST(Centro AS INT64) AS Centro,
+  SAFE_CAST(Almacen AS STRING) AS Almacen,
+  ROUND(SAFE_CAST(Cantidad_de_pedido AS NUMERIC), 3) AS Cantidad_de_pedido,
+  SAFE_CAST(Unidad_medida_pedido AS STRING) AS Unidad_medida_pedido,
+  ROUND(SAFE_CAST(Precio_neto AS NUMERIC), 2) AS Precio_neto,
+  SAFE_CAST(Moneda AS STRING) AS Moneda,
+  ROUND(SAFE_CAST(Cantidad_base AS NUMERIC), 3) AS Cantidad_base,
+  ROUND(SAFE_CAST(Cantidad_de_reparto AS NUMERIC), 3) AS Cantidad_de_reparto,
+  SAFE_CAST(Fecha_de_entrega AS DATE) AS Fecha_de_entrega,
+  SAFE_CAST(Hora AS DATE) AS Hora,
+  SAFE_CAST(Fecha_entrega_estad_ AS DATE) AS Fecha_entrega_estad,
+  ROUND(SAFE_CAST(Cantidad_anterior AS NUMERIC), 3) AS Cantidad_anterior,
+  ROUND(SAFE_CAST(Cantidad_entrada AS NUMERIC), 3) AS Cantidad_entrada,
+  ROUND(SAFE_CAST(Cantidad_de_salida AS NUMERIC), 3) AS Cantidad_de_salida,
+  ROUND(SAFE_CAST(Cantidad_entregada AS NUMERIC), 3) AS Cantidad_entregada,
+  SAFE_CAST(ROUND(SAFE_CAST(Solicitud_de_pedido AS NUMERIC)) AS INT64) AS Solicitud_de_pedido,
+  SAFE_CAST(Pos_solicitud_pedido AS INT64) AS Pos_solicitud_pedido,
+  SAFE_CAST(Indicador_creacion AS STRING) AS Indicador_creacion,
+  SAFE_CAST(Cantidad_de_posiciones AS INT64) AS Cantidad_de_posiciones,
+  SAFE_CAST(Reparto AS INT64) AS Reparto,
+  SAFE_CAST(Documento_compras AS INT64) AS Documento_compras,
+  SAFE_CAST(Posicion AS INT64) AS Posicion,
+  SAFE_CAST(Urgencia_necesidad AS INT64) AS Urgencia_necesidad,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_ME2N_2026_RAW")}

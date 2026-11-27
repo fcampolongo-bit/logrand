@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_BASE_MASTER_F_HOJA2_STG",
+  bigquery: {
+    clusterBy: ["YEAR", "Mes"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(YEAR AS INT64) AS YEAR,
+  SAFE_CAST(Mes AS STRING) AS Mes,
+  SAFE_CAST(Salas AS STRING) AS Salas,
+  SAFE_CAST(ID_de_Orden_de_Trabajo AS STRING) AS ID_de_Orden_de_Trabajo,
+  SAFE_CAST(Estado AS STRING) AS Estado,
+  SAFE_CAST(Codigo AS STRING) AS Codigo,
+  SAFE_CAST(Activo AS STRING) AS Activo,
+  SAFE_CAST(Fuera_de_servicio AS STRING) AS Fuera_de_servicio,
+  SAFE_CAST(Tarea AS STRING) AS Tarea,
+  SAFE_CAST(Activador AS STRING) AS Activador,
+  SAFE_CAST(Ubicado_en_o_es_Parte_de AS STRING) AS Ubicado_en_o_es_Parte_de,
+  SAFE_CAST(Tipo_de_Activo AS STRING) AS Tipo_de_Activo,
+  SAFE_CAST(Estado_de_la_Tarea AS STRING) AS Estado_de_la_Tarea,
+  SAFE_CAST(Tarea_Duracion_Estimada AS STRING) AS Tarea_Duracion_Estimada,
+  SAFE_CAST(Tiempo_de_Ejecucion AS STRING) AS Tiempo_de_Ejecucion,
+  SAFE_CAST(Tipo_de_Tarea AS STRING) AS Tipo_de_Tarea,
+  SAFE_CAST(Fecha_Programada AS TIMESTAMP) AS Fecha_Programada,
+  SAFE_CAST(Fecha_de_Inicio AS TIMESTAMP) AS Fecha_de_Inicio,
+  SAFE_CAST(Fecha_Final AS TIMESTAMP) AS Fecha_Final,
+  SAFE_CAST(Fecha_de_creacion_de_la_OT AS TIMESTAMP) AS Fecha_de_creacion_de_la_OT,
+  SAFE_CAST(Fecha_de_cierre_de_la_OT AS TIMESTAMP) AS Fecha_de_cierre_de_la_OT,
+  SAFE_CAST(Paro_de_equipo AS STRING) AS Paro_de_equipo,
+  SAFE_CAST(Tiempo_de_Paro_por_Mantenimiento_Planificado AS STRING) AS Tiempo_de_Paro_por_Mantenimiento_Planificado,
+  ROUND(SAFE_CAST(Horas_Totales AS NUMERIC), 4) AS Horas_Totales,
+  SAFE_CAST(Recursos_Humanos AS STRING) AS Recursos_Humanos,
+  SAFE_CAST(Responsable AS STRING) AS Responsable,
+  SAFE_CAST(Creada_por AS STRING) AS Creada_por,
+  SAFE_CAST(Tarea_Prioridad AS STRING) AS Tarea_Prioridad,
+  SAFE_CAST(Fecha_del_Incidente AS TIMESTAMP) AS Fecha_del_Incidente,
+  SAFE_CAST(ROUND(SAFE_CAST(Numero_de_Solicitud AS NUMERIC)) AS INT64) AS Numero_de_Solicitud,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_MASTER_F_HOJA2_RAW")}

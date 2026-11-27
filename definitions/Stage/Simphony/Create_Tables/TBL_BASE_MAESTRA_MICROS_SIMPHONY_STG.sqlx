@@ -1,0 +1,22 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_SIMPHONY",
+  name: "TBL_BASE_MAESTRA_MICROS_SIMPHONY_STG",
+  tags: ["carga_full_diaria_stg_simphony"]
+}
+
+SELECT
+  `PLU-Micros`,
+  `Nombre Micros`,
+  `GM-Micros`,
+  `GM-Micros Nombre`,
+  `PLU-Simpho`,
+  `Nombre Simpho`,
+  `GM-Simpho`,
+  `GM-Simpho Nombre`,
+  `FM-Simpho`,
+  `FM-Simpho Nombre`,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_SIMPHONY", "TBL_BASE_MAESTRA_MICROS_SIMPHONY_RAW")}

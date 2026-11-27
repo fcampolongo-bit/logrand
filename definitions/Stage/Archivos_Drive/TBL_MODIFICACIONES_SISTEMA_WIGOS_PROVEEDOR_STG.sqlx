@@ -1,0 +1,25 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_MODIFICACIONES_SISTEMA_WIGOS_PROVEEDOR_STG",
+  bigquery: {
+    clusterBy: ["Fecha"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Fecha AS DATE) AS Fecha,
+  SAFE_CAST(Proveedor AS STRING) AS Proveedor,
+  SAFE_CAST(Numero_de_correcciones_estadisticas AS INT64) AS Numero_de_correcciones_estadisticas,
+  ROUND(SAFE_CAST(Suma_de_Modificacion_Coin_In AS NUMERIC), 4) AS Suma_de_Modificacion_Coin_In,
+  ROUND(SAFE_CAST(Suma_de_Modificacion_Coin_Out AS NUMERIC), 4) AS Suma_de_Modificacion_Coin_Out,
+  SAFE_CAST(Suma_de_Modificacion_Jugadas AS INT64) AS Suma_de_Modificacion_Jugadas,
+  SAFE_CAST(Fecha_1 AS DATE) AS Fecha_1,
+  SAFE_CAST(Proveedor_1 AS STRING) AS Proveedor_1,
+  SAFE_CAST(ROUND(SAFE_CAST(Numero_de_correcciones_sesiones AS NUMERIC)) AS INT64) AS Numero_de_correcciones_sesiones,
+  ROUND(SAFE_CAST(Valor_Real_Jugado AS NUMERIC), 2) AS Valor_Real_Jugado,
+  ROUND(SAFE_CAST(Valor_Real_Ganado AS NUMERIC), 2) AS Valor_Real_Ganado,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_MODIFICACIONES_SISTEMA_WIGOS_PROVEEDOR_RAW")}

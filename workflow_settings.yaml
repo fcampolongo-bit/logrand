@@ -3,3 +3,11 @@ defaultDataset: dataform
 defaultAssertionDataset: dataform_assertions
 dataformCoreVersion: 3.0.26
 defaultLocation: "us-central1"
+vars:
+  env: "dev"
+  casino: ""
+  tabla_raw: ""
+  tabla_stg: ""
+  col_fecha: ""
+  fecha_inicio: ""
+  fecha_fin: ""

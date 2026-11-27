@@ -1,0 +1,34 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_MODIFICACIONES_SISTEMA_WIGOS_DETALLE_ESTADISTICAS_STG",
+  bigquery: {
+    clusterBy: ["Fecha"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Fecha AS DATE) AS Fecha,
+  SAFE_CAST(Proveedor AS STRING) AS Proveedor,
+  ROUND(SAFE_CAST(El_Dorado AS NUMERIC), 2) AS El_Dorado,
+  ROUND(SAFE_CAST(Golden_Island AS NUMERIC), 2) AS Golden_Island,
+  ROUND(SAFE_CAST(Grand_Leon AS NUMERIC), 2) AS Grand_Leon,
+  ROUND(SAFE_CAST(Hollywood_Constitucion AS NUMERIC), 2) AS Hollywood_Constitucion,
+  ROUND(SAFE_CAST(Hollywood_Valle_Alto AS NUMERIC), 2) AS Hollywood_Valle_Alto,
+  ROUND(SAFE_CAST(Jubilee AS NUMERIC), 2) AS Jubilee,
+  SAFE_CAST(Jubilee_Cancun AS INT64) AS Jubilee_Cancun,
+  SAFE_CAST(ROUND(SAFE_CAST(Jubilee_Grand_Casino AS NUMERIC)) AS INT64) AS Jubilee_Grand_Casino,
+  SAFE_CAST(New_York AS INT64) AS New_York,
+  SAFE_CAST(Paradise AS INT64) AS Paradise,
+  SAFE_CAST(Paradise_Island AS INT64) AS Paradise_Island,
+  SAFE_CAST(Providens AS INT64) AS Providens,
+  SAFE_CAST(San_Marcos AS INT64) AS San_Marcos,
+  SAFE_CAST(Taj_Mahal AS INT64) AS Taj_Mahal,
+  SAFE_CAST(Viva_Mexico AS INT64) AS Viva_Mexico,
+  SAFE_CAST(ROUND(SAFE_CAST(Vivento_4_Rios AS NUMERIC)) AS INT64) AS Vivento_4_Rios,
+  SAFE_CAST(ROUND(SAFE_CAST(Vivento_Apodaca AS NUMERIC)) AS INT64) AS Vivento_Apodaca,
+  SAFE_CAST(Vivento_Zapopan AS INT64) AS Vivento_Zapopan,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_MODIFICACIONES_SISTEMA_WIGOS_DETALLE_ESTADISTICAS_RAW")}

@@ -1,0 +1,35 @@
+config {
+  type: "operations",
+  schema: "RAW_WIGOS_ESTANZUELA",
+  name: "TBL_INTEGRA_MICROS_KDS_RAW",
+  database: (databases.raw),
+  hasOutput: true
+}
+
+CREATE TABLE IF NOT EXISTS ${databases.raw}.RAW_WIGOS_ESTANZUELA.TBL_INTEGRA_MICROS_KDS_RAW
+(
+  SalaNombre                     STRING,
+  business_date                  DATETIME,
+  rvc_num                        INT64,
+  rvc_name                       STRING,
+  emp_num                        INT64,
+  emp_name1                      STRING,
+  chk_seq                        INT64,
+  chk_num                        INT64,
+  chk_open_date_time             DATETIME,
+  chk_clsd_date_time             DATETIME,
+  start_date_tm                  DATETIME,
+  end_date_tm                    DATETIME,
+  prep_time                      INT64,
+  TiempoPreparacion              TIME,
+  D_dtl_seq                      INT64,
+  D_dtl_PLU                      INT64,
+  D_dtl_name                     STRING,
+  rangoPreparacion               TIME,
+  diaSemana                      DATETIME,
+  diferencia_inicio_fin_comanda  DATETIME
+)
+-- TODO: definir PARTITION BY si corresponde (candidatos detectados: business_date, chk_open_date_time, chk_clsd_date_time, start_date_tm, end_date_tm, diaSemana, diferencia_inicio_fin_comanda)
+-- PARTITION BY DATE(<columna>)
+-- TODO: definir CLUSTER BY si corresponde (no se detectaron columnas *_id)
+-- CLUSTER BY <columna>

@@ -1,0 +1,18 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_BASE_NIVEL_2026_STG",
+  bigquery: {
+    clusterBy: ["Year", "Month"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Month AS INT64) AS Month,
+  SAFE_CAST(Num_Cliente AS INT64) AS Num_Cliente,
+  SAFE_CAST(Nivel_TO AS STRING) AS Nivel_TO,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_BASE_NIVEL_2026_RAW")}

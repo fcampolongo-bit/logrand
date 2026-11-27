@@ -1,0 +1,32 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_PROMOPUNTOS_AUDITORIA_JUBILEE_STG",
+  bigquery: {
+    clusterBy: ["Fecha", "Sala"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Fecha AS DATE) AS Fecha,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(Proveedor_Promopuntos AS STRING) AS Proveedor_Promopuntos,
+  SAFE_CAST(Nombre_Promopuntos AS STRING) AS Nombre_Promopuntos,
+  SAFE_CAST(ID_en_planta_Promopuntos AS STRING) AS ID_en_planta_Promopuntos,
+  SAFE_CAST(Iniciada_Promopuntos AS TIMESTAMP) AS Iniciada_Promopuntos,
+  SAFE_CAST(Finalizada_Promopuntos AS TIMESTAMP) AS Finalizada_Promopuntos,
+  SAFE_CAST(Duracion_Promopuntos AS STRING) AS Duracion_Promopuntos,
+  SAFE_CAST(Estado_Promopuntos AS STRING) AS Estado_Promopuntos,
+  SAFE_CAST(Numero_Promopuntos AS STRING) AS Numero_Promopuntos,
+  SAFE_CAST(Titular_Promopuntos AS STRING) AS Titular_Promopuntos,
+  ROUND(SAFE_CAST(Total_in_Promopuntos AS NUMERIC), 2) AS Total_in_Promopuntos,
+  ROUND(SAFE_CAST(Jugado_Promopuntos AS NUMERIC), 2) AS Jugado_Promopuntos,
+  ROUND(SAFE_CAST(Ganado_Promopuntos AS NUMERIC), 2) AS Ganado_Promopuntos,
+  ROUND(SAFE_CAST(Total_out_Promopuntos AS NUMERIC), 2) AS Total_out_Promopuntos,
+  ROUND(SAFE_CAST(Netwin_Promopuntos AS NUMERIC), 2) AS Netwin_Promopuntos,
+  ROUND(SAFE_CAST(Calculados_Promopuntos AS NUMERIC), 2) AS Calculados_Promopuntos,
+  ROUND(SAFE_CAST(Asignados_Promopuntos AS NUMERIC), 2) AS Asignados_Promopuntos,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_PROMOPUNTOS_AUDITORIA_JUBILEE_RAW")}

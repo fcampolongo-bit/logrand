@@ -1,0 +1,20 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_CONSUMOS_ACR_HISTORICO_STG",
+  bigquery: {
+    clusterBy: ["Centro"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Centro AS STRING) AS Centro,
+  SAFE_CAST(Material AS INT64) AS Material,
+  SAFE_CAST(Texto_breve_de_material AS STRING) AS Texto_breve_de_material,
+  ROUND(SAFE_CAST(Ctd_en_UM_entrada AS NUMERIC), 2) AS Ctd_en_UM_entrada,
+  ROUND(SAFE_CAST(Importe_ML AS NUMERIC), 2) AS Importe_ML,
+  SAFE_CAST(Fecha_de_entrada AS DATE) AS Fecha_de_entrada,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_CONSUMOS_ACR_HISTORICO_RAW")}

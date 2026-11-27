@@ -43,7 +43,14 @@ WHERE ranking = 1
 
 )
 
-select a.Num_Cliente, Titular ,b.sala as Sala_Max,cast('0.0'as numeric) as Puntos_a_la_fecha ,Nivel as Nivel_Wigos 
+select a.Num_Cliente, Titular ,
+coalesce(b.sala,a.sala_alta) as Sala_Max,
+coalesce(cbu_value,0) as Puntos_a_la_fecha ,
+Nivel as Nivel_Wigos  
  from ${ref("TBL_ACCOUNTS_CLIENTE_UNICO_GLD")}  A
-join max_puntos b
+left join max_puntos b
 on a.Num_Cliente=b.Num_Cliente
+left join   ${ref("VW_CUSTOMER_BUCKET_GLD")}  c 
+on a.Num_Cliente=c.cbu_customer_id
+and a.sala_alta=c.sala
+and  c.cbu_bucket_id in (1)

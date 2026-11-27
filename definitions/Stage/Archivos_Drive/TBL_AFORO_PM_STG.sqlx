@@ -1,0 +1,38 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_AFORO_PM_STG",
+  bigquery: {
+    clusterBy: ["Entidad", "Ano"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"],
+ assertions: {
+    uniqueKey: ["Grupo", "Entidad", "LDN", "Region", "Categoria", "Ano", "Mes"]
+  }
+}
+
+SELECT
+  SAFE_CAST(Grupo AS STRING) AS Grupo,
+  SAFE_CAST(Entidad AS STRING) AS Entidad,
+  SAFE_CAST(LDN AS STRING) AS LDN,
+  SAFE_CAST(Region AS STRING) AS Region,
+  SAFE_CAST(Categoria AS STRING) AS Categoria,
+  SAFE_CAST(Ano AS INT64) AS Ano,
+  SAFE_CAST(Mes AS INT64) AS Mes,
+  ROUND(SAFE_CAST(Ocupacion_Entidad AS NUMERIC), 2) AS Ocupacion_Entidad,
+  SAFE_CAST(Ocupacion_Total AS INT64) AS Ocupacion_Total,
+  ROUND(SAFE_CAST(PM_Mensual AS NUMERIC), 4) AS PM_Mensual,
+  ROUND(SAFE_CAST(PM_Ultimos_3M AS NUMERIC), 4) AS PM_Ultimos_3M,
+  ROUND(SAFE_CAST(PM_Ultimos_6M AS NUMERIC), 4) AS PM_Ultimos_6M,
+  ROUND(SAFE_CAST(PM_Ultimos_12M AS NUMERIC), 4) AS PM_Ultimos_12M,
+  ROUND(SAFE_CAST(Var_Mes_vs_Ano_Ant AS NUMERIC), 4) AS Var_Mes_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Var_3M_vs_Ano_Ant AS NUMERIC), 4) AS Var_3M_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Var_6M_vs_Ano_Ant AS NUMERIC), 4) AS Var_6M_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Var_12M_vs_Ano_Ant AS NUMERIC), 2) AS Var_12M_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Crec_3M_vs_Ano_Ant AS NUMERIC), 2) AS Crec_3M_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Crec_6M_vs_Ano_Ant AS NUMERIC), 2) AS Crec_6M_vs_Ano_Ant,
+  ROUND(SAFE_CAST(Crec_12M_vs_Ano_Ant AS NUMERIC), 2) AS Crec_12M_vs_Ano_Ant,
+  SAFE_CAST(Ciudad AS STRING) AS Ciudad,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_AFORO_PM_RAW")}

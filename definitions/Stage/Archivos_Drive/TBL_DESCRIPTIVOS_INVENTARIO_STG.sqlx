@@ -1,0 +1,44 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_DESCRIPTIVOS_INVENTARIO_STG",
+  bigquery: {
+    clusterBy: ["Year", "Sala"]
+  },
+  tags: ["carga_full_semanal_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Year AS INT64) AS Year,
+  SAFE_CAST(Week AS INT64) AS Week,
+  SAFE_CAST(Sala AS STRING) AS Sala,
+  SAFE_CAST(NE AS INT64) AS NE,
+  SAFE_CAST(Game_Type AS STRING) AS Game_Type,
+  SAFE_CAST(Zone AS STRING) AS Zone,
+  SAFE_CAST(Type_Island AS STRING) AS Type_Island,
+  SAFE_CAST(Type_Location AS STRING) AS Type_Location,
+  SAFE_CAST(Provider AS STRING) AS Provider,
+  SAFE_CAST(Cabinet AS STRING) AS Cabinet,
+  SAFE_CAST(Game AS STRING) AS Game,
+  SAFE_CAST(Bonos___Features AS STRING) AS Bonos_Features,
+  SAFE_CAST(Volatilidad AS STRING) AS Volatilidad,
+  ROUND(SAFE_CAST(TOP_AWARD AS NUMERIC), 2) AS TOP_AWARD,
+  SAFE_CAST(Linked AS STRING) AS Linked,
+  SAFE_CAST(Type_Progressive AS STRING) AS Type_Progressive,
+  ROUND(SAFE_CAST(RTP_Total AS NUMERIC), 3) AS RTP_Total,
+  ROUND(SAFE_CAST(RTP_Game_Base AS NUMERIC), 3) AS RTP_Game_Base,
+  ROUND(SAFE_CAST(RTP_Game_Base_Single AS NUMERIC), 3) AS RTP_Game_Base_Single,
+  ROUND(SAFE_CAST(RTP_Game_Base_Min AS NUMERIC), 3) AS RTP_Game_Base_Min,
+  ROUND(SAFE_CAST(RTP_Game_Base_Max AS NUMERIC), 3) AS RTP_Game_Base_Max,
+  ROUND(SAFE_CAST(_Total_Contribution AS NUMERIC), 2) AS Total_Contribution,
+  ROUND(SAFE_CAST(Contribution_1 AS NUMERIC), 2) AS Contribution_1,
+  ROUND(SAFE_CAST(Contribution_2 AS NUMERIC), 2) AS Contribution_2,
+  ROUND(SAFE_CAST(Contribution_3 AS NUMERIC), 2) AS Contribution_3,
+  ROUND(SAFE_CAST(Contribution_4 AS NUMERIC), 2) AS Contribution_4,
+  ROUND(SAFE_CAST(Den AS NUMERIC), 2) AS Den,
+  ROUND(SAFE_CAST(Min_Bet AS NUMERIC), 2) AS Min_Bet,
+  ROUND(SAFE_CAST(Max_Bet AS NUMERIC), 2) AS Max_Bet,
+  ROUND(SAFE_CAST(Max_Multiplier AS NUMERIC), 2) AS Max_Multiplier,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_DESCRIPTIVOS_INVENTARIO_RAW")}

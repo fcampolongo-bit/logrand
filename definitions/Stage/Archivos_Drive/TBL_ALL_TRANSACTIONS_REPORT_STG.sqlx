@@ -1,0 +1,36 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_ALL_TRANSACTIONS_REPORT_STG",
+  bigquery: {
+    clusterBy: ["Transaction_Type", "User_Name"]
+  },
+  tags: ["carga_full_diaria_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Transaction_ID AS INT64) AS Transaction_ID,
+  SAFE_CAST(Provider_Transaction_ID AS STRING) AS Provider_Transaction_ID,
+  SAFE_CAST(Original_Transaction_ID AS INT64) AS Original_Transaction_ID,
+  SAFE_CAST(User_Name AS STRING) AS User_Name,
+  SAFE_CAST(First_Name AS STRING) AS First_Name,
+  SAFE_CAST(Last_Name AS STRING) AS Last_Name,
+  SAFE_CAST(Test_User AS BOOL) AS Test_User,
+  SAFE_CAST(Country AS STRING) AS Country,
+  SAFE_CAST(Currency AS STRING) AS Currency,
+  SAFE_CAST(Payment_Gateway AS STRING) AS Payment_Gateway,
+  SAFE_CAST(Payment_Method AS STRING) AS Payment_Method,
+  SAFE_CAST(Transaction_Type AS STRING) AS Transaction_Type,
+  SAFE_CAST(Status AS STRING) AS Status,
+  SAFE.PARSE_DATETIME('%d/%m/%Y %H:%M:%S', Date) AS Fecha,
+  SAFE.PARSE_DATETIME('%d/%m/%Y %H:%M:%S', Modified_On) AS Modified_On,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Original_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Original_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Original_Fee_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Original_Fee_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Fee_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Fee_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Original_Game_Fee_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Original_Game_Fee_Amount,
+  ROUND(SAFE_CAST(REGEXP_REPLACE(Game_Fee_Amount, r'[^0-9.\-]', '') AS NUMERIC), 4) AS Game_Fee_Amount,
+  SAFE_CAST(Comment AS STRING) AS Comment,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_ALL_TRANSACTIONS_REPORT_RAW")}

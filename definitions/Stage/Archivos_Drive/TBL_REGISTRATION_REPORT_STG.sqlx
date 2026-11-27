@@ -1,0 +1,43 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_REGISTRATION_REPORT_STG",
+  bigquery: {
+    clusterBy: ["Player_ID"]
+  },
+  tags: ["carga_full_diaria_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Player_ID AS INT64) AS Player_ID,
+  SAFE_CAST(Username AS STRING) AS Username,
+  SAFE_CAST(First_Name AS STRING) AS First_Name,
+  SAFE_CAST(LastName AS STRING) AS LastName,
+  SAFE_CAST(Email AS STRING) AS Email,
+  DATE(SAFE.PARSE_DATETIME('%d/%m/%Y %H:%M:%S', Date_Of_Birth)) AS Date_Of_Birth,
+  SAFE.PARSE_DATETIME('%d/%m/%Y %H:%M:%S', Registration_Date) AS Registration_Date,
+  SAFE_CAST(Marketing_Code AS STRING) AS Marketing_Code,
+  SAFE_CAST(Gender AS STRING) AS Gender,
+  SAFE_CAST(City AS STRING) AS City,
+  SAFE_CAST(Country AS STRING) AS Country,
+  IF(Phone IS NULL, NULL, FORMAT('%.0f', Phone)) AS Phone,
+  IF(MobilePhone IS NULL, NULL, FORMAT('%.0f', MobilePhone)) AS MobilePhone,
+  SAFE_CAST(IP_Address AS STRING) AS IP_Address,
+  SAFE_CAST(Login_Count AS INT64) AS Login_Count,
+  SAFE_CAST(BTag AS STRING) AS BTag,
+  SAFE_CAST(Civil_Identification_Code AS STRING) AS Civil_Identification_Code,
+  SAFE.PARSE_DATE('%d/%m/%Y', KYC_Issue_On) AS KYC_Issue_On,
+  SAFE_CAST(Is_Cancelled AS BOOL) AS Is_Cancelled,
+  SAFE_CAST(Device_Type AS STRING) AS Device_Type,
+  SAFE_CAST(Referral_Source AS STRING) AS Referral_Source,
+  SAFE_CAST(State AS STRING) AS State,
+  SAFE_CAST(Zip_Code AS STRING) AS Zip_Code,
+  SAFE_CAST(UtmSource AS STRING) AS UtmSource,
+  SAFE_CAST(UtmMedium AS STRING) AS UtmMedium,
+  SAFE_CAST(UtmCampaign AS STRING) AS UtmCampaign,
+  SAFE_CAST(UtmTerm AS STRING) AS UtmTerm,
+  SAFE_CAST(UtmContent AS STRING) AS UtmContent,
+  SAFE_CAST(Par AS STRING) AS Par,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_REGISTRATION_REPORT_RAW")}

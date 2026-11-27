@@ -1,0 +1,17 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_DATASET_ARCHIVOS",
+  name: "TBL_PLANTILLA_SORTEOS_JULIO_2026_PARAMETROS_STG",
+  bigquery: {
+    clusterBy: ["Parametro"]
+  },
+  tags: ["carga_full_mensual_stg_archivos"]
+}
+
+SELECT
+  SAFE_CAST(Parametro AS STRING) AS Parametro,
+  SAFE_CAST(Valor AS STRING) AS Valor,
+  SAFE_CAST(Nota AS STRING) AS Nota,
+  CURRENT_TIMESTAMP() AS INGESTION_TS
+FROM ${ref(databases.raw, "DATASET_ARCHIVOS", "TBL_PLANTILLA_SORTEOS_JULIO_2026_PARAMETROS_RAW")}

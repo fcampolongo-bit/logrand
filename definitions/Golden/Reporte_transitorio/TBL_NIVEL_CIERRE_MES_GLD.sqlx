@@ -1,0 +1,38 @@
+config {
+  type: "incremental",
+  schema: "GLD_REPORTE_TRANSITORIO",
+  name: "TBL_NIVEL_CIERRE_MES_BI",
+  uniqueKey: ["Year", "Month", "Num_Cliente"],
+  description: "Tabla con el cierre mensual de nivel de los clientes. Carga el mes actual y actualiza el mes anterior con el nivel más reciente.",
+  tags: ["carga_incremental_diaria_bi"]
+}
+
+WITH current_levels AS (
+  SELECT
+    Num_Cliente AS cuenta,
+    Nivel AS nivel
+  FROM
+    ${ref("TBL_ACCOUNTS_CLIENTE_UNICO_GLD")}
+  WHERE
+    Nivel != 'Classic'
+)
+-- Registros para el mes que se está procesando (ej. Enero si se ejecuta el 1 de Febrero)
+SELECT
+  EXTRACT(YEAR FROM DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)) AS Year,
+  EXTRACT(MONTH FROM DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)) AS Month,
+  cuenta as Num_Cliente,
+  nivel as Nivel_TO
+
+FROM
+  current_levels
+
+UNION ALL
+
+-- Registros para el mes anterior (ej. Diciembre si se ejecuta el 1 de Febrero)
+SELECT
+  EXTRACT(YEAR FROM DATE_SUB(DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), MONTH), INTERVAL 1 DAY)) AS Year,
+  EXTRACT(MONTH FROM DATE_SUB(DATE_TRUNC(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), MONTH), INTERVAL 1 DAY)) AS Month,
+  cuenta as Num_Cliente,
+  nivel as Nivel_TO
+FROM
+  current_levels

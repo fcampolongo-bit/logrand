@@ -1,0 +1,18 @@
+config {
+  type: "table",
+  database: databases.stage,
+  schema: "STG_INTERFACES",
+  name: "TBL_VENTA_X_CENTRO_CONSUMO_STG",
+  tags: ["carga_full_diaria_stg_interfaces"]
+}
+
+SELECT
+  D_SALA ,
+  D_CENTRO_CONSUMO ,
+  F_FECHA ,
+  M_VENTAS_NETAS ,
+  CONTEO ,
+  CURRENT_TIMESTAMP() AS ingestion_ts
+FROM
+  ${ref(databases.raw, "RAW_INTERFACES", "TBL_VENTA_X_CENTRO_CONSUMO_RAW")}
+

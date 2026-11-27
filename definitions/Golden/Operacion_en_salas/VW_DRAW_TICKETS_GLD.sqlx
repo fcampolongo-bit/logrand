@@ -1,0 +1,16 @@
+config {
+  type: "view",
+  database: databases.golden,
+  schema: "GLD_OPERACION_EN_SALAS",
+  name: "VW_DRAW_TICKETS_GLD",
+  tags: ["carga_incremental_diaria_golden_lote2"]
+}
+
+${salas.lista_salas.map(s => `
+  SELECT
+    *,
+    '${s.nombre}' AS sala,
+    ${s.id} AS id_sala
+  FROM
+    ` + ref(s.esquema, "TBL_DRAW_TICKETS_STG") + `
+`).join("\n UNION ALL \n")}
